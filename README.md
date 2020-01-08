@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # real-time-deep-face-recogniton
 
 Real-time face recognition program using Google's facenet.
@@ -22,3 +23,6 @@ Real-time face recognition program using Google's facenet.
 </br> (Note that, look carefully at the paths of files and folders in all .py)
 ## Result
 <img src="https://github.com/bearsprogrammer/real-time-deep-face-recogniton/blob/master/realtime_demo_pic.jpg" width="60%">
+=======
+# face-recognition
+>>>>>>> 069f6b7760c1f217c5fba246e6facefe6e89d07b
