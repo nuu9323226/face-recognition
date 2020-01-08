@@ -1,0 +1,1 @@
+sudo ln -sf /dev/ttyACM0 /dev/ttyS3
