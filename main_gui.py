@@ -8,6 +8,17 @@ from PIL import Image, ImageTk
 dpartment=[100,120,121,150,220,223,310,325,330,350,750,756,760,570,160,510,530]
 
 
+def add_callbackFunc():
+    pdset=secondpage()
+    pdset1=mainpage()
+    print('numberString',pdset.numberString.get())
+    print('nameString',pdset.nameString.get())
+    #pdset.add_resultString.set("{} {}新增成功".format(pdset.numberString.get(),pdset.nameString.get()))
+
+    
+    
+def reduce_callbackFunc():
+    reduce_resultString.set("{} {}成功刪除".format(numberString.get(),nameString.get()))
 
 
 def read_train_object():
@@ -156,15 +167,50 @@ class secondpage(object):
         self.Button = tk.Button(self.page, text=u'主頁',font=('Arial', 12),justify = tk.LEFT,command=self.mainpage) 
         self.Button.grid(column=0,row=0, sticky=tk.W) 
         
-        
+        #空白行
         spaceLabel= tk.Label(self.page,textvariable="             " )
         spaceLabel.grid(column=0, row=1, sticky=tk.W)
         
+        #題字
         varspace=tk.StringVar()
         varspace.set("部門人員建制名單")
         spaceLabel= tk.Label(self.page,textvariable=varspace, font=('Arial', 12),justify = tk.LEFT )
         spaceLabel.grid(column=0, row=2, sticky=tk.W)
         
+        #增減人員
+        
+        self.varnumber=tk.StringVar()
+        self.varnumber.set("工號")
+        self.numberLabel= tk.Label(self.page,textvariable=self.varnumber, font=('Arial', 12),justify = tk.RIGHT )
+        self.numberLabel.grid(column=1, row=0)        
+        
+        self.varname=tk.StringVar()
+        self.varname.set("姓名")
+        self.nameLabel= tk.Label(self.page,textvariable=self.varname, font=('Arial', 12),justify = tk.RIGHT )
+        self.nameLabel.grid(column=1, row=1)        
+        
+        self.numberString = tk.StringVar()
+        self.nameString = tk.StringVar()
+        self.entrynumber = tk.Entry(self.page, width=20, textvariable=self.numberString)
+        self.entryname = tk.Entry(self.page, width=20, textvariable=self.nameString)
+        
+        self.entrynumber.grid(column=2, row=0, padx=10)
+        self.entryname.grid(column=2, row=1, padx=10)        
+
+        self.addButton = tk.Button(self.page, text = '新增',command=self.add_callbackFunc )
+        self.addButton.grid(column=3, row=0, pady=10, sticky=tk.W)
+        
+        self.reduceButton = tk.Button(self.page, text = '刪除',command=self.reduce_callbackFunc)
+        self.reduceButton.grid(column=3, row=1, pady=10, sticky=tk.W)        
+        
+        self.add_resultString=tk.StringVar()
+        self.add_resultLabel = tk.Label(self.page, textvariable=self.add_resultString,fg="#DC143C" )
+        self.add_resultLabel.grid(column=0, row=1, padx=10, sticky=tk.W)        
+        
+        self.reduce_resultString=tk.StringVar()
+        self.reduce_resultLabel = tk.Label(self.page, textvariable=self.reduce_resultString,fg="#DC143C" )
+        self.reduce_resultLabel.grid(column=0, row=1, padx=10, sticky=tk.W)   
+
         
         line1=3
         gpart=[]
@@ -256,7 +302,17 @@ class secondpage(object):
         self.page.destroy()
         mainpage(self.root)
         
-        
+
+    def add_callbackFunc(self):
+        print('numberString',self.numberString.get())
+        print('nameString',self.nameString.get())
+        self.add_resultString.set("{} {}新增成功".format(self.numberString.get(),self.nameString.get()))    
+
+    def reduce_callbackFunc(self):
+        print('numberString',self.numberString.get())
+        print('nameString',self.nameString.get())
+        #self.add_resultLabel.delete(0, 'end')
+        self.reduce_resultString.set("{} {}刪除成功".format(self.numberString.get(),self.nameString.get()))    
         
         
 class th3page(object):
