@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # face-recogniton
 
 ## Inspiration
