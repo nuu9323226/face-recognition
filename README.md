@@ -18,7 +18,7 @@
 * Finally
 </br> (Note that, look carefully at the paths of files and folders in all .py)
 ## Result
-<img src="https://github.com/nuu9323226/face-recognition/blob/master/image/image/mainpage.png" width="60%">
+<img src="https://github.com/nuu9323226/face-recognition/blob/master/image/mainpage.png" width="60%">
 =======
 # face-recognition
 
