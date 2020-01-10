@@ -8,18 +8,6 @@ from PIL import Image, ImageTk
 dpartment=[100,120,121,150,220,223,310,325,330,350,750,756,760,570,160,510,530]
 
 
-def add_callbackFunc():
-    pdset=secondpage()
-    pdset1=mainpage()
-    print('numberString',pdset.numberString.get())
-    print('nameString',pdset.nameString.get())
-    #pdset.add_resultString.set("{} {}新增成功".format(pdset.numberString.get(),pdset.nameString.get()))
-
-    
-    
-def reduce_callbackFunc():
-    reduce_resultString.set("{} {}成功刪除".format(numberString.get(),nameString.get()))
-
 
 def read_train_object():
     train_name = open('/home/vincent/facenet/models/name.txt','r') 
@@ -74,12 +62,43 @@ class mainpage(object):
         self.page.grid()
         self.Button = tk.Button(self.page, text=u'DP100總經理室', font=('Arial', 12),justify = tk.LEFT,command=self.secpage) 
         self.Button.grid(column=0,row=0, sticky=tk.W) 
-        self.Button = tk.Button(self.page, text=u'DP760軟體', font=('Arial', 12),justify = tk.LEFT,command=self.th3page) 
+        self.Button = tk.Button(self.page, text=u'DP215人資總務', font=('Arial', 12),justify = tk.LEFT,command=self.th3page) 
         self.Button.grid(column=1,row=0,sticky=tk.W) 
+        self.Button = tk.Button(self.page, text=u'DP760軟體', font=('Arial', 12),justify = tk.LEFT,command=self.th3page) 
+        self.Button.grid(column=2,row=0, sticky=tk.W)   
+        self.Button = tk.Button(self.page, text=u'DP750研一', font=('Arial', 12),justify = tk.LEFT,command=self.secpage) 
+        self.Button.grid(column=3,row=0, sticky=tk.W) 
+        self.Button = tk.Button(self.page, text=u'DP756研二', font=('Arial', 12),justify = tk.LEFT,command=self.th3page) 
+        self.Button.grid(column=4,row=0,sticky=tk.W)          
+        self.Button = tk.Button(self.page, text=u'DP220財務', font=('Arial', 12),justify = tk.LEFT,command=self.secpage) 
+        self.Button.grid(column=5,row=0, sticky=tk.W) 
+        self.Button = tk.Button(self.page, text=u'DP230資訊', font=('Arial', 12),justify = tk.LEFT,command=self.th3page) 
+        self.Button.grid(column=0,row=1,sticky=tk.W) 
+        self.Button = tk.Button(self.page, text=u'DP310業務', font=('Arial', 12),justify = tk.LEFT,command=self.secpage) 
+        self.Button.grid(column=1,row=1, sticky=tk.W) 
+        self.Button = tk.Button(self.page, text=u'DP325 IPC', font=('Arial', 12),justify = tk.LEFT,command=self.th3page) 
+        self.Button.grid(column=2,row=1,sticky=tk.W) 
+        self.Button = tk.Button(self.page, text=u'DP350產品中心', font=('Arial', 12),justify = tk.LEFT,command=self.secpage) 
+        self.Button.grid(column=3,row=1, sticky=tk.W) 
+        self.Button = tk.Button(self.page, text=u'DP120品保', font=('Arial', 12),justify = tk.LEFT,command=self.th3page) 
+        self.Button.grid(column=4,row=1,sticky=tk.W)
+        self.Button = tk.Button(self.page, text=u'DP160 RMA', font=('Arial', 12),justify = tk.LEFT,command=self.secpage) 
+        self.Button.grid(column=5,row=1, sticky=tk.W) 
+        self.Button = tk.Button(self.page, text=u'DP570技轉', font=('Arial', 12),justify = tk.LEFT,command=self.th3page) 
+        self.Button.grid(column=0,row=2,sticky=tk.W) 
+        self.Button = tk.Button(self.page, text=u'DP510採購', font=('Arial', 12),justify = tk.LEFT,command=self.secpage) 
+        self.Button.grid(column=1,row=2, sticky=tk.W) 
+        self.Button = tk.Button(self.page, text=u'DP530船務', font=('Arial', 12),justify = tk.LEFT,command=self.th3page) 
+        self.Button.grid(column=2,row=2,sticky=tk.W) 
+       
+        
+        #空白行
+        spaceLabel= tk.Label(self.page,textvariable="             " )
+        spaceLabel.grid(column=0, row=3, sticky=tk.W)            
         
         
         spaceLabel= tk.Label(self.page,textvariable="             " )
-        spaceLabel.grid(column=0, row=1, sticky=tk.W)
+        spaceLabel.grid(column=0, row=4, sticky=tk.W)
 
         #從資料夾抓取以建檔名稱
         filename=[]
@@ -90,7 +109,7 @@ class mainpage(object):
             filename.append(finalname[-1])
         print ('finalname',filename)
         print('len(filename',len(filename))
-        line1=2
+        line1=5
 
         for dpart in dpartment:
 
@@ -170,49 +189,73 @@ class secondpage(object):
         #空白行
         spaceLabel= tk.Label(self.page,textvariable="             " )
         spaceLabel.grid(column=0, row=1, sticky=tk.W)
+        #空白行
+        spaceLabel= tk.Label(self.page,textvariable="             " )
+        spaceLabel.grid(column=0, row=2, sticky=tk.W)        
         
         #題字
         varspace=tk.StringVar()
         varspace.set("部門人員建制名單")
         spaceLabel= tk.Label(self.page,textvariable=varspace, font=('Arial', 12),justify = tk.LEFT )
-        spaceLabel.grid(column=0, row=2, sticky=tk.W)
+        spaceLabel.grid(column=0, row=3, sticky=tk.W)
         
         #增減人員
         
         self.varnumber=tk.StringVar()
         self.varnumber.set("工號")
         self.numberLabel= tk.Label(self.page,textvariable=self.varnumber, font=('Arial', 12),justify = tk.RIGHT )
-        self.numberLabel.grid(column=1, row=0)        
+        self.numberLabel.grid(column=1, row=0, sticky=tk.E)        
         
         self.varname=tk.StringVar()
         self.varname.set("姓名")
         self.nameLabel= tk.Label(self.page,textvariable=self.varname, font=('Arial', 12),justify = tk.RIGHT )
-        self.nameLabel.grid(column=1, row=1)        
+        self.nameLabel.grid(column=1, row=1, sticky=tk.E)   
         
+        self.varpd=tk.StringVar()
+        self.varpd.set("部門異動")
+        self.nameLabel= tk.Label(self.page,textvariable=self.varpd, font=('Arial', 12),justify = tk.RIGHT )
+        self.nameLabel.grid(column=1, row=2, sticky=tk.E)           
+        
+        #填字匡
         self.numberString = tk.StringVar()
-        self.nameString = tk.StringVar()
         self.entrynumber = tk.Entry(self.page, width=20, textvariable=self.numberString)
-        self.entryname = tk.Entry(self.page, width=20, textvariable=self.nameString)
+        self.entrynumber.grid(column=2, row=0, padx=1)
         
-        self.entrynumber.grid(column=2, row=0, padx=10)
-        self.entryname.grid(column=2, row=1, padx=10)        
-
+        self.nameString = tk.StringVar()
+        self.entryname = tk.Entry(self.page, width=20, textvariable=self.nameString)
+        self.entryname.grid(column=2, row=1, padx=1)
+        
+        self.pdString = tk.StringVar()
+        self.entrypd = tk.Entry(self.page, width=20, textvariable=self.pdString)
+        self.entrypd.grid(column=2, row=2, padx=1)        
+        
+                
+        #按鈕
         self.addButton = tk.Button(self.page, text = '新增',command=self.add_callbackFunc )
-        self.addButton.grid(column=3, row=0, pady=10, sticky=tk.W)
+        self.addButton.grid(column=3, row=0, pady=1, sticky=tk.W)
         
         self.reduceButton = tk.Button(self.page, text = '刪除',command=self.reduce_callbackFunc)
-        self.reduceButton.grid(column=3, row=1, pady=10, sticky=tk.W)        
+        self.reduceButton.grid(column=3, row=1, pady=1, sticky=tk.W)        
         
+        self.reduceButton = tk.Button(self.page, text = '編輯',command=self.eddit_callbackFunc)
+        self.reduceButton.grid(column=3, row=2, pady=1, sticky=tk.W)         
+        
+        
+        #回應的字顯示
         self.add_resultString=tk.StringVar()
         self.add_resultLabel = tk.Label(self.page, textvariable=self.add_resultString,fg="#DC143C" )
-        self.add_resultLabel.grid(column=0, row=1, padx=10, sticky=tk.W)        
+        self.add_resultLabel.grid(column=0, row=1, padx=1, sticky=tk.W)        
         
         self.reduce_resultString=tk.StringVar()
         self.reduce_resultLabel = tk.Label(self.page, textvariable=self.reduce_resultString,fg="#DC143C" )
-        self.reduce_resultLabel.grid(column=0, row=1, padx=10, sticky=tk.W)   
+        self.reduce_resultLabel.grid(column=0, row=1, padx=1, sticky=tk.W)   
+        
+        self.eddit_resultString=tk.StringVar()
+        self.eddit_resultLabel = tk.Label(self.page, textvariable=self.eddit_resultString,fg="#DC143C" )
+        self.eddit_resultLabel.grid(column=0, row=1, padx=1, sticky=tk.W)         
 
         
-        line1=3
+        line1=4
         gpart=[]
         for c,v in pdID.items():
             if str(v)==str(100):
@@ -303,17 +346,49 @@ class secondpage(object):
         mainpage(self.root)
         
 
+  
     def add_callbackFunc(self):
         print('numberString',self.numberString.get())
         print('nameString',self.nameString.get())
+        
+        #======learning=====
+        #self.add_resultLabel.grid_forget() 用forget可以暫時隱藏,不用這個forget是因為在恢復顯示後位置會跑掉
+        #self.reduce_resultLabel.grid_remove() 用remove可以暫時隱藏,且恢復時位置不會跑掉
+        #self.reduce_resultLabel.grid()  恢復顯示物件 
+        #https://www.delftstack.com/zh-tw/howto/python-tkinter/how-to-hide-recover-and-delete-tkinter-widgets/
+        #======learning=====
+        
+        #控制要顯示及隱藏的物件
+        self.reduce_resultLabel.grid_remove()
+        self.eddit_resultLabel.grid_remove()
+        self.add_resultLabel.grid()
+        
         self.add_resultString.set("{} {}新增成功".format(self.numberString.get(),self.nameString.get()))    
-
+       
+        
     def reduce_callbackFunc(self):
         print('numberString',self.numberString.get())
         print('nameString',self.nameString.get())
-        #self.add_resultLabel.delete(0, 'end')
-        self.reduce_resultString.set("{} {}刪除成功".format(self.numberString.get(),self.nameString.get()))    
+   
+        #控制要顯示及隱藏的物件
+        self.add_resultLabel.grid_remove()
+        self.eddit_resultLabel.grid_remove()        
+        self.reduce_resultLabel.grid()
         
+        self.reduce_resultString.set("{} {}刪除成功".format(self.numberString.get(),self.nameString.get()))    
+       
+        
+    def eddit_callbackFunc(self):
+        print('numberString',self.numberString.get())
+        print('nameString',self.nameString.get())
+        print('pdString',self.pdString.get())
+        #控制要顯示及隱藏的物件
+        self.add_resultLabel.grid_remove()
+        self.reduce_resultLabel.grid_remove()   
+        self.eddit_resultLabel.grid()  
+        
+        self.eddit_resultString.set("{} {} DP{}編輯成功".format(self.numberString.get(),self.nameString.get(),self.pdString.get()))        
+       
         
 class th3page(object):
     def __init__(self, master=None):
