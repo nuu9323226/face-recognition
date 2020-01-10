@@ -18,7 +18,12 @@
 * Finally
 </br> (Note that, look carefully at the paths of files and folders in all .py)
 ## Result
+
+* mainpage主畫面
 <img src="https://github.com/nuu9323226/face-recognition/blob/master/image/mainpage.png" width="60%">
-=======
+* secendpage次畫面
+<img src="https://github.com/nuu9323226/face-recognition/blob/master/image/secendpage.png" width="60%">
+* personpage個人查詢畫面
+<img src="https://github.com/nuu9323226/face-recognition/blob/master/image/personpage.png" width="60%">
 # face-recognition
 
