@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # face-recogniton
 
 ## Inspiration
@@ -18,7 +17,10 @@
 * Finally
 </br> (Note that, look carefully at the paths of files and folders in all .py)
 ## Result
-<img src="https://github.com/bearsprogrammer/real-time-deep-face-recogniton/blob/master/realtime_demo_pic.jpg" width="60%">
-=======
-# face-recognition
->>>>>>> 069f6b7760c1f217c5fba246e6facefe6e89d07b
+
+* mainpage主畫面
+<img src="https://github.com/nuu9323226/face-recognition/blob/master/image/mainpage.png" width="60%">
+* secendpage次畫面
+<img src="https://github.com/nuu9323226/face-recognition/blob/master/image/secendpage.png" width="60%">
+* personpage個人查詢畫面
+<img src="https://github.com/nuu9323226/face-recognition/blob/master/image/personpage.png" width="60%">
