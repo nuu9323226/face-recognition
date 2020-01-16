@@ -9,6 +9,9 @@ from functools import partial
 from  tkinter import ttk  #导入内部包
 dpartment=[100,120,121,150,210,220,230,310,325,350,750,756,754,570,160,510,530]
 
+def deleteDuplicatedElementFromList3(listA):
+#return list(set(listA))
+    return sorted(set(listA), key = listA.index)
 
 def reflashmonth():
 
@@ -298,7 +301,7 @@ class secondpage(object):
         
         for personq in gpart:
             
-            if len(gpart)>=6:
+            if len(gpart)>=6:#沒有加=會有6個人不顯示的bug
             
                 print('personq',personq)
                 print('persenID',persenID[personq])
@@ -475,9 +478,12 @@ class personpage(object):
         spaceLabel= tk.Label(self.page,textvariable=varspace, font=('Arial', 12),justify = tk.LEFT )
         spaceLabel.grid(column=0, row=2, sticky=tk.W)
         
+        
+        
+        
+        
         #製作一年日期的查詢表
         newtyear,newmonth,newday=month_and_day()
-        newmonth=8
         #print(newtyear)
         #print(newmonth)
         values1=[]
@@ -503,14 +509,8 @@ class personpage(object):
         
         
         
-        b = np.loadtxt('202001.csv',dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5))
-        print(b)        
-        
-        c=b[:,[1]]
-        print(c)
-        
-        
-        comboExample = ttk.Combobox(self.page, width=13 ,values=values1, font=('Arial', 12),state="readonly") 
+        #選擇月份bar
+        comboExample = ttk.Combobox(self.page, width=8 ,values=values1, font=('Arial', 12),state="readonly") 
         
         
         print(dict(comboExample)) 
@@ -518,31 +518,158 @@ class personpage(object):
         comboExample.current(0)
         print(comboExample.current(), comboExample.get())
     
-    
+        #選擇月份事件按鈕
         self.addButton = tk.Button(self.page, text = '查詢',command=read_train_object )
         self.addButton.grid(column=0, row=3, pady=1, sticky=tk.E)        
     
-    
+        #空白
         spaceLabel= tk.Label(self.page,textvariable="             " )
-        spaceLabel.grid(column=0, row=4, sticky=tk.W)        
+        spaceLabel.grid(column=0, row=4, sticky=tk.W)          
+        
+        
+        
+        #讀取csv並且取012345 colums
+        onlyuse = np.loadtxt('202001.csv',dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5))
+        print(onlyuse)        
+        
+        #搜尋是"vincent"的索引值
+        userid=np.argwhere(onlyuse==persenID[self.personq])     
+        #print('userid',userid)
+
+        #透過索引值取出符合"vincent"要的rows
+        onlyuse_id=onlyuse[userid[:,0],: ]
+        #print('onlyuse_id',onlyuse_id)
+   
+        #=====learning=====保留搜尋到的列(row)到新的array
+        #從array取得等於'Vincent'的索引
+        #b[['open' '030704' 'Vincent' '760' '2020-01-02']
+         #['open' '030704' 'Vincent' '760' '2020-01-02']
+         #['open' '030704' '陳緯仁' '760' '2020-01-02']  
+        #g=np.argwhere(b=='Vincent') 
+        #g [[ 0  2]
+          #[ 1  2]  
+        
+        #g[:,0]表示取出搜尋到colum索引 (0,1)
+        #h=b[g[:,0],: ]表示將索引值colum的取出對應的rows ==>  b[[x,x,x,x,x],: ]取rows    b[:,[x,x,x,x,x] ] 取colums
+        #h[['open' '030704' 'Vincent' '760' '2020-01-02']
+         #['open' '030704' 'Vincent' '760' '2020-01-02']
+        #=====learning=====        
+        
+        
+        
+        #=====learning=====刪除搜尋到的列(row)
+        #從array取得等於'Vincent'的索引
+        #b[['open' '030704' 'Vincent' '760' '2020-01-02']
+         #['open' '030704' 'Vincent' '760' '2020-01-02']
+         #['open' '030704' '陳緯仁' '760' '2020-01-02']  
+        #g=np.argwhere(b=='Vincent') 
+        #g [[ 0  2]
+          #[ 1  2]  
+        #接著將取出g的第一欄(colum) (g[:,[0]])並且打它變成一維陣列(.reshape(1, -1)[0)  ex.  g[:,[0]].reshape(1, -1)[0]
+        #同理使用g[:,[0]].flatten()也可以把二維轉成一維
+        #h=np.delete(b,g[:,[0]].reshape(1, -1)[0], axis = 0 ) #axis = 0刪除row axis =         1刪除colum
+        #or h=np.delete(b,g[:,[0]].flatten(), axis = 0 )
+        #or h=np.delete(b,g[:,0], axis = 0 )
+        #h [['open' '030704' '陳緯仁' '760' '2020-01-02']]
+        #=====learning=====
+        
+        #針對日期做排序 
+        #這個寫法參考https://stackoverflow.com/questions/2828059/sorting-arrays-in-numpy-by-column/30623882
+        ind = np.argsort( onlyuse_id[:,4] )
+        #print('ind',ind)
+        onlyuse_id = onlyuse_id[ind]
+        #print('onlyuse_id',onlyuse_id)
+        
+        #=====learning=====排序
+        #numpy.sort(a, axis, kind, order) 按照組數order排序
+        #https://www.runoob.com/numpy/numpy-sort-search.html
+        #dtype = [('state', str), ('id', int), ('name', str), ('dp', int), ('date', int), ('time', int)   ]
+        #new_onlyuse_id = np.array(onlyuse_id, dtype=dtype) 
+        #new_onlyuse_id=np.sort(new_onlyuse_id, order = date)        
+        
+        
+        #======針對日期下的時間做排序======
+        #取出日期
+        date=onlyuse_id[:,4]
+        #print(date)
+        #刪除重複的日期
+        uniquedate = np.unique(date) #刪除重複的元素https://www.twblogs.net/a/5c1f8d88bd9eee16b3daa874/
+        #print('uniquedate',uniquedate)
+        for d in uniquedate:
+            #找出符合日期的rows,取得index  ex.2020-01-01
+            dindex_onlyuse=np.argwhere(onlyuse_id==d)
+            #取得在原來array的index
+            id1=dindex_onlyuse[:,0]
+            #利用index取出那兩rows
+            onlyuse_id_a=onlyuse_id[dindex_onlyuse[:,0]]
+            #print('onlyuse_id_a',onlyuse_id_a)
+            
+            #針對該兩rows排序 取出index
+            index1=np.argsort(onlyuse_id_a[:,5] )
+            #print('index1',index1)
+            #實際排序
+            #onlyuse_id_a=onlyuse_id_a[index1]
+            #print('change',onlyuse_id_a)
+            
+            #如果index第一個值為1，則時間順序需要交換，則需要在實際的陣列交喚
+            if index1[0]>=1:
+                #互換，僅限於兩個rows互換
+                onlyuse_id[[id1[-1],id1[0]], :] = onlyuse_id[[id1[-0], id1[1]], :]
+
+        #print('after',onlyuse_id)
+        
+        
+        
+      
     
         #win=tk.Tk()
-        tree=ttk.Treeview(self.page)#表格
-        tree["columns"]=("日期","上班時間","下班時間")
+        tree=ttk.Treeview(self.page,height =20 ,show='headings')#表格show='headings'隱藏第一欄
+        tree["columns"]=("姓名","日期","上班時間","下班時間")
+        tree.column("姓名",width=100)   #表示列,不显示
         tree.column("日期",width=100)   #表示列,不显示
         tree.column("上班時間",width=100)
         tree.column("下班時間",width=100)
-        
+        tree.heading("姓名",text="姓名")  #显示表头
         tree.heading("日期",text="日期")  #显示表头
         tree.heading("上班時間",text="上班時間")
         tree.heading("下班時間",text="下班時間")
         #tree.insert("", insert_mode, text='name first col')
-        tree.insert("",0,text=self.personq ,values=("2020/1/1","09:00","18:00")) #插入数据，
-        tree.insert("",1,text=self.personq ,values=("2020/1/2","09:01","18:02"))
-        tree.insert("",2,text=self.personq ,values=("2020/1/3","09:03","18:05"))
-        tree.insert("",3,text=self.personq ,values=("2020/1/4","09:05","18:10"))
         
-        tree.grid(columnspan=3, row=5, sticky=tk.W)       
+        
+        line123=0
+        for d in uniquedate:
+            #找出符合日期的rows,取得index  ex.2020-01-01
+            dindex_onlyuse=np.argwhere(onlyuse_id==d)
+            #取得在原來array的index
+            id1=dindex_onlyuse[:,0]
+            #利用index取出那兩rows
+            onlyuse_id_a=onlyuse_id[dindex_onlyuse[:,0]]
+            #print            ('onlyuse_id_a',onlyuse_id_a)
+            
+            #print('onlyuse_id_a',onlyuse_id_a)
+            #print('vvvv', onlyuse_id_a[:,5]  )
+            
+            name123=onlyuse_id_a[0:1,2]
+            datetime=onlyuse_id_a[0:1,4]
+            ontime=onlyuse_id_a[0:1,5]
+            offtime=onlyuse_id_a[:,5]
+            
+            
+            
+            if len(id1)==1:
+                tree.insert("",line123,text=name123[0] ,values=(name123[0],datetime[0],ontime[0],"  "))
+        
+            else :
+                tree.insert("",line123,text=name123[0] ,values=(name123[0],datetime[0],ontime[0],offtime[1]  ) )
+                
+            line123=line123+1
+    
+        #vertical scrollbar------------    https://www.cnblogs.com/Tommy-Yu/p/4156014.html
+        vbar = ttk.Scrollbar(self.page,orient=tk.VERTICAL,command=tree.yview)
+        vbar.grid(column=10,row=5,sticky=tk.NS) 
+        tree.configure(yscrollcommand=vbar.set)
+        
+        tree.grid(columnspan=9,row=5,sticky=tk.W)    
 
         root.mainloop()   
         
