@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*- 
 import datetime
 import tkinter as tk
+import tkinter.messagebox
 import glob
 import numpy as np
 #from PIL import Image, ImageTk
@@ -12,11 +13,6 @@ dpartment=[100,120,121,150,210,220,230,310,325,350,750,756,754,570,160,510,530]
 def deleteDuplicatedElementFromList3(listA):
 #return list(set(listA))
     return sorted(set(listA), key = listA.index)
-
-def reflashmonth():
-
-    b = np.loadtxt('202001.csv',dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5))
-    print(b) 
 
 
 def month_and_day():
@@ -469,23 +465,12 @@ class personpage(object):
         self.Button = tk.Button(self.page, text=u'返回',font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,pdID[personq])) 
         self.Button.grid(column=1,row=0)         
         
-        
-        spaceLabel= tk.Label(self.page,textvariable="             " )
-        spaceLabel.grid(column=0, row=1, sticky=tk.W)
-        
-        varspace=tk.StringVar()
-        varspace.set("個人頁面查詢： "+self.personq+ ' ' +persenID[personq] )
-        spaceLabel= tk.Label(self.page,textvariable=varspace, font=('Arial', 12),justify = tk.LEFT )
-        spaceLabel.grid(column=0, row=2, sticky=tk.W)
-        
-        
-        
-        
-        
         #製作一年日期的查詢表
         newtyear,newmonth,newday=month_and_day()
-        #print(newtyear)
-        #print(newmonth)
+        print(newtyear)
+        print(newmonth)
+        self.stryear=newtyear
+        self.strmonth=newmonth
         values1=[]
         #如果是12月倒數到1
         if newmonth==12 :
@@ -499,7 +484,22 @@ class personpage(object):
                     newtyear=int(newtyear)-1
                     newmonth=12
                 values1.append(str(newtyear)+'/'+str(newmonth) )
-                newmonth=int(newmonth)-1
+                newmonth=int(newmonth)-1        
+        self.onemonth_list=values1
+        
+        spaceLabel= tk.Label(self.page,textvariable="             " )
+        spaceLabel.grid(column=0, row=1, sticky=tk.W)
+        
+        varspace=tk.StringVar()
+        varspace.set("個人頁面查詢： "+self.personq+ ' ' +persenID[personq] )
+        spaceLabel= tk.Label(self.page,textvariable=varspace, font=('Arial', 12),justify = tk.LEFT )
+        spaceLabel.grid(column=0, row=2, sticky=tk.W)
+        
+        
+        
+        
+        
+
                 
         print('values1',values1)
         varspace=tk.StringVar()
@@ -510,17 +510,22 @@ class personpage(object):
         
         
         #選擇月份bar
-        comboExample = ttk.Combobox(self.page, width=8 ,values=values1, font=('Arial', 12),state="readonly") 
+        self.comboExample = ttk.Combobox(self.page, width=7 ,values=values1, font=('Arial', 12),state="readonly") 
         
         
-        print(dict(comboExample)) 
-        comboExample.grid(column=0, row=3,sticky=tk.N+tk.S)
-        comboExample.current(0)
-        print(comboExample.current(), comboExample.get())
+        print(dict(self.comboExample)) 
+        self.comboExample.grid(column=0, row=3,sticky=tk.N+tk.S)
+        self.comboExample.current(0)
+        print(self.comboExample.current(), self.comboExample.get())
     
         #選擇月份事件按鈕
-        self.addButton = tk.Button(self.page, text = '查詢',command=read_train_object )
+        self.addButton = tk.Button(self.page, text = '查詢',command=partial(self.month_callbackFunc,personq) )
         self.addButton.grid(column=0, row=3, pady=1, sticky=tk.E)        
+        
+        #選擇月份事件按鈕
+        self.addButton = tk.Button(self.page, text = '重新整理年度資料庫',command=partial(self.allmonth_flesh,self.onemonth_list) )
+        self.addButton.grid(column=1, row=3, pady=1, sticky=tk.E)   
+        
     
         #空白
         spaceLabel= tk.Label(self.page,textvariable="             " )
@@ -529,7 +534,7 @@ class personpage(object):
         
         
         #讀取csv並且取012345 colums
-        onlyuse = np.loadtxt('202001.csv',dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5))
+        onlyuse = np.loadtxt(self.stryear+self.strmonth+'.csv',dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5))
         print(onlyuse)        
         
         #搜尋是"vincent"的索引值
@@ -682,8 +687,142 @@ class personpage(object):
         secondpage(self.root,dp)
 
 
+    def no_file_worning(self):
+        tk.messagebox.showwarning( title='錯誤', message='沒有此月份資料')
 
+      
+    def allmonth_flesh(self,allmonth_list):
+        print('all year month',allmonth_list)
+        
+        
+        
+      
+      
+        
+    def month_callbackFunc(self,personq):
+        print('get month',self.comboExample.get())
+        
+        
+        callbackmonth=self.comboExample.get().split('/')
+        backmonth=int(callbackmonth[1])
+        
+        # x.month=10
+        if backmonth<10 and backmonth>=1:
+            backmonth='0'+str(backmonth)
+            #print (month)
+        else :
+            backmonth=str(backmonth)
+          
+        print('backmonth',backmonth)
+        
+        #讀取csv並且取012345 colums
+        try:
+            onlyuse = np.loadtxt(callbackmonth[0]+backmonth+'.csv',dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5))
+            print(onlyuse)
+            
+            #搜尋是"vincent"的索引值
+            userid=np.argwhere(onlyuse==persenID[self.personq])     
+            #print('userid',userid)
     
+            #透過索引值取出符合"vincent"要的rows
+            onlyuse_id=onlyuse[userid[:,0],: ]
+            #print('onlyuse_id',onlyuse_id)
+       
+            #針對日期做排序 
+            #這個寫法參考https://stackoverflow.com/questions/2828059/sorting-arrays-in-numpy-by-column/30623882
+            ind = np.argsort( onlyuse_id[:,4] )
+            #print('ind',ind)
+            onlyuse_id = onlyuse_id[ind]
+            #print('onlyuse_id',onlyuse_id)
+    
+            #======針對日期下的時間做排序======
+            #取出日期
+            date=onlyuse_id[:,4]
+            #print(date)
+            #刪除重複的日期
+            uniquedate = np.unique(date) #刪除重複的元素https://www.twblogs.net/a/5c1f8d88bd9eee16b3daa874/
+            #print('uniquedate',uniquedate)
+            for d in uniquedate:
+                #找出符合日期的rows,取得index  ex.2020-01-01
+                dindex_onlyuse=np.argwhere(onlyuse_id==d)
+                #取得在原來array的index
+                id1=dindex_onlyuse[:,0]
+                #利用index取出那兩rows
+                onlyuse_id_a=onlyuse_id[dindex_onlyuse[:,0]]
+                #print('onlyuse_id_a',onlyuse_id_a)
+                
+                #針對該兩rows排序 取出index
+                index1=np.argsort(onlyuse_id_a[:,5] )
+                #print('index1',index1)
+                #實際排序
+                #onlyuse_id_a=onlyuse_id_a[index1]
+                #print('change',onlyuse_id_a)
+                
+                #如果index第一個值為1，則時間順序需要交換，則需要在實際的陣列交喚
+                if index1[0]>=1:
+                    #互換，僅限於兩個rows互換
+                    onlyuse_id[[id1[-1],id1[0]], :] = onlyuse_id[[id1[-0], id1[1]], :]
+    
+            #print('after',onlyuse_id)
+            
+            tree=ttk.Treeview(self.page,height =20 ,show='headings')#表格show='headings'隱藏第一欄
+            tree["columns"]=("姓名","日期","上班時間","下班時間")
+            tree.column("姓名",width=100)   #表示列,不显示
+            tree.column("日期",width=100)   #表示列,不显示
+            tree.column("上班時間",width=100)
+            tree.column("下班時間",width=100)
+            tree.heading("姓名",text="姓名")  #显示表头
+            tree.heading("日期",text="日期")  #显示表头
+            tree.heading("上班時間",text="上班時間")
+            tree.heading("下班時間",text="下班時間")
+            #tree.insert("", insert_mode, text='name first col')
+            
+            
+            line123=0
+            for d in uniquedate:
+                #找出符合日期的rows,取得index  ex.2020-01-01
+                dindex_onlyuse=np.argwhere(onlyuse_id==d)
+                #取得在原來array的index
+                id1=dindex_onlyuse[:,0]
+                #利用index取出那兩rows
+                onlyuse_id_a=onlyuse_id[dindex_onlyuse[:,0]]
+                #print            ('onlyuse_id_a',onlyuse_id_a)
+                
+                #print('onlyuse_id_a',onlyuse_id_a)
+                #print('vvvv', onlyuse_id_a[:,5]  )
+                
+                name123=onlyuse_id_a[0:1,2]
+                datetime=onlyuse_id_a[0:1,4]
+                ontime=onlyuse_id_a[0:1,5]
+                offtime=onlyuse_id_a[:,5]
+                
+                
+                        
+                if len(id1)==1:
+                    tree.insert("",line123,text=name123[0] ,values=(name123[0],datetime[0],ontime[0],"  "))
+            
+                else :
+                    tree.insert("",line123,text=name123[0] ,values=(name123[0],datetime[0],ontime[0],offtime[1]  ) )
+                    
+                line123=line123+1
+        
+            #vertical scrollbar------------    https://www.cnblogs.com/Tommy-Yu/p/4156014.html
+            vbar = ttk.Scrollbar(self.page,orient=tk.VERTICAL,command=tree.yview)
+            vbar.grid(column=10,row=5,sticky=tk.NS) 
+            tree.configure(yscrollcommand=vbar.set)
+            
+            tree.grid(columnspan=9,row=5,sticky=tk.W)    
+    
+            root.mainloop()   
+            
+            
+            
+        except:
+            self.no_file_worning()
+        
+        
+
+
 
 
 number123,persenID,pdID,fullID =person_pd_ID()    
