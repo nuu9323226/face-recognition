@@ -466,26 +466,38 @@ class personpage(object):
         self.Button.grid(column=1,row=0)         
         
         #製作一年日期的查詢表
-        newtyear,newmonth,newday=month_and_day()
-        print(newtyear)
-        print(newmonth)
-        self.stryear=newtyear
-        self.strmonth=newmonth
+        sourceyear,sourcemonth,sourceday=month_and_day()
+        #newtyear,newmonth,newday=month_and_day()
+        
+        print(sourceyear)
+        print(sourcemonth)
+        self.stryear=sourceyear
+        self.strmonth=sourcemonth
+        
+        newtyear=int(sourceyear)
+        newmonth=int(sourcemonth)
+        
         values1=[]
+        valuesmonth=[]
+        valuesyear=[]
         #如果是12月倒數到1
         if newmonth==12 :
             for nt in range(-13,-1):
                 #abs取對值
                 tmonth=str(newtyear)+"/"+str(abs(nt+1))
                 values1.append(tmonth )
+                valuesmonth.append(str(newtyear))
+                valuesmonth.append(str(abs(nt+1)) )
         else :#如果是非12月倒數到1，年減1
             for ny in range(0,12):
                 if int(newmonth)==0 :
                     newtyear=int(newtyear)-1
                     newmonth=12
                 values1.append(str(newtyear)+'/'+str(newmonth) )
+                valuesyear.append(str(newtyear) )
+                valuesmonth.append(str(newmonth) )                
                 newmonth=int(newmonth)-1        
-        self.onemonth_list=values1
+        
         
         spaceLabel= tk.Label(self.page,textvariable="             " )
         spaceLabel.grid(column=0, row=1, sticky=tk.W)
@@ -519,11 +531,11 @@ class personpage(object):
         print(self.comboExample.current(), self.comboExample.get())
     
         #選擇月份事件按鈕
-        self.addButton = tk.Button(self.page, text = '查詢',command=partial(self.month_callbackFunc,personq) )
+        self.addButton = tk.Button(self.page, text = '查詢',command=partial(self.month_callbackFunc,personq), font=('Arial', 12) )
         self.addButton.grid(column=0, row=3, pady=1, sticky=tk.E)        
         
         #選擇月份事件按鈕
-        self.addButton = tk.Button(self.page, text = '重新整理年度資料庫',command=partial(self.allmonth_flesh,self.onemonth_list) )
+        self.addButton = tk.Button(self.page, text = '重新整理資料庫',command=partial(self.allmonth_flesh,valuesmonth,valuesyear,values1), font=('Arial', 12) )
         self.addButton.grid(column=1, row=3, pady=1, sticky=tk.E)   
         
     
@@ -638,8 +650,10 @@ class personpage(object):
         tree.heading("日期",text="日期")  #显示表头
         tree.heading("上班時間",text="上班時間")
         tree.heading("下班時間",text="下班時間")
-        #tree.insert("", insert_mode, text='name first col')
         
+        style = ttk.Style()
+        style.configure("Treeview", font=('Arial',12))
+        style.configure("Treeview.Heading", font=(None, 12))        
         
         line123=0
         for d in uniquedate:
@@ -662,10 +676,10 @@ class personpage(object):
             
             
             if len(id1)==1:
-                tree.insert("",line123,text=name123[0] ,values=(name123[0],datetime[0],ontime[0],"  "))
+                tree.insert("",line123,text=name123[0] ,values=(name123[0],datetime[0],ontime[0],"  ") )
         
             else :
-                tree.insert("",line123,text=name123[0] ,values=(name123[0],datetime[0],ontime[0],offtime[1]  ) )
+                tree.insert("",line123,text=name123[0] ,values=(name123[0],datetime[0],ontime[0],offtime[1]  ))
                 
             line123=line123+1
     
@@ -673,9 +687,9 @@ class personpage(object):
         vbar = ttk.Scrollbar(self.page,orient=tk.VERTICAL,command=tree.yview)
         vbar.grid(column=10,row=5,sticky=tk.NS) 
         tree.configure(yscrollcommand=vbar.set)
-        
+        #tree.tag_configure ("monospace", font =(None，12) )
         tree.grid(columnspan=9,row=5,sticky=tk.W)    
-
+        
         root.mainloop()   
         
     def mainpage(self):
@@ -691,9 +705,70 @@ class personpage(object):
         tk.messagebox.showwarning( title='錯誤', message='沒有此月份資料')
 
       
-    def allmonth_flesh(self,allmonth_list):
-        print('all year month',allmonth_list)
-        
+    def allmonth_flesh(self,valuesmonth,valuesyear,values1):
+ 
+        #將輸入的日期格式轉換ex. 2020/1 ==> 202001
+        pdtrue=[]
+        for avv in values1:
+            pday=avv.split('/')
+            # x.month=10
+            if int(pday[1])<10 and int(pday[1])>=1:
+                pday[1]='0'+str(pday[1])
+                #print (month)
+            else :
+                pday[1]=str(pday[1])            
+            pdtrue.append(pday[0]+pday[1])
+        print('pdtrue',pdtrue)
+    
+        #將轉換的月份ex.202001 搜尋對應日期的檔案
+        for pmonth in pdtrue :
+            month_file=glob.glob(r'../models/month/'+pmonth+'*-Full')
+            print('month_file',month_file)
+            
+            #搜尋到202001＊＊-Full等檔案，進一步找尋含有open的欄位
+            for  dday in month_file:
+                
+                day_used = np.loadtxt(dday,dtype=np.str,delimiter='  ',usecols=(0))
+                day_used=day_used.flatten()
+
+                
+                #將日期切割成單純的日期時間2019-12-11 18:07:33
+                lined=0
+                for findtime in  day_used :
+                    
+                    timemark=findtime.split('@')
+                    #print('in',np.argwhere(findtime))
+                    day_used[lined]=timemark[-1]
+                    lined=lined+1
+                    
+                    
+                #找出有open及open前一列的日期時間 
+                index_open=[]
+                line_open=0                
+                for findopen in day_used:
+                    if "Open" in findopen :
+                        index_open.append(line_open-1)
+                        index_open.append(line_open)
+                    line_open=line_open+1
+                    
+                #利用index再次找出只有open及時間的陣列到day_used
+                day_used=day_used[index_open ]
+                
+                
+                
+                #print ('index_open',index_open)
+                print ("AFTER" ,day_used)
+                
+                
+                #svaetxt
+                #c = geek.savetxt('geekfile.txt', x, delimiter =', ')  
+            
+        #daynamefile=[]
+        #for ass in month_file :
+            #daynamefile=ass.split('/')
+            #print('daynamefile',str(daynamefile))
+        ##for tryyear in valuesyear:
+            
         
         
       
@@ -776,7 +851,9 @@ class personpage(object):
             tree.heading("上班時間",text="上班時間")
             tree.heading("下班時間",text="下班時間")
             #tree.insert("", insert_mode, text='name first col')
-            
+            style = ttk.Style()
+            style.configure("Treeview", font=('Arial',12))
+            style.configure("Treeview.Heading", font=(None, 12)) 
             
             line123=0
             for d in uniquedate:
