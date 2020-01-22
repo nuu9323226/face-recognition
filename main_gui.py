@@ -728,6 +728,7 @@ class personpage(object):
             #搜尋到202001＊＊-Full等檔案，進一步找尋含有open的欄位
             for  dday in month_file:
                 
+                print('dday',dday)
                 day_used = np.loadtxt(dday,dtype=np.str,delimiter='  ',usecols=(0))
                 day_used=day_used.flatten()
 
@@ -755,13 +756,24 @@ class personpage(object):
                 day_used=day_used[index_open ]
                 
                 
-                
+                #np.append(day_used,[['eeeeeeeeeeeeeeeee','111']],0)
                 #print ('index_open',index_open)
                 print ("AFTER" ,day_used)
                 
+                #np.insert(day_used,1,[dday],0)
+                
+                #https://www.twblogs.net/a/5be2440f2b717720b51d2722
+                
+                with open(pmonth+'-new.csv','a') as f: 
+                    #for i in range(5): 
+                        #newresult = np.random.rand(2, 3) 
+                   
+                    np.savetxt(f, day_used,fmt='%s', delimiter=",")   
+                #如何不覆蓋savetxt寫法
+                #http://cn.voidcc.com/question/p-dfrpzwva-tp.html
                 
                 #svaetxt
-                #c = geek.savetxt('geekfile.txt', x, delimiter =', ')  
+                c = np.savetxt(pmonth+'-new.csv',day_used,fmt='%s', delimiter =',' , newline='\n' )
             
         #daynamefile=[]
         #for ass in month_file :
