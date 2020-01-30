@@ -725,6 +725,10 @@ class personpage(object):
             month_file=glob.glob(r'../models/month/'+pmonth+'*-Full')
             print('month_file',month_file)
             
+            month_file.sort()
+            
+            
+            
             #搜尋到202001＊＊-Full等檔案，進一步找尋含有open的欄位
             for  dday in month_file:
                 
@@ -758,23 +762,56 @@ class personpage(object):
                 
                 #np.append(day_used,[['eeeeeeeeeeeeeeeee','111']],0)
                 #print ('index_open',index_open)
+
+                a1=np.array(dday)
+                np.insert(day_used,0,values=a1,axis=0)
                 print ("AFTER" ,day_used)
-                
-                #np.insert(day_used,1,[dday],0)
-                
                 #https://www.twblogs.net/a/5be2440f2b717720b51d2722
                 
-                with open(pmonth+'-new.csv','a') as f: 
+                index_hash=[]
+                line_hash=0                 
+                hash1=pmonth[:4]+'-'+pmonth[4:] #將202001變成2020-01
+                #搜尋在202001＊裡面有2020-01＊開頭的時間將該行跟下一行抓取出來，以避免used id重複
+                for day_check in day_used:
+                    if hash1 in day_check :
+                        index_hash.append(line_hash)
+                        index_hash.append(line_hash+1)
+                    line_hash=line_hash+1
+                day_used=day_used[index_hash ]
+                
+                #轉換為open,030704,Vincent,754,2019-07-02,09:21:07格式
+                finalid=[]
+                index_ting=[]
+                line_ting=0                 
+                for day_check1 in day_used:
+                    if hash1 in day_check1 :
+                        #print('ddddddddd',day_used[line_ting+1])
+                        #print('line_ting',line_ting)
+                        groupid=day_used[line_ting+1].split(',')
+                        realid=groupid[1].split(':')
+                        #print('realid',realid[1])
+                        dayandtime=day_check1.split(' ')
+                        try :
+                            newid='open,'+realid[1]+','+persenID[realid[1]] +','+ pdID[realid[1]] +','+dayandtime[0]+','+dayandtime[1]
+                            #print('newid',newid)
+                            finalid.append(newid)
+                        except:
+                            print('error:'+realid[1]+'已經消失了')
+                    line_ting=line_ting+1
+                    
+                #print('finalid',finalid)
+                    
+                #存檔
+                with open(pmonth+'.csv','a') as f: 
                     #for i in range(5): 
                         #newresult = np.random.rand(2, 3) 
                    
-                    np.savetxt(f, day_used,fmt='%s', delimiter=",")   
+                    np.savetxt(f, finalid,fmt='%s', delimiter=",")   
                 #如何不覆蓋savetxt寫法
                 #http://cn.voidcc.com/question/p-dfrpzwva-tp.html
                 
-                #svaetxt
-                c = np.savetxt(pmonth+'-new.csv',day_used,fmt='%s', delimiter =',' , newline='\n' )
             
+   
         #daynamefile=[]
         #for ass in month_file :
             #daynamefile=ass.split('/')
