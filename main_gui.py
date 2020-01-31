@@ -605,18 +605,22 @@ class personpage(object):
         #new_onlyuse_id=np.sort(new_onlyuse_id, order = date)        
         
         
-        #======針對日期下的時間做排序======
+    #======針對日期下的時間做排序======
         #取出日期
         date=onlyuse_id[:,4]
         #print(date)
         #刪除重複的日期
         uniquedate = np.unique(date) #刪除重複的元素https://www.twblogs.net/a/5c1f8d88bd9eee16b3daa874/
-        #print('uniquedate',uniquedate)
+        print('uniquedate',uniquedate)
+        
+        #找尋除了第一筆跟最後一筆的其餘資料等要刪除的資料，並將index放入到detnum裡面
+        detnum=[]
         for d in uniquedate:
             #找出符合日期的rows,取得index  ex.2020-01-01
             dindex_onlyuse=np.argwhere(onlyuse_id==d)
             #取得在原來array的index
             id1=dindex_onlyuse[:,0]
+            #print('id1',id1)
             #利用index取出那兩rows
             onlyuse_id_a=onlyuse_id[dindex_onlyuse[:,0]]
             #print('onlyuse_id_a',onlyuse_id_a)
@@ -624,36 +628,68 @@ class personpage(object):
             #針對該兩rows排序 取出index
             index1=np.argsort(onlyuse_id_a[:,5] )
             #print('index1',index1)
+            dingy=len(index1)-1
+            
+            if len(index1)>2:
+                #print('index len pass>2',len(index1))
+                
+                for num in range(len(index1) ) :
+                    #print(num)
+                    if  (num != 0  and num != dingy) :
+                        #print("num must detete")
+                        #print('id1[index1[num]]',id1[index1[num]])
+                        #從num順序找到id的實際index，並把它加到detnum最後在一次刪除
+                        detnum.append(id1[index1[num]])
+                    
+                    #elif num==0:
+                        #print("num is 0")                        
+                    
+                    #elif num == dingy  :
+                        #print("num is last")
+       
+        #刪除除了第一筆跟最後一筆的其餘資料            
+        print('除了當日第一筆跟最後一筆保留，其餘要刪除的項目detnum',detnum)
+        onlyuse_id = np.delete(onlyuse_id, detnum, axis = 0)        
+        
+        #針對第一筆及最後一筆偵測如果時間相反則調換順序
+        for d in uniquedate:
+            #找出符合日期的rows,取得index  ex.2020-01-01
+            dindex_onlyuse1=np.argwhere(onlyuse_id==d)
+            #取得在原來array的index
+            id1_1=dindex_onlyuse1[:,0]
+            #print('id1_1',id1_1)
+            #利用index取出那兩rows
+            onlyuse_id_a_1=onlyuse_id[dindex_onlyuse1[:,0]]
+            #print('onlyuse_id_a_1',onlyuse_id_a_1)
+            
+            index1_1=np.argsort(onlyuse_id_a_1[:,5] )
+            #print('index1_1',index1_1)                
+            
             #實際排序
             #onlyuse_id_a=onlyuse_id_a[index1]
             #print('change',onlyuse_id_a)
             
             #如果index第一個值為1，則時間順序需要交換，則需要在實際的陣列交喚
-            if index1[0]>=1:
+            if index1_1[0]>=1:
                 #互換，僅限於兩個rows互換
-                onlyuse_id[[id1[-1],id1[0]], :] = onlyuse_id[[id1[-0], id1[1]], :]
+                onlyuse_id[[id1_1[-1],id1_1[0]], :] = onlyuse_id[[id1_1[0], id1_1[1]], :]
 
-        #print('after',onlyuse_id)
+        #print('最後調整的項目（含刪除）after',onlyuse_id)
         
-        
-        
-      
-    
-        #win=tk.Tk()
         tree=ttk.Treeview(self.page,height =20 ,show='headings')#表格show='headings'隱藏第一欄
-        tree["columns"]=("姓名","日期","上班時間","下班時間")
+        tree["columns"]=("姓名","日期","第一筆時間","最後筆時間")
         tree.column("姓名",width=100)   #表示列,不显示
         tree.column("日期",width=100)   #表示列,不显示
-        tree.column("上班時間",width=100)
-        tree.column("下班時間",width=100)
+        tree.column("第一筆時間",width=100)
+        tree.column("最後筆時間",width=100)
         tree.heading("姓名",text="姓名")  #显示表头
         tree.heading("日期",text="日期")  #显示表头
-        tree.heading("上班時間",text="上班時間")
-        tree.heading("下班時間",text="下班時間")
-        
+        tree.heading("第一筆時間",text="第一筆時間")
+        tree.heading("最後筆時間",text="最後筆時間")
+        #tree.insert("", insert_mode, text='name first col')
         style = ttk.Style()
         style.configure("Treeview", font=('Arial',12))
-        style.configure("Treeview.Heading", font=(None, 12))        
+        style.configure("Treeview.Heading", font=(None, 12))     
         
         line123=0
         for d in uniquedate:
@@ -702,7 +738,7 @@ class personpage(object):
 
 
     def no_file_worning(self):
-        tk.messagebox.showwarning( title='錯誤', message='沒有此月份資料')
+        tk.messagebox.showwarning( title='錯誤', message='沒有此月份資料，請按重新整理資料庫')
 
       
     def allmonth_flesh(self,valuesmonth,valuesyear,values1):
@@ -796,7 +832,7 @@ class personpage(object):
                             #print('newid',newid)
                             finalid.append(newid)
                         except:
-                            print('error:'+realid[1]+'已經消失了')
+                            print('worning:'+realid[1]+'已經消失了')
                     line_ting=line_ting+1
                     
                 #print('finalid',finalid)
@@ -840,6 +876,7 @@ class personpage(object):
         print('backmonth',backmonth)
         
         #讀取csv並且取012345 colums
+        
         try:
             onlyuse = np.loadtxt(callbackmonth[0]+backmonth+'.csv',dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5))
             print(onlyuse)
@@ -865,12 +902,16 @@ class personpage(object):
             #print(date)
             #刪除重複的日期
             uniquedate = np.unique(date) #刪除重複的元素https://www.twblogs.net/a/5c1f8d88bd9eee16b3daa874/
-            #print('uniquedate',uniquedate)
+            print('uniquedate',uniquedate)
+            
+            #找尋除了第一筆跟最後一筆的其餘資料等要刪除的資料，並將index放入到detnum裡面
+            detnum=[]
             for d in uniquedate:
                 #找出符合日期的rows,取得index  ex.2020-01-01
                 dindex_onlyuse=np.argwhere(onlyuse_id==d)
                 #取得在原來array的index
                 id1=dindex_onlyuse[:,0]
+                #print('id1',id1)
                 #利用index取出那兩rows
                 onlyuse_id_a=onlyuse_id[dindex_onlyuse[:,0]]
                 #print('onlyuse_id_a',onlyuse_id_a)
@@ -878,27 +919,64 @@ class personpage(object):
                 #針對該兩rows排序 取出index
                 index1=np.argsort(onlyuse_id_a[:,5] )
                 #print('index1',index1)
+                dingy=len(index1)-1
+                
+                if len(index1)>2:
+                    #print('index len pass>2',len(index1))
+                    
+                    for num in range(len(index1) ) :
+                        #print(num)
+                        if  (num != 0  and num != dingy) :
+                            #print("num must detete")
+                            #print('id1[index1[num]]',id1[index1[num]])
+                            #從num順序找到id的實際index，並把它加到detnum最後在一次刪除
+                            detnum.append(id1[index1[num]])
+                        
+                        #elif num==0:
+                            #print("num is 0")                        
+                        
+                        #elif num == dingy  :
+                            #print("num is last")
+           
+            #刪除除了第一筆跟最後一筆的其餘資料            
+            print('除了當日第一筆跟最後一筆保留，其餘要刪除的項目detnum',detnum)
+            onlyuse_id = np.delete(onlyuse_id, detnum, axis = 0)        
+            
+            #針對第一筆及最後一筆偵測如果時間相反則調換順序
+            for d in uniquedate:
+                #找出符合日期的rows,取得index  ex.2020-01-01
+                dindex_onlyuse1=np.argwhere(onlyuse_id==d)
+                #取得在原來array的index
+                id1_1=dindex_onlyuse1[:,0]
+                #print('id1_1',id1_1)
+                #利用index取出那兩rows
+                onlyuse_id_a_1=onlyuse_id[dindex_onlyuse1[:,0]]
+                #print('onlyuse_id_a_1',onlyuse_id_a_1)
+                
+                index1_1=np.argsort(onlyuse_id_a_1[:,5] )
+                #print('index1_1',index1_1)                
+                
                 #實際排序
                 #onlyuse_id_a=onlyuse_id_a[index1]
                 #print('change',onlyuse_id_a)
                 
                 #如果index第一個值為1，則時間順序需要交換，則需要在實際的陣列交喚
-                if index1[0]>=1:
+                if index1_1[0]>=1:
                     #互換，僅限於兩個rows互換
-                    onlyuse_id[[id1[-1],id1[0]], :] = onlyuse_id[[id1[-0], id1[1]], :]
+                    onlyuse_id[[id1_1[-1],id1_1[0]], :] = onlyuse_id[[id1_1[0], id1_1[1]], :]
     
-            #print('after',onlyuse_id)
+            #print('最後調整的項目（含刪除）after',onlyuse_id)
             
             tree=ttk.Treeview(self.page,height =20 ,show='headings')#表格show='headings'隱藏第一欄
-            tree["columns"]=("姓名","日期","上班時間","下班時間")
+            tree["columns"]=("姓名","日期","第一筆時間","最後筆時間")
             tree.column("姓名",width=100)   #表示列,不显示
             tree.column("日期",width=100)   #表示列,不显示
-            tree.column("上班時間",width=100)
-            tree.column("下班時間",width=100)
+            tree.column("第一筆時間",width=100)
+            tree.column("最後筆時間",width=100)
             tree.heading("姓名",text="姓名")  #显示表头
             tree.heading("日期",text="日期")  #显示表头
-            tree.heading("上班時間",text="上班時間")
-            tree.heading("下班時間",text="下班時間")
+            tree.heading("第一筆時間",text="第一筆時間")
+            tree.heading("最後筆時間",text="最後筆時間")
             #tree.insert("", insert_mode, text='name first col')
             style = ttk.Style()
             style.configure("Treeview", font=('Arial',12))
