@@ -7,7 +7,9 @@ import numpy as np
 #from PIL import Image, ImageTk
 from functools import partial
 #import tkinter
-from  tkinter import ttk  #导入内部包
+from  tkinter import ttk
+#20190203 v1.0版 篩選資料，呈現12個月的資料至表格中
+
 dpartment=[100,120,121,150,210,220,230,310,325,350,750,756,754,570,160,510,530]
 
 def deleteDuplicatedElementFromList3(listA):
@@ -546,7 +548,7 @@ class personpage(object):
         
         
         #讀取csv並且取012345 colums
-        onlyuse = np.loadtxt(self.stryear+self.strmonth+'.csv',dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5))
+        onlyuse = np.loadtxt('data/'+self.stryear+self.strmonth+'.csv',dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5))
         print(onlyuse)        
         
         #搜尋是"vincent"的索引值
@@ -861,7 +863,7 @@ class personpage(object):
         
     def month_callbackFunc(self,personq):
         print('get month',self.comboExample.get())
-        
+                         
         
         callbackmonth=self.comboExample.get().split('/')
         backmonth=int(callbackmonth[1])
@@ -878,7 +880,7 @@ class personpage(object):
         #讀取csv並且取012345 colums
         
         try:
-            onlyuse = np.loadtxt(callbackmonth[0]+backmonth+'.csv',dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5))
+            onlyuse = np.loadtxt('data/'+callbackmonth[0]+backmonth+'.csv',dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5))
             print(onlyuse)
             
             #搜尋是"vincent"的索引值

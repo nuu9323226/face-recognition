@@ -4,6 +4,7 @@ from __future__ import print_function
 from apscheduler.schedulers.background import BackgroundScheduler
 #sudo pip3 install apscheduler
 from os import getcwd
+import glob
 import tensorflow as tf
 from scipy import misc
 import cv2
@@ -30,11 +31,11 @@ import datetime,re
 from multiprocessing import Process, Pipe
 import queue
 import chardet
+from ftplib import FTP
+#update release 2019/12/23 v2.0 更新gui為同一份code,整合成兩個threading
+#update release 2019/12/24 v2.1更新清除登入門禁人物資訊
+#update release 2020/02/07 v2.2新增整理每月彙整表及上傳資料
 
-q = queue.Queue() 
-
-#global full
-#full=None
 reading='stranger'
 predictionMax=0.73
 predictionMin=0.60
@@ -366,6 +367,131 @@ def alert_time():
     return lines
 
 
+def settime2(hours_t,min_t):
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(refleshDay, 'cron', hour=hours_t, minute=min_t)
+    scheduler.start()
+
+def refleshDay():
+    
+    
+    date=month_and_day()
+    mdate=date[0:6]
+    #date=date[:3]+'-'+date[3:]
+    print('mdate',mdate)
+    #將輸入的日期格式轉換ex. 2020/1 ==> 202001
+
+    month_file=glob.glob(r'../models/'+mdate+'*-Full')
+    print('month_file',month_file)
+       
+    month_file.sort()
+       
+ 
+    folder = 'data'+mdate+'.csv'
+    command = 'rm -r %s'%(folder)
+    result = os.system(command)
+    if result == 0:
+        print ('delete ==> '+mdate+'.cav')
+    else:
+        print ('==> '+mdate+'.csv is not exist')    
+    
+    for  dday in month_file:
+        
+        print('dday',dday)
+        day_used = np.loadtxt(dday,dtype=np.str,delimiter='  ',usecols=(0))
+        day_used=day_used.flatten()
+    
+        
+        #將日期切割成單純的日期時間2019-12-11 18:07:33
+        lined=0
+        for findtime in  day_used :
+            
+            timemark=findtime.split('@')
+            #print('in',np.argwhere(findtime))
+            day_used[lined]=timemark[-1]
+            lined=lined+1
+            
+            
+        #找出有open及open前一列的日期時間 
+        index_open=[]
+        line_open=0                
+        for findopen in day_used:
+            if "Open" in findopen :
+                index_open.append(line_open-1)
+                index_open.append(line_open)
+            line_open=line_open+1
+            
+        #利用index再次找出只有open及時間的陣列到day_used
+        day_used=day_used[index_open ]
+        
+        
+        #np.append(day_used,[['eeeeeeeeeeeeeeeee','111']],0)
+        #print ('index_open',index_open)
+    
+        a1=np.array(dday)
+        np.insert(day_used,0,values=a1,axis=0)
+        print ("AFTER" ,day_used)
+        #https://www.twblogs.net/a/5be2440f2b717720b51d2722
+        
+        index_hash=[]
+        line_hash=0                 
+        hash1=mdate[:4]+'-'+mdate[4:] #將202001變成2020-01
+        #搜尋在202001＊裡面有2020-01＊開頭的時間將該行跟下一行抓取出來，以避免used id重複
+        for day_check in day_used:
+            if hash1 in day_check :
+                index_hash.append(line_hash)
+                index_hash.append(line_hash+1)
+            line_hash=line_hash+1
+        day_used=day_used[index_hash ]
+        
+        #轉換為open,030704,Vincent,754,2019-07-02,09:21:07格式
+        finalid=[]
+        index_ting=[]
+        line_ting=0                 
+        for day_check1 in day_used:
+            if hash1 in day_check1 :
+                #print('ddddddddd',day_used[line_ting+1])
+                #print('line_ting',line_ting)
+                groupid=day_used[line_ting+1].split(',')
+                realid=groupid[1].split(':')
+                #print('realid',realid[1])
+                dayandtime=day_check1.split(' ')
+                try :
+                    newid='open,'+realid[1]+','+persenID[realid[1]] +','+ pdID[realid[1]] +','+dayandtime[0]+','+dayandtime[1]
+                    #print('newid',newid)
+                    finalid.append(newid)
+                except:
+                    print('worning:'+realid[1]+'已經消失了')
+            line_ting=line_ting+1
+            
+        #print('finalid',finalid)
+            
+        #存檔
+        with open('data/'+mdate+'.csv','a') as f: 
+            #for i in range(5): 
+                #newresult = np.random.rand(2, 3) 
+           
+            np.savetxt(f, finalid,fmt='%s', delimiter=",")  
+            
+        #ftp參考    
+        #https://www.itread01.com/content/1549578987.html
+        ftp = FTP()
+        timeout = 30
+        port = 21
+        ftp.connect('192.168.99.158',port,timeout) # 連線FTP伺服器
+        ftp.login('Vincent','helloworld') # 登入
+        print (ftp.getwelcome())  # 獲得歡迎資訊 
+        d=ftp.cwd('home/backup')    # 設定FTP路徑
+        name=mdate+'.csv'
+        path =  'data/'    # 檔案儲存路徑
+        try:
+            ftp.storbinary('STOR '+name, open(path+name, 'rb')) # 上傳FTP檔案
+            print("succes upload: " +'home/backup/'+name)
+        except:
+            print("upload failed. check.......................")
+            
+        ftp.quit()                  # 退出FTP伺服器        
+
 def settime(hours_t,min_t):
     scheduler = BackgroundScheduler()
     scheduler.add_job(restart, 'cron', hour=hours_t, minute=min_t)
@@ -376,39 +502,23 @@ def restart():
     
     
 def reflesh():
-    time.sleep(1000)
-    print('hello')
-    settime=1
-    return settime
 
-
-      
-
-
-
-
-def read_from_port():
-    while True:
-        full = ser.readline()
-        print('full: ',full)
-        historyFull_setting(str(full))
-
-
-#class CustomTask:
-    #def __init__(self):
-        #self._result = None
-
-    #def run(self, *args, **kwargs):
-        #while True:
-            #full = ser.readline()
-            #print('full: ',full)
-            #historyFull_setting(str(full))        
-            
-        #self._result = full
-
-    #def get_result(self):
-        #return self._result
+    time.sleep(2)
+    firstLabel = Label(mainWin, text='辨識中..' ,font=('Arial',50) )        
+    successLabel = Label(mainWin, text="門禁限制",font=('Arial',50),fg="#DC143C" )
     
+    resultLabel = Label(mainWin, text="辨識身份",font=('Arial',50))
+    personLabel = Label(mainWin,  text='                 ',font=('Arial',50),fg="#9400D3" )
+    
+    pdLabel = Label(mainWin, text="部門為",font=('Arial',50))
+    pdresultLabel = Label(mainWin,  text='                 ',font=('Arial',50),fg="#9400D3" )        
+    firstLabel.grid(row=1,column=0, sticky='w')
+    successLabel.grid(row=1,column=1, sticky='w')
+    resultLabel.grid(row=2,column=0, sticky='w')
+    personLabel.grid(row=2,column=1, sticky='w')
+    pdLabel.grid(row=3,column=0, sticky='w')
+    pdresultLabel.grid(row=3,column=1, sticky='w') 
+    mainWin.update()     
 
 
 
@@ -422,33 +532,13 @@ print('initialization set timer: '+str(hours_t)+':'+str(min_t) )
 #time.sleep(1)
 print ('start system....')    
 settime(hours_t,min_t)
-
+settime2(17,18)
 print('Creating networks and loading parameters')
-
 historyFull_setting('[Set System] (Success Limit): '+ str(successNum)  + ' (Stranger Limit): '+ str(strangerNum)+ ' (Fail Limit): '+ str(failNum) + ' (Prediction Max): '+ str(predictionMax) + ' (Prediction Min): '+ str(predictionMin) + ' (Set Fail Limit): '+ str(setFailLimit) + ' (Pass Rate): '+ str(passRate))
-#t = threading.Thread(target=read_from_port)
-#t.start()
 
-
-##建立子程序
-
-###conn='start'
-#p=threading.Thread(target=updategui,args=())
-#p.start()
-
-#ct = CustomTask()
-#t = threading.Thread(target=ct.run, args=() )
-#t.start()
-
-
+#建立子程序
 ts=threading.Thread(target=frameflesh,args=())
 ts.start()
-
-
-#=========================================
-
-
-
 
 today=month_and_day()
 print(today)
@@ -456,7 +546,7 @@ dataframe = '/home/vincent/facenet/models/'+today+'-Full'
 print(dataframe)
 # 步驟二：建立主視窗。
 mainWin = Tk()
-var = IntVar()
+#var = IntVar()
 operation = [ '+', '-', '*', '/']
 
 # 視窗標題
@@ -467,6 +557,37 @@ mainWin.geometry("640x280")
 # 步驟三：建立視窗控制項元件。
 # 建立標籤
 
+#var1 = tkinter.StringVar()
+#a1='辨識中..'
+#var1.set(a1)
+
+
+allname=read_train_object()
+print(allname)
+name123=[]
+number123=[]
+pd123=[]
+for a in allname:
+    print(a)
+    all_23=a.split("_")
+    print(all_23)
+    number15=all_23[0]
+    name15=all_23[1]
+    pd15=all_23[2]
+    number123.append(number15)
+    name123.append(name15)
+    pd123.append(pd15)
+    
+print(name123)
+print(number123)
+print(pd123)
+
+persenID = dict(zip(number123, name123))
+pdID = dict(zip(number123, pd123))
+print(persenID)
+print(pdID)
+
+
 firstLabel = Label(mainWin, text='辨識中..' ,font=('Arial',50) )        
 successLabel = Label(mainWin, text="門禁限制",font=('Arial',50),fg="#DC143C" )
 
@@ -475,23 +596,25 @@ personLabel = Label(mainWin,  text='                 ',font=('Arial',50),fg="#94
 
 pdLabel = Label(mainWin, text="部門為",font=('Arial',50))
 pdresultLabel = Label(mainWin,  text='                 ',font=('Arial',50),fg="#9400D3" )        
-mainWin.update()
-#c=1
-#timeF = 2
+ 
+firstLabel.grid(row=1,column=0, sticky='w')
+successLabel.grid(row=1,column=1, sticky='w')
+resultLabel.grid(row=2,column=0, sticky='w')
+personLabel.grid(row=2,column=1, sticky='w')
+pdLabel.grid(row=3,column=0, sticky='w')
+pdresultLabel.grid(row=3,column=1, sticky='w') 
+mainWin.update() 
 while True:
 
-    #c=c+1
-    #print("c",c)
 
-    reading = ser.readline()  
+    reading = ser.readline()
+    historyFull_setting(str(reading))        
     encode_type = chardet.detect(reading)  
     reading = reading.decode(encode_type['encoding']) 
     print('reading : ',reading)
     #https://blog.csdn.net/jieli_/article/details/70166244
-    #mainWin.after(20)
-    
+    #mainWin.after(20)  
           
-    
     if re.findall("Open", reading) or re.findall("Pass", reading) :
         
 
@@ -523,10 +646,16 @@ while True:
 
             pdLabel = Label(mainWin, text="部門為",font=('Arial',50))
             pdresultLabel = Label(mainWin,  textvariable=pd,font=('Arial',50),fg="#9400D3" )
-            #mainWin.after(10000,reflesh) 
-            #facetime=1
-            #print('facetime',facetime)
-            #settime=reflesh()
+   
+            
+            firstLabel.grid(row=1,column=0, sticky='w')
+            successLabel.grid(row=1,column=1, sticky='w')
+            resultLabel.grid(row=2,column=0, sticky='w')
+            personLabel.grid(row=2,column=1, sticky='w')
+            pdLabel.grid(row=3,column=0, sticky='w')
+            pdresultLabel.grid(row=3,column=1, sticky='w') 
+            mainWin.update() 
+            reflesh()
 
         #elif re.findall("Pass", autosave) and int(strangercount1[1])<=8:
             #print(re.findall("ID:+[0-9]+[0-9]", reading) )
@@ -550,7 +679,7 @@ while True:
             #pdLabel = Label(mainWin, text="提醒          ",font=('Arial',50),fg="#DC143C")
             #pdresultLabel = Label(mainWin, text="請勿兩人同時辨識",font=('Arial',28),fg="#9400D3" )
         
-        elif re.findall("Pass", reading) and int(strangercount1[1])>=8:
+        elif re.findall("Pass", reading) and int(strangercount1[1])>=8  :
             firstLabel = Label(mainWin, text='辨識中..' ,font=('Arial',50) )        
             successLabel = Label(mainWin, text="門禁限制",font=('Arial',50),fg="#DC143C" )
 
@@ -558,49 +687,14 @@ while True:
             personLabel = Label(mainWin,  text="陌生人     ",font=('Arial',50),fg="#9400D3" )
 
             pdLabel = Label(mainWin, text="提醒    ",font=('Arial',50),fg="#DC143C")
-            pdresultLabel = Label(mainWin,  text="請看鏡頭重新辨識",font=('Arial',28),fg="#9400D3" )                
-    
-        #elif settime==1:
-            #print("get")
-            #settime=0
-            #firstLabel = Label(mainWin, text='辨識中..' ,font=('Arial',50) )        
-            #successLabel = Label(mainWin, text="門禁限制",font=('Arial',50),fg="#DC143C" )
-            
-            #resultLabel = Label(mainWin, text="辨識身份",font=('Arial',50))
-            #personLabel = Label(mainWin,  text='                 ',font=('Arial',50),fg="#9400D3" )
-            
-            #pdLabel = Label(mainWin, text="部門為",font=('Arial',50))
-            #pdresultLabel = Label(mainWin,  text='                 ',font=('Arial',50),fg="#9400D3" )           
- 
-    #if c==1000:
-        #c=1   
-    
-    #if c%timeF== 0 :
-        #print('time',c)
-        #firstLabel = Label(mainWin, text='辨識中..' ,font=('Arial',50) )        
-        #successLabel = Label(mainWin, text="門禁限制",font=('Arial',50),fg="#DC143C" )
-        
-        #resultLabel = Label(mainWin, text="辨識身份",font=('Arial',50))
-        #personLabel = Label(mainWin,  text='                 ',font=('Arial',50),fg="#9400D3" )
-        
-        #pdLabel = Label(mainWin, text="部門為",font=('Arial',50))
-        #pdresultLabel = Label(mainWin,  text='                 ',font=('Arial',50),fg="#9400D3" )          
-    
-    mainWin.update()
-    firstLabel.grid(row=1,column=0, sticky='w')
-    successLabel.grid(row=1,column=1, sticky='w')
-    resultLabel.grid(row=2,column=0, sticky='w')
-    personLabel.grid(row=2,column=1, sticky='w')
-    pdLabel.grid(row=3,column=0, sticky='w')
-    pdresultLabel.grid(row=3,column=1, sticky='w') 
-    
-    #if c==1000:
-        #c=1
-    
-      
-    
-#=====================================
-
+            pdresultLabel = Label(mainWin,  text="請看鏡頭重新辨識",font=('Arial',28),fg="#9400D3" )
+            firstLabel.grid(row=1,column=0, sticky='w')
+            successLabel.grid(row=1,column=1, sticky='w')
+            resultLabel.grid(row=2,column=0, sticky='w')
+            personLabel.grid(row=2,column=1, sticky='w')
+            pdLabel.grid(row=3,column=0, sticky='w')
+            pdresultLabel.grid(row=3,column=1, sticky='w') 
+            mainWin.update()   
 
 
 
