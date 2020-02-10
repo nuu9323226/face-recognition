@@ -8,7 +8,10 @@ import numpy as np
 from functools import partial
 #import tkinter
 from  tkinter import ttk
+from ftplib import FTP
 #20190203 v1.0版 篩選資料，呈現12個月的資料至表格中
+#update release 2020/02/10 v1.1修改資料夾位置models/day ==>放每天檔案 ./data==>放整理後每月的資料  ftp:  /home/AccessFace/day==>放每天  /home/AccessFace/month==>放每個月
+                            #新增從到ftp下載每個月份的檔案的設定
 
 dpartment=[100,120,121,150,210,220,230,310,325,350,750,756,754,570,160,510,530]
 
@@ -549,7 +552,7 @@ class personpage(object):
         
         #讀取csv並且取012345 colums
         onlyuse = np.loadtxt('data/'+self.stryear+self.strmonth+'.csv',dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5))
-        print(onlyuse)        
+        print('onlyuse',onlyuse)        
         
         #搜尋是"vincent"的索引值
         userid=np.argwhere(onlyuse==persenID[self.personq])     
@@ -760,7 +763,7 @@ class personpage(object):
     
         #將轉換的月份ex.202001 搜尋對應日期的檔案
         for pmonth in pdtrue :
-            month_file=glob.glob(r'../models/month/'+pmonth+'*-Full')
+            month_file=glob.glob(r'../models/day/'+pmonth+'*-Full')
             print('month_file',month_file)
             
             month_file.sort()
@@ -840,7 +843,7 @@ class personpage(object):
                 #print('finalid',finalid)
                     
                 #存檔
-                with open(pmonth+'.csv','a') as f: 
+                with open('data/'+pmonth+'.csv','a') as f: 
                     #for i in range(5): 
                         #newresult = np.random.rand(2, 3) 
                    
@@ -1032,6 +1035,105 @@ class personpage(object):
 
 
 number123,persenID,pdID,fullID =person_pd_ID()    
+newyear,newmonth,newday=month_and_day()
+
+print('newyear','newmonth',newyear,newmonth)
+
+yearddd=int(newyear)
+monthddd=int(newmonth)
+
+values888=[]
+valuesmonth888=[]
+valuesyear888=[]
+#如果是12月倒數到1
+if monthddd==12 :
+    for nt in range(-13,-1):
+        #abs取對值
+        tmonth=str(yearddd)+'/'+str(abs(nt+1))
+        values888.append(tmonth )
+        valuesmonth888.append(str(yearddd))
+        valuesmonth888.append(str(abs(nt+1)) )
+else :#如果是非12月倒數到1，年減1
+    for ny in range(0,12):
+        if int(monthddd)==0 :
+            yearddd=int(yearddd)-1
+            monthddd=12
+        values888.append(str(yearddd)+'/'+str(monthddd) )
+        valuesyear888.append(str(yearddd) )
+        valuesmonth888.append(str(monthddd) )                
+        monthddd=int(monthddd)-1  
+
+print('values888=============',values888)
+
+
+
+pdtrue888=[]
+for avv in values888:
+    pday=avv.split('/')
+    # x.month=10
+    if int(pday[1])<10 and int(pday[1])>=1:
+        pday[1]='0'+str(pday[1])
+        #print (month)
+    else :
+        pday[1]=str(pday[1])            
+    pdtrue888.append(pday[0]+pday[1])
+print('pdtrue888',pdtrue888)
+
+
+
+downftp = FTP()
+timeout = 30
+port = 21
+downftp.connect('192.168.99.158',port,timeout) # 連線FTP伺服器
+downftp.login('Vincent','helloworld') # 登入
+print (downftp.getwelcome())  # 獲得歡迎資訊 
+#d=ftp.cwd('home/AccessFace/month')    # 設定FTP路徑
+monthftp=downftp.nlst('home/AccessFace/month') #獲取ftp上的所以月份檔案
+print('monthftp',monthftp)
+path88 =  'data/'
+
+
+
+#下載12個月份內的入出資料，比對ftp上所有的月份的檔案中，如果滿足當月回推12的月內的資料則進行下載的動作
+for monthftp12 in monthftp:
+    for values12 in pdtrue888 :
+        if values12+'.csv' in monthftp12:
+            print('glob=====',glob.glob(r'data/'+values12+'.csv'))
+            try:
+                #如果同時滿足"已經下載過"得跟"不為當月份的"可以不下載
+                if len(glob.glob(r'data/'+values12+'.csv'))>=1 and newyear+newmonth+'.csv' != values12+'.csv':
+                    print(values12+'.csv yes')
+                    print('have')
+                #其餘都會重新下載資料
+                else:
+                    
+                    print(values12+'.csv yes')
+                    f=open(path88+values12+'.csv', 'wb')
+                    downftp.retrbinary('RETR ' + monthftp12, f.write )
+                    print('download file'+path88+values12+'.csv')                    
+                    f.close()
+ 
+
+                
+            except:
+                print("download failed. check.......................")
+                
+#name=mdate+'.csv'
+#path =  'data/'    # 檔案儲存路徑
+#name1=date+'-Full'
+#path1 =  '../models/day/'    # 檔案儲存路徑        
+#try:
+    ##d=ftp.cwd('home/AccessFace/')
+    #ftp.storbinary('STOR '+'home/AccessFace/month/'+name , open(path+name, 'rb')) # 上傳FTP檔案
+    #print("succes upload: " +'home/AccessFace/month/'+name)
+    #ftp.storbinary('STOR '+'home/AccessFace/day/'+name1 , open(path1+name1, 'rb')) # 上傳FTP檔案
+    #print("succes upload: " +'home/AccessFace/month            /'+name)
+#except:
+    #print("upload failed. check.......................")
+downftp.quit()                  # 退出FTP伺服器   
+
+
+
 root = tk.Tk()
 # root = tk.Toplevel()
 # https://blog.csdn.net/FunkyPants/article/details/78163021

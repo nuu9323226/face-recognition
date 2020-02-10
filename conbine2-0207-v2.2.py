@@ -35,6 +35,7 @@ from ftplib import FTP
 #update release 2019/12/23 v2.0 更新gui為同一份code,整合成兩個threading
 #update release 2019/12/24 v2.1更新清除登入門禁人物資訊
 #update release 2020/02/07 v2.2新增整理每月彙整表及上傳資料
+#update release 2020/02/10 v2.2修改資料夾位置models/day ==>放每天檔案 ./data==>放整理後每月的資料  ftp:  /home/AccessFace/day==>放每天  /home/AccessFace/month==>放每個月
 
 reading='stranger'
 predictionMax=0.73
@@ -313,7 +314,7 @@ def historyFull_setting(setting):
     date=month_and_day()
     xtime=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
-    chineseNow = open('/home/vincent/facenet/models/'+date+'-Full','a')
+    chineseNow = open('/home/vincent/facenet/models/day/'+date+'-Full','a')
     
     chineseNow.write(setting+'\n')
     
@@ -323,7 +324,7 @@ def historyFull(name,confidence):
     date=month_and_day()
     xtime=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
-    chineseNow = open('/home/vincent/facenet/models/'+date+'-Full','a')
+    chineseNow = open('/home/vincent/facenet/models/day/'+date+'-Full','a')
     
     chineseNow.write(name+'@'+str(confidence)+'@'+xtime+'\n')
     chineseNow.close    
@@ -381,7 +382,7 @@ def refleshDay():
     print('mdate',mdate)
     #將輸入的日期格式轉換ex. 2020/1 ==> 202001
 
-    month_file=glob.glob(r'../models/'+mdate+'*-Full')
+    month_file=glob.glob(r'../models/day/'+mdate+'*-Full')
     print('month_file',month_file)
        
     month_file.sort()
@@ -481,12 +482,17 @@ def refleshDay():
         ftp.connect('192.168.99.158',port,timeout) # 連線FTP伺服器
         ftp.login('Vincent','helloworld') # 登入
         print (ftp.getwelcome())  # 獲得歡迎資訊 
-        d=ftp.cwd('home/backup')    # 設定FTP路徑
+        #d=ftp.cwd('home/AccessFace/')    # 設定FTP路徑
         name=mdate+'.csv'
         path =  'data/'    # 檔案儲存路徑
+        name1=date+'-Full'
+        path1 =  '../models/day/'    # 檔案儲存路徑        
         try:
-            ftp.storbinary('STOR '+name, open(path+name, 'rb')) # 上傳FTP檔案
-            print("succes upload: " +'home/backup/'+name)
+            #d=ftp.cwd('home/AccessFace/')
+            ftp.storbinary('STOR '+'home/AccessFace/month/'+name , open(path+name, 'rb')) # 上傳FTP檔案
+            print("succes upload: " +'home/AccessFace/month/'+name)
+            ftp.storbinary('STOR '+'home/AccessFace/day/'+name1 , open(path1+name1, 'rb')) # 上傳FTP檔案
+            print("succes upload: " +'home/AccessFace/month            /'+name)
         except:
             print("upload failed. check.......................")
             
@@ -532,7 +538,7 @@ print('initialization set timer: '+str(hours_t)+':'+str(min_t) )
 #time.sleep(1)
 print ('start system....')    
 settime(hours_t,min_t)
-settime2(17,18)
+settime2(23,50)
 print('Creating networks and loading parameters')
 historyFull_setting('[Set System] (Success Limit): '+ str(successNum)  + ' (Stranger Limit): '+ str(strangerNum)+ ' (Fail Limit): '+ str(failNum) + ' (Prediction Max): '+ str(predictionMax) + ' (Prediction Min): '+ str(predictionMin) + ' (Set Fail Limit): '+ str(setFailLimit) + ' (Pass Rate): '+ str(passRate))
 
@@ -542,7 +548,7 @@ ts.start()
 
 today=month_and_day()
 print(today)
-dataframe = '/home/vincent/facenet/models/'+today+'-Full'
+dataframe = '/home/vincent/facenet/models/day/'+today+'-Full'
 print(dataframe)
 # 步驟二：建立主視窗。
 mainWin = Tk()
