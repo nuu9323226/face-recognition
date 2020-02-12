@@ -9,16 +9,33 @@ from functools import partial
 #import tkinter
 from  tkinter import ttk
 from ftplib import FTP
+
+from tkinter import filedialog
 #20190203 v1.0版 篩選資料，呈現12個月的資料至表格中
 #update release 2020/02/10 v1.1修改資料夾位置models/day ==>放每天檔案 ./data==>放整理後每月的資料  ftp:  /home/AccessFace/day==>放每天  /home/AccessFace/month==>放每個月
                             #新增從到ftp下載每個月份的檔案的設定
 
 dpartment=[100,120,121,150,210,220,230,310,325,350,750,756,754,570,160,510,530]
 
+
+
+def setectfile():
+    file_path = filedialog.askopenfilename()
+    print(file_path)
+    chinesenumber,chinesepersenID=chineseperson_pd_ID()
+    onlyuse = np.loadtxt(open(file_path,encoding='utf-8'),dtype=np.str,delimiter=',',usecols=(0,3,4,5))
+    print('onlyuse',onlyuse)
+    
+    
 def deleteDuplicatedElementFromList3(listA):
 #return list(set(listA))
     return sorted(set(listA), key = listA.index)
 
+def rundetect():
+    os.system("echo sat | sudo -S gnome-terminal -x bash -c 'sudo python3 ./conbine2-0207-v2.2.py'")
+
+def quit():
+    root.quit()
 
 def month_and_day():
     x = datetime.datetime.now()
@@ -49,17 +66,51 @@ def read_train_object():
     train_name.close
     return lines
 
+def read_chinesename_object():
+    train_name = open('data/chinesename.txt','r') 
+    
+    lines = train_name.readlines()
+    count=0
+    for a in lines:
+        b=a.split('\n')
+        lines[count]=b[0]
+        count += 1
+    train_name.close
+    return lines
+
+
+def chineseperson_pd_ID():
+    allname=read_chinesename_object()
+    #print('allname',allname)
+    name123=[]
+    number123=[]
+    for a in allname:
+        #print(a)
+        all_23=a.split(",")
+        #print(all_23)
+        number15=all_23[0]
+        name15=all_23[1]
+        number123.append(number15)
+        name123.append(name15)
+    #print(name123)
+    #print(number123)
+
+    persenID = dict(zip(number123, name123))
+ 
+    return number123,persenID
+
+
 
 def person_pd_ID():
     allname=read_train_object()
-    print('allname',allname)
+    #print('allname',allname)
     name123=[]
     number123=[]
     pd123=[]
     for a in allname:
-        print(a)
+        #print(a)
         all_23=a.split("_")
-        print(all_23)
+        #print(all_23)
         number15=all_23[0]
         name15=all_23[1]
         pd15=all_23[2]
@@ -67,15 +118,15 @@ def person_pd_ID():
         name123.append(name15)
         pd123.append(pd15)
 
-    print(name123)
-    print(number123)
-    print(pd123)
+    #print(name123)
+    #print(number123)
+    #print(pd123)
 
     persenID = dict(zip(number123, name123))
     pdID = dict(zip(number123, pd123))
     fullID=dict(zip(number123,allname) )
-    print(persenID)
-    print(pdID)
+    #print(persenID)
+    #print(pdID)
     return number123,persenID,pdID,fullID
 
 
@@ -1056,20 +1107,23 @@ else :
     print ('image  file exist') 
     
 
-if len(glob.glob(path88+'name.txt'))>=1:
-    print(path88+'name.txt exist')
-        #其餘都會重新下載資料
-else:
-    try:
-        f=open(path88+'name.txt', 'wb')
-        downftp.retrbinary('RETR ' + 'home/AccessFace/config/name.txt', f.write )
-        print('download file'+path88+'name.txt')                    
-        f.close()
+try:
+    f=open(path88+'name.txt', 'wb')
+    downftp.retrbinary('RETR ' + 'home/AccessFace/config/name.txt', f.write )
+    print('download file'+path88+'name.txt')                    
+    f.close()
+    f=open(path88+'chinesename.txt', 'wb')
+    downftp.retrbinary('RETR ' + 'home/AccessFace/config/chinesename.txt', f.write )
+    print('download file'+path88+'chinesename.txt')                    
+    f.close()    
+    
 
-    except:
-        print("download failed. check.......................")
+except:
+    print("download failed. check.......................")
 
 number123,persenID,pdID,fullID =person_pd_ID()    
+
+
 newyear,newmonth,newday=month_and_day()
 allname=read_train_object()
 print('newyear','newmonth',newyear,newmonth)
@@ -1197,10 +1251,10 @@ menubar.add_cascade(label='開始', menu=filemenu)
 # 在File中加入New、Open、Save等小菜单，即我们平时看到的下拉菜单，每一个小菜单对应命令操作。
 
 filemenu.add_command(label='員工資料建立', command=read_train_object )
-filemenu.add_command(label='出缺勤管理', command=read_train_object)
+filemenu.add_command(label='系統設定', command=read_train_object)
 filemenu.add_command(label='後台管理', command=read_train_object)
 filemenu.add_separator()    # 添加一条分隔线
-filemenu.add_command(label='Exit', command=root.quit) # 用tkinter里面自带的quit()函数
+
 
 # 第7步，创建一个Edit菜单项（默认不下拉，下拉内容包括Cut，Copy，Paste功能项）
 editmenu = tk.Menu(menubar, tearoff=0)
@@ -1209,17 +1263,18 @@ menubar.add_cascade(label='執行', menu=editmenu)
 
 # 同样的在 Edit 中加入Cut、Copy、Paste等小命令功能单元，如果点击这些单元, 就会触发do_job的功能
 #b=secondpage()
-editmenu.add_command(label='門禁系統啟動', command=read_train_object )
-editmenu.add_command(label='出缺勤紀錄日報表', command=read_train_object)
+editmenu.add_command(label='門禁系統啟動', command=rundetect )
+editmenu.add_command(label='出缺勤日報表', command=read_train_object)
 editmenu.add_command(label='陌生人管理', command=read_train_object)
 
 # 第8步，创建第二级菜单，即菜单项里面的菜单
 submenu = tk.Menu(filemenu) # 和上面定义菜单一样，不过此处实在File上创建一个空的菜单
-filemenu.add_cascade(label='Import', menu=submenu, underline=0) # 给放入的菜单submenu命名为Import
+filemenu.add_cascade(label='匯入ID card資料', menu=submenu, underline=0) # 给放入的菜单submenu命名为Import
 
 # 第9步，创建第三级菜单命令，即菜单项里面的菜单项里面的菜单命令（有点拗口，笑~~~）
-submenu.add_command(label='Submenu_1', command=read_train_object)   # 这里和上面创建原理也一样，在Import菜单项中加入一个小菜单命令Submenu_1
+submenu.add_command(label='從本機匯入', command=setectfile)   # 这里和上面创建原理也一样，在Import菜单项中加入一个小菜单命令Submenu_1
 
+filemenu.add_command(label='離開', command=root.destroy) # 用tkinter里面自带的quit()函数
 # 第11步，创建菜单栏完成后，配置让菜单栏menubar显示出来
 root.config(menu=menubar)
 
