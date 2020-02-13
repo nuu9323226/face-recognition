@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*- 
 import datetime,os
 import tkinter as tk
 import tkinter.messagebox
@@ -14,18 +13,121 @@ from tkinter import filedialog
 #20190203 v1.0版 篩選資料，呈現12個月的資料至表格中
 #update release 2020/02/10 v1.1修改資料夾位置models/day ==>放每天檔案 ./data==>放整理後每月的資料  ftp:  /home/AccessFace/day==>放每天  /home/AccessFace/month==>放每個月
                             #新增從到ftp下載每個月份的檔案的設定
+import xlrd
+#需要安裝sudo pip3 install xlrd
+import csv
 
 dpartment=[100,120,121,150,210,220,230,310,325,350,750,756,754,570,160,510,530]
 
 
-
 def setectfile():
     file_path = filedialog.askopenfilename()
-    print(file_path)
-    chinesenumber,chinesepersenID=chineseperson_pd_ID()
-    onlyuse = np.loadtxt(open(file_path,encoding='utf-8'),dtype=np.str,delimiter=',',usecols=(0,3,4,5))
-    print('onlyuse',onlyuse)
+    #print(file_path)
+    pathtofile='data/'
     
+    xlsx_to_csv(file_path,pathtofile)
+    sp1=file_path.split('/')
+    sp2=os.path.splitext(sp1[-1])[0]
+    chinesenumber,chinesepersenID=chineseperson_pd_ID()
+    onlyuse = np.loadtxt(open(pathtofile+sp2+'.csv',encoding='utf-8'),dtype=np.str,delimiter=',',usecols=(0,3,4,5))
+    onlyuse = np.delete(onlyuse, 0, axis=0)
+    #print('onlyuse',onlyuse)
+    ID,persenID,pdID,fullID=person_pd_ID()
+    chinese_number,chinese_persenID=chineseperson_pd_ID()
+    #將日期從202002 ==> 2020/02
+    sp3=sp2[:6]
+    
+    try:
+        a=int(sp3)
+        try:
+            os.remove(pathtofile+sp3+'-idcard.csv')
+            print(pathtofile+sp3+'-idcard.csv 刪除成功' )
+        except:
+            print('data'+sp3+'-idcard.csv 檔案不存在')
+        daymonth=sp3[:4]+'/'+sp3[4:]
+        #取出第一排日期，並刪除重複項目
+        date=onlyuse[:,0]
+        uniquedate = np.unique(date)
+        #uniquedate = np.argsort(uniquedate)
+        print(uniquedate)
+        #符合檔名的202002的月份才取出其index 例如2020/02/01
+        finalid=[]
+        for ddd in uniquedate:
+            if daymonth in ddd: #ddd為20200201 daymonth為202002
+                #print('ddd yes',ddd)
+                use_dayindex=np.argwhere(onlyuse==ddd)
+                #print('use_dayindex',use_dayindex)
+                d2d=ddd[:4]+'-'+ddd[5:7]+'-'+ddd[8:]
+                dayonlyuse=onlyuse[use_dayindex[:,0]]
+                #print('dayonlyuse',dayonlyuse)
+                #在該日期2020/02/01下針對name.txt有註冊的每個人取行
+                for idfile in ID:
+                    chinese_persenID[idfile]
+                    dayonlyuseindex=np.argwhere(dayonlyuse==chinese_persenID[idfile])
+                    dayperson_only=dayonlyuse[dayonlyuseindex[:,0]]
+                    #print('dayperson_only',dayperson_only)
+                    if  dayperson_only[:,2] != ''  :
+                        #print(dayperson_only[0,2])
+                        dn2=dayperson_only[0,2]
+                        final = 'idcard,'+ idfile +','+persenID[idfile] +','+ pdID[idfile] +','+d2d+','+dn2+':00'
+                        finalid.append(final)
+                            
+                    if  dayperson_only[:,3] != ''  :
+                        print(dayperson_only[0,3])
+                        dn3=dayperson_only[0,3]
+                        final = 'idcard,'+ idfile +','+persenID[idfile] +','+ pdID[idfile] +','+d2d+','+dn3+':00'
+                        finalid.append(final)       
+                
+                    
+                          
+                            
+        with open(pathtofile+sp3+'-idcard.csv','a') as f: 
+            np.savetxt(f, finalid,fmt='%s', delimiter=",")
+        f.close
+        
+        try:
+            os.remove(pathtofile+sp2+'.csv')
+            print(pathtofile+sp2+'.csv 刪除成功')
+        except:
+            print(pathtofile+sp2+'.csv 檔案不存在')        
+        
+        
+        ftp = FTP()
+        timeout = 30
+        port = 21
+        ftp.connect('192.168.99.158',port,timeout) # 連線FTP伺服器
+        ftp.login('Vincent','helloworld') # 登入
+        print (ftp.getwelcome())  # 獲得歡迎資訊 
+        #d=ftp.cwd('home/AccessFace/')    # 設定FTP路徑     
+        try:
+            #d=ftp.cwd('home/AccessFace/')
+            ftp.storbinary('STOR '+'home/AccessFace/month/'+sp3+'-idcard.csv' , open(pathtofile+sp3+'-idcard.csv', 'rb')) # 上傳FTP檔案
+            print("succes upload: " +'home/AccessFace/month/'+sp3+'-idcard.csv')
+        except:
+            print("upload failed. check.......................")
+            
+        ftp.quit()                  # 退出FTP伺服器      
+        
+        tkinter.messagebox.showinfo(title='成功訊息', message=sp3[:4]+'年'+sp3[4:]+'月資料已匯入完成')
+    
+    except:
+        try:
+            os.remove(pathtofile+sp2+'.csv')
+            print(pathtofile+sp2+'.csv 刪除成功')
+        except:
+            print(pathtofile+sp2+'.csv 檔案不存在')  
+        tk.messagebox.showwarning( title='錯誤', message='請將檔名設置yyyymm開頭')
+        
+def xlsx_to_csv(file_path,savepath):
+    workbook = xlrd.open_workbook(file_path)
+    table = workbook.sheet_by_index(0)  
+    sp1=file_path.split('/')
+    sp2=os.path.splitext(sp1[-1])[0]
+    with open(savepath+sp2+'.csv', 'w', encoding='utf-8') as f:
+        write = csv.writer(f)
+        for row_num in range(table.nrows):
+            row_value = table.row_values(row_num)
+            write.writerow(row_value)    
     
 def deleteDuplicatedElementFromList3(listA):
 #return list(set(listA))
@@ -929,7 +1031,7 @@ class personpage(object):
         else :
             backmonth=str(backmonth)
           
-        print('backmonth',backmonth)
+        #print('backmonth',backmonth)
         
         #讀取csv並且取012345 colums
         
@@ -937,6 +1039,14 @@ class personpage(object):
             onlyuse = np.loadtxt('data/'+callbackmonth[0]+backmonth+'.csv',dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5))
             print(onlyuse)
             
+            
+            if len(glob.glob('data/'+callbackmonth[0]+backmonth+'-idcard.csv'))>=1 :
+                print(glob.glob('data/'+callbackmonth[0]+backmonth+'-idcard.csv'))
+                onlyidcard = np.loadtxt('data/'+callbackmonth[0]+backmonth+'-idcard.csv',dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5))
+                print('===========onlyidcard===========',onlyidcard) 
+                onlyuse=np.concatenate((onlyidcard,onlyuse),axis=0)
+                
+            print('===========onlyuse===========',onlyuse)
             #搜尋是"vincent"的索引值
             userid=np.argwhere(onlyuse==persenID[self.personq])     
             #print('userid',userid)
@@ -958,7 +1068,7 @@ class personpage(object):
             #print(date)
             #刪除重複的日期
             uniquedate = np.unique(date) #刪除重複的元素https://www.twblogs.net/a/5c1f8d88bd9eee16b3daa874/
-            print('uniquedate',uniquedate)
+            #print('uniquedate',uniquedate)
             
             #找尋除了第一筆跟最後一筆的其餘資料等要刪除的資料，並將index放入到detnum裡面
             detnum=[]
@@ -1036,7 +1146,7 @@ class personpage(object):
             #tree.insert("", insert_mode, text='name first col')
             style = ttk.Style()
             style.configure("Treeview", font=('Arial',12))
-            style.configure("Treeview.Heading", font=(None, 12)) 
+            style.configure("Treeview.Heading", font=('Arial', 12)) 
             
             line123=0
             for d in uniquedate:
@@ -1200,7 +1310,25 @@ for monthftp12 in monthftp:
                 print("download failed. check.......................")
 
 
-
+#下載12個月份內的入出資料，比對ftp上所有的月份的檔案中，如果滿足當月回推12的月內的資料則進行下載的動作
+for monthftp12 in monthftp:
+    for values12 in pdtrue888 :
+        if values12+'-idcard.csv' in monthftp12:
+            print('glob=====',glob.glob(path88+values12+'-idcard.csv'))
+            try:
+                #如果同時滿足"已經下載過"得跟"不為當月份的"可以不下載
+                if len(glob.glob(path88+values12+'-idcard.csv'))>=1 and newyear+newmonth+'-idcard.csv' != values12+'-idcard.csv':
+                    print(values12+'-idcard.csv yes exist')
+                #其餘都會重新下載資料
+                else:
+                    
+                    print(values12+'-idcard.csv yes')
+                    f=open(path88+values12+'-idcard.csv', 'wb')
+                    downftp.retrbinary('RETR ' + monthftp12, f.write )
+                    print('download file'+path88+values12+'-idcard.csv')                    
+                    f.close()
+            except:
+                print("download failed. check.......................")
 
 
 
