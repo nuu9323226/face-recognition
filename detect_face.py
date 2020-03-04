@@ -357,7 +357,10 @@ def detect_face(img, minsize, pnet, rnet, onet, threshold, factor):
         # second stage
         tempimg = np.zeros((24,24,3,numbox))
         for k in range(0,numbox):
+            #tmp = np.zeros(abs((int(tmph[k])),abs(int(tmpw[k])),3))
             tmp = np.zeros((int(tmph[k]),int(tmpw[k]),3))
+            #print('tmp',tmp)
+            #print(img[y[k]-1:ey[k],x[k]-1:ex[k],:])
             tmp[dy[k]-1:edy[k],dx[k]-1:edx[k],:] = img[y[k]-1:ey[k],x[k]-1:ex[k],:]
             if tmp.shape[0]>0 and tmp.shape[1]>0 or tmp.shape[0]==0 and tmp.shape[1]==0:
                 tempimg[:,:,:,k] = imresample(tmp, (24, 24))

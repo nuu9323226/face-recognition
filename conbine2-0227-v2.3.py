@@ -2,6 +2,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.schedulers.blocking import BlockingScheduler
+#from datetime import datetime
 #sudo pip3 install apscheduler
 from os import getcwd
 import glob
@@ -36,7 +38,7 @@ from ftplib import FTP
 #update release 2019/12/24 v2.1更新清除登入門禁人物資訊
 #update release 2020/02/07 v2.2新增整理每月彙整表及上傳資料
 #update release 2020/02/10 v2.2修改資料夾位置models/day ==>放每天檔案 ./data==>放整理後每月的資料  ftp:  /home/AccessFace/day==>放每天  /home/AccessFace/month==>放每個月
-
+#update release 2020/02/27 v2.3修改禮拜一到五啟動六日不運作
 reading='stranger'
 predictionMax=0.73
 predictionMin=0.60
@@ -46,6 +48,11 @@ failNum=5
 strangerNum=11
 passRate=1
 
+startime=1 #設定1開啟定時模式週一到週五 6:30 啟動,設定0則不運作
+start_hour=6
+start_min=30
+upload_hour=20
+upload_min=30
 
 ser = serial.Serial('/dev/ttyS3', 115200) 
 ser.write( 'set_0'.encode('utf-8') + str(successNum).encode('utf-8')+'_'.encode('utf-8')+str(strangerNum).encode('utf-8')+'_0'.encode('utf-8')+str(failNum).encode('utf-8')+'_'.encode('utf-8')+str(int(predictionMax*1000)).encode('utf-8')+'_'.encode('utf-8')+str(int(setFailLimit*1000)).encode('utf-8')+'_'.encode('utf-8')+str(passRate*100).encode('utf-8')+'\r\n'.encode('utf-8'))
@@ -54,7 +61,7 @@ print('[Set System] (Success Limit): %s (Stranger Limit): %s (Fail Limit): %s (P
 
 
 
-def frameflesh():
+def frameflesh(start_hour,start_min):
 
     with tf.Graph().as_default():
         gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.6)
@@ -104,7 +111,7 @@ def frameflesh():
             # #video writer
             # fourcc = cv2.VideoWriter_fourcc(*'DIVX')
             # out = cv2.VideoWriter('3F_0726.avi', fourcc, fps=30, frameSize=(640,480))
-    
+            setting4_fix(start_hour,start_min)
             print('Start Recognition!')
             prevTime = 0
             #ser.open()
@@ -373,6 +380,24 @@ def settime2(hours_t,min_t):
     scheduler.add_job(refleshDay, 'cron', hour=hours_t, minute=min_t)
     scheduler.start()
 
+def setting3_main(start_hour,start_min):
+    #btime=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    #print(btime)
+    # BlockingScheduler
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(frameflesh,'cron', args=(start_hour,start_min), day_of_week='mon-fri', hour=start_hour, minute=start_min)
+    scheduler.start()
+    
+def setting4_fix(start_hour,start_min):
+    #print(btime)
+    # BlockingScheduler
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(fixgui, 'cron', day_of_week='mon-fri', hour=start_hour, minute=start_min+1)
+    scheduler.start()  
+
+def fixgui():
+    os.system("wmctrl -r Video -e 0,10,10,645,485")
+    print('setting wmctrl Video seccess')
 def refleshDay():
     
     
@@ -538,13 +563,20 @@ print('initialization set timer: '+str(hours_t)+':'+str(min_t) )
 #time.sleep(1)
 print ('start system....')    
 settime(hours_t,min_t)
-settime2(23,50)
+settime2(upload_hour,upload_min)
+if startime==1:
+    setting3_main(start_hour,start_min)
+else:
+    #建立子程序
+    ts=threading.Thread(target=frameflesh,args=(start_hour,start_min))
+    ts.start()
+    
 print('Creating networks and loading parameters')
 historyFull_setting('[Set System] (Success Limit): '+ str(successNum)  + ' (Stranger Limit): '+ str(strangerNum)+ ' (Fail Limit): '+ str(failNum) + ' (Prediction Max): '+ str(predictionMax) + ' (Prediction Min): '+ str(predictionMin) + ' (Set Fail Limit): '+ str(setFailLimit) + ' (Pass Rate): '+ str(passRate))
 
 #建立子程序
-ts=threading.Thread(target=frameflesh,args=())
-ts.start()
+#ts=threading.Thread(target=frameflesh,args=())
+#ts.start()
 
 today=month_and_day()
 print(today)
