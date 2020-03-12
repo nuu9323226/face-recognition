@@ -219,11 +219,11 @@ def frameflesh(start_hour,start_min):
                                     #updategui(reading)
                                     xtime=datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S")
                                     
-                                    #cv2.imwrite('../models/historyImage/'+keyname[0]+'_'+keyname[1]+'/' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg',saveframe,[int(cv2.IMWRITE_JPEG_QUALITY), 100])
-                                    cv2.imwrite('../models/historyImage/'+keyname[0]+'_'+keyname[1]+'/' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.png',saveframe,[int(cv2.IMWRITE_PNG_COMPRESSION), 8])
+                                    cv2.imwrite('../models/historyImage/'+keyname[0]+'_'+keyname[1]+'/' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg',saveframe,[int(cv2.IMWRITE_JPEG_QUALITY), 100])
+                                    #cv2.imwrite('../models/historyImage/'+keyname[0]+'_'+keyname[1]+'/' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.png',saveframe,[int(cv2.IMWRITE_PNG_COMPRESSION), 8])
                                     
-                                    #q.put('../models/historyImage/'+keyname[0]+'_'+keyname[1]+'/' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg')
-                                    q.put('../models/historyImage/'+keyname[0]+'_'+keyname[1]+'/' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.png')
+                                    q.put('../models/historyImage/'+keyname[0]+'_'+keyname[1]+'/' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg')
+                                    #q.put('../models/historyImage/'+keyname[0]+'_'+keyname[1]+'/' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.png')
                                     
                                 elif np.max(predictions[0]) < predictionMax and np.max(predictions[0]) > predictionMin and HumanNames[best_class_indices[0]]:
                                     put_text = '{name} {confidence: 3.2f}'.format(name = HumanNames[best_class_indices[0]], confidence = (np.max(predictions[0]).tolist())*100)
@@ -700,9 +700,9 @@ while True:
             print('q.get:  ',reading)            
             
             
-            photosucs = tkinter.PhotoImage(file=reading)  #file：t图片路径
-            imgLabelsucs  = tkinter.Label(mainWin,image=photosucs)#把图片整合到标签类中
-            imgLabelsucs.grid(column=0, row=4, sticky='w')
+            #photosucs = tkinter.PhotoImage(file=reading)  #file：t图片路径
+            #imgLabelsucs  = tkinter.Label(mainWin,image=photosucs)#把图片整合到标签类中
+            #imgLabelsucs.grid(column=0, row=4, sticky='w')
             
             
             firstLabel.grid(row=1,column=0, sticky='w')
