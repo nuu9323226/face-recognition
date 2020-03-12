@@ -129,8 +129,8 @@ def xlsx_to_csv(file_path,savepath):
         write = csv.writer(f)
         for row_num in range(table.nrows):
             row_value = table.row_values(row_num)
-            write.writerow(row_value)    
-    
+            write.writerow(row_value)
+
 def deleteDuplicatedElementFromList3(listA):
 #return list(set(listA))
     return sorted(set(listA), key = listA.index)

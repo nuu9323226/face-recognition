@@ -34,6 +34,7 @@ from multiprocessing import Process, Pipe
 import queue
 import chardet
 from ftplib import FTP
+from PIL import Image, ImageTk
 #update release 2019/12/23 v2.0 更新gui為同一份code,整合成兩個threading
 #update release 2019/12/24 v2.1更新清除登入門禁人物資訊
 #update release 2020/02/07 v2.2新增整理每月彙整表及上傳資料
@@ -48,7 +49,7 @@ failNum=5
 strangerNum=11
 passRate=1
 
-startime=1 #設定1開啟定時模式週一到週五 6:30 啟動,設定0則不運作
+startime=0 #設定1開啟定時模式週一到週五 6:30 啟動,設定0則不運作
 start_hour=6
 start_min=30
 upload_hour=20
@@ -59,7 +60,7 @@ ser.write( 'set_0'.encode('utf-8') + str(successNum).encode('utf-8')+'_'.encode(
 print('[Set System] (Success Limit): %s (Stranger Limit): %s (Fail Limit): %s (Prediction Max): %s (Prediction Min): %s (Set Fail Limit): %s (Pass Rate): %s \n'%(str(successNum) ,str(strangerNum) ,str(failNum) ,str(predictionMax) ,str(predictionMin) ,str(setFailLimit) ,str(passRate) ) )
 #set_success筆數_stranger筆數_fail筆數_辨識度上限_辨識度下限_打折率\r\n
 
-
+q = queue.Queue(maxsize = 100)
 
 def frameflesh(start_hour,start_min):
 
@@ -128,7 +129,7 @@ def frameflesh(start_hour,start_min):
                 #data =recv(ser) 
                 
                 ret, frame = video_capture.read()
-    
+                saveframe = frame.copy()
                 # frame = cv2.resize(frame, (0,0), fx=0.5, fy=0.5)    #resize frame (optional)
     
                 curTime = time.time()    # calc fps
@@ -211,9 +212,19 @@ def frameflesh(start_hour,start_min):
                                     #x = datetime.datetime.now()
                                     #print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) 
                                     historyFull(HumanNames[best_class_indices[0]] ,int((np.max(predictions[0]).tolist())*100) )
+                                    print('HumanNames[best_class_indices',HumanNames[best_class_indices[0]])
+                                    keyname=HumanNames[best_class_indices[0]].split('_')
                                     #reading=HumanNames[best_class_indices[0]] ,int((np.max(predictions[0]).tolist())*100) 
                                     #reading(ser)
                                     #updategui(reading)
+                                    xtime=datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S")
+                                    
+                                    #cv2.imwrite('../models/historyImage/'+keyname[0]+'_'+keyname[1]+'/' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg',saveframe,[int(cv2.IMWRITE_JPEG_QUALITY), 100])
+                                    cv2.imwrite('../models/historyImage/'+keyname[0]+'_'+keyname[1]+'/' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.png',saveframe,[int(cv2.IMWRITE_PNG_COMPRESSION), 8])
+                                    
+                                    #q.put('../models/historyImage/'+keyname[0]+'_'+keyname[1]+'/' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg')
+                                    q.put('../models/historyImage/'+keyname[0]+'_'+keyname[1]+'/' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.png')
+                                    
                                 elif np.max(predictions[0]) < predictionMax and np.max(predictions[0]) > predictionMin and HumanNames[best_class_indices[0]]:
                                     put_text = '{name} {confidence: 3.2f}'.format(name = HumanNames[best_class_indices[0]], confidence = (np.max(predictions[0]).tolist())*100)
                                     #gonumber1=int((np.max(predictions[0]).tolist())*1000)
@@ -535,14 +546,14 @@ def restart():
 def reflesh():
 
     time.sleep(2)
-    firstLabel = Label(mainWin, text='辨識中..' ,font=('Arial',50) )        
-    successLabel = Label(mainWin, text="門禁限制",font=('Arial',50),fg="#DC143C" )
+    firstLabel = Label(mainWin, text='辨識中..' ,font=('Arial',40) )        
+    successLabel = Label(mainWin, text="門禁限制",font=('Arial',40),fg="#DC143C" )
     
-    resultLabel = Label(mainWin, text="辨識身份",font=('Arial',50))
-    personLabel = Label(mainWin,  text='                 ',font=('Arial',50),fg="#9400D3" )
+    resultLabel = Label(mainWin, text="辨識身份",font=('Arial',40))
+    personLabel = Label(mainWin,  text='                 ',font=('Arial',40),fg="#9400D3" )
     
-    pdLabel = Label(mainWin, text="部門為",font=('Arial',50))
-    pdresultLabel = Label(mainWin,  text='                 ',font=('Arial',50),fg="#9400D3" )        
+    pdLabel = Label(mainWin, text="部門為",font=('Arial',40))
+    pdresultLabel = Label(mainWin,  text='                 ',font=('Arial',40),fg="#9400D3" )        
     firstLabel.grid(row=1,column=0, sticky='w')
     successLabel.grid(row=1,column=1, sticky='w')
     resultLabel.grid(row=2,column=0, sticky='w')
@@ -590,7 +601,7 @@ operation = [ '+', '-', '*', '/']
 # 視窗標題
 mainWin.title("face-gui")
 # 視窗大小
-mainWin.geometry("640x280")
+mainWin.geometry("550x500")
 
 # 步驟三：建立視窗控制項元件。
 # 建立標籤
@@ -626,14 +637,14 @@ print(persenID)
 print(pdID)
 
 
-firstLabel = Label(mainWin, text='辨識中..' ,font=('Arial',50) )        
-successLabel = Label(mainWin, text="門禁限制",font=('Arial',50),fg="#DC143C" )
+firstLabel = Label(mainWin, text='辨識中..' ,font=('Arial',40) )        
+successLabel = Label(mainWin, text="門禁限制",font=('Arial',40),fg="#DC143C" )
 
-resultLabel = Label(mainWin, text="辨識身份",font=('Arial',50))
-personLabel = Label(mainWin,  text='                 ',font=('Arial',50),fg="#9400D3" )
+resultLabel = Label(mainWin, text="辨識身份",font=('Arial',40))
+personLabel = Label(mainWin,  text='                 ',font=('Arial',40),fg="#9400D3" )
 
-pdLabel = Label(mainWin, text="部門為",font=('Arial',50))
-pdresultLabel = Label(mainWin,  text='                 ',font=('Arial',50),fg="#9400D3" )        
+pdLabel = Label(mainWin, text="部門為",font=('Arial',40))
+pdresultLabel = Label(mainWin,  text='                 ',font=('Arial',40),fg="#9400D3" )        
  
 firstLabel.grid(row=1,column=0, sticky='w')
 successLabel.grid(row=1,column=1, sticky='w')
@@ -652,7 +663,8 @@ while True:
     print('reading : ',reading)
     #https://blog.csdn.net/jieli_/article/details/70166244
     #mainWin.after(20)  
-          
+    
+    
     if re.findall("Open", reading) or re.findall("Pass", reading) :
         
 
@@ -676,15 +688,22 @@ while True:
             pd = tkinter.StringVar()
             pd.set('DP '+pdID[realID]+'             ')       
 
-            firstLabel = Label(mainWin, text='辨識中..',font=('Arial',50) )        
-            successLabel = Label(mainWin,text="辨識成功",font=('Arial',50),fg="#40E0D0" )
+            firstLabel = Label(mainWin, text='辨識中..',font=('Arial',40) )        
+            successLabel = Label(mainWin,text="辨識成功",font=('Arial',40),fg="#40E0D0" )
 
-            resultLabel = Label(mainWin, text="辨識身份",font=('Arial',50))
-            personLabel = Label(mainWin,  textvariable=person,font=('Arial',50),fg="#9400D3" )
+            resultLabel = Label(mainWin, text="辨識身份",font=('Arial',40))
+            personLabel = Label(mainWin,  textvariable=person,font=('Arial',40),fg="#9400D3" )
 
-            pdLabel = Label(mainWin, text="部門為",font=('Arial',50))
-            pdresultLabel = Label(mainWin,  textvariable=pd,font=('Arial',50),fg="#9400D3" )
-   
+            pdLabel = Label(mainWin, text="部門為",font=('Arial',40))
+            pdresultLabel = Label(mainWin,  textvariable=pd,font=('Arial',40),fg="#9400D3" )
+            reading=q.get()
+            print('q.get:  ',reading)            
+            
+            
+            photosucs = tkinter.PhotoImage(file=reading)  #file：t图片路径
+            imgLabelsucs  = tkinter.Label(mainWin,image=photosucs)#把图片整合到标签类中
+            imgLabelsucs.grid(column=0, row=4, sticky='w')
+            
             
             firstLabel.grid(row=1,column=0, sticky='w')
             successLabel.grid(row=1,column=1, sticky='w')
@@ -718,13 +737,13 @@ while True:
             #pdresultLabel = Label(mainWin, text="請勿兩人同時辨識",font=('Arial',28),fg="#9400D3" )
         
         elif re.findall("Pass", reading) and int(strangercount1[1])>=8  :
-            firstLabel = Label(mainWin, text='辨識中..' ,font=('Arial',50) )        
-            successLabel = Label(mainWin, text="門禁限制",font=('Arial',50),fg="#DC143C" )
+            firstLabel = Label(mainWin, text='辨識中..' ,font=('Arial',40) )        
+            successLabel = Label(mainWin, text="門禁限制",font=('Arial',40),fg="#DC143C" )
 
-            resultLabel = Label(mainWin, text="辨識身份",font=('Arial',50))
-            personLabel = Label(mainWin,  text="陌生人     ",font=('Arial',50),fg="#9400D3" )
+            resultLabel = Label(mainWin, text="辨識身份",font=('Arial',40))
+            personLabel = Label(mainWin,  text="陌生人     ",font=('Arial',40),fg="#9400D3" )
 
-            pdLabel = Label(mainWin, text="提醒    ",font=('Arial',50),fg="#DC143C")
+            pdLabel = Label(mainWin, text="提醒    ",font=('Arial',40),fg="#DC143C")
             pdresultLabel = Label(mainWin,  text="請看鏡頭重新辨識",font=('Arial',28),fg="#9400D3" )
             firstLabel.grid(row=1,column=0, sticky='w')
             successLabel.grid(row=1,column=1, sticky='w')
