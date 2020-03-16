@@ -128,8 +128,6 @@ def frameflesh(start_hour,start_min):
                 #updategui(reading)
                 
             savereset=3    
-            savereset2=3
-            savereset3=3  
             while True:
                 
                 #reading=q.get()
@@ -230,21 +228,21 @@ def frameflesh(start_hour,start_min):
                                     #print('savereset',savereset)
                                     #print('nowtime',nowtime)
                                     
-                                    if savereset==3 : #第一次
+                                    if savereset==3 :
       
-                                        cv2.imwrite('../datasets/historyImage/'+keyname[0]+'_'+keyname[1]+'/open_' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg',saveframe,[int(cv2.IMWRITE_JPEG_QUALITY), 100])
+                                        cv2.imwrite('../datasets/historyImage/'+keyname[0]+'_'+keyname[1]+'/' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg',saveframe,[int(cv2.IMWRITE_JPEG_QUALITY), 100])
                                         savereset=1
                                         savetime=nowtime
                                         #print('savetime',savetime)
-                                        q.put('../datasets/historyImage/'+keyname[0]+'_'+keyname[1]+'/open_' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg')
+                                        q.put('../datasets/historyImage/'+keyname[0]+'_'+keyname[1]+'/' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg')
                                         
-                                    if savereset==1 and  nowtime-savetime > timedelta(seconds=6) : #第一次以外滿足六秒以上紀錄，解決不會一直儲存照片的問題
+                                    if savereset==1 and  nowtime-savetime > timedelta(seconds=6) :
                                         
-                                        cv2.imwrite('../datasets/historyImage/'+keyname[0]+'_'+keyname[1]+'/open_' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg',saveframe,[int(cv2.IMWRITE_JPEG_QUALITY), 100])
+                                        cv2.imwrite('../datasets/historyImage/'+keyname[0]+'_'+keyname[1]+'/' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg',saveframe,[int(cv2.IMWRITE_JPEG_QUALITY), 100])
                                         savetime=nowtime
-                                        #print('hello============')
+                                        print('hello============')
                                         #print('savetime',savetime)
-                                        q.put('../datasets/historyImage/'+keyname[0]+'_'+keyname[1]+'/open_' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg')
+                                        q.put('../datasets/historyImage/'+keyname[0]+'_'+keyname[1]+'/' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg')
                    
                                     #存JPG寫法
                                     #cv2.imwrite('../datasets/historyImage/'+keyname[0]+'_'+keyname[1]+'/' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg',saveframe,[int(cv2.IMWRITE_JPEG_QUALITY), 100])
@@ -263,28 +261,6 @@ def frameflesh(start_hour,start_min):
                                     historyFull(HumanNames[best_class_indices[0]] ,int((np.max(predictions[0]).tolist())*100) )
                                     #reading(ser)
                                     #updategui(reading)
-                                    
-                                    
-
-                                    if savereset2==3 : #第一次
-      
-                                        cv2.imwrite('../datasets/historyImage/'+keyname[0]+'_'+keyname[1]+'/fail_' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg',saveframe,[int(cv2.IMWRITE_JPEG_QUALITY), 100])
-                                        savereset2=1
-                                        savetime=nowtime
-                                        #print('savetime',savetime)
-                                        q.put('../datasets/historyImage/'+keyname[0]+'_'+keyname[1]+'/fail_' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg')
-                                        
-                                    if savereset2==1 and  nowtime-savetime > timedelta(seconds=6) : #第一次以外滿足六秒以上紀錄，解決不會一直儲存照片的問題
-                                        
-                                        cv2.imwrite('../datasets/historyImage/'+keyname[0]+'_'+keyname[1]+'/fail_' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg',saveframe,[int(cv2.IMWRITE_JPEG_QUALITY), 100])
-                                        savetime=nowtime
-                                        #print('hello============')
-                                        #print('savetime',savetime)
-                                        q.put('../datasets/historyImage/'+keyname[0]+'_'+keyname[1]+'/fail_' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg')
-                                                       
-                                    
-                                    
-                                    
                                 else:
                                     put_text = 'Stranger'
                                     cv2.rectangle(frame, (bb[i][0], bb[i][1]), (bb[i][2], bb[i][3]), (0, 225, 255), 2)    #boxing face
@@ -297,25 +273,6 @@ def frameflesh(start_hour,start_min):
                                 #cv2.putText(frame, put_text, (text_x, text_y), cv2.FONT_HERSHEY_COMPLEX_SMALL,
                                             #1, (25, i*125, 25), thickness=2, lineType=2)                    
                                     #reading(ser)
-                                    
-                                    if savereset3==3 : #第一次
-      
-                                        cv2.imwrite('../datasets/historyImage/'+keyname[0]+'_'+keyname[1]+'/Stranger_' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg',saveframe,[int(cv2.IMWRITE_JPEG_QUALITY), 100])
-                                        savereset3=1
-                                        savetime=nowtime
-                                        #print('savetime',savetime)
-                                        q.put('../datasets/historyImage/'+keyname[0]+'_'+keyname[1]+'/Stranger_' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg')
-                                        
-                                    if savereset3==1 and  nowtime-savetime > timedelta(seconds=6) : #第一次以外滿足六秒以上紀錄，解決不會一直儲存照片的問題
-                                        
-                                        cv2.imwrite('../datasets/historyImage/'+keyname[0]+'_'+keyname[1]+'/Stranger_' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg',saveframe,[int(cv2.IMWRITE_JPEG_QUALITY), 100])
-                                        savetime=nowtime
-                                        #print('hello============')
-                                        #print('savetime',savetime)
-                                        q.put('../datasets/historyImage/'+keyname[0]+'_'+keyname[1]+'/Stranger_' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg')
-                                                       
-                                                                        
-                                    
                             except IndexError :
                                 print("Oh No! IndexError : list index out of range for multi-faces")                        
     
