@@ -36,12 +36,13 @@ from multiprocessing import Process, Pipe
 import queue
 import chardet
 from ftplib import FTP
-from PIL import Image, ImageTk
+#from PIL import Image, ImageTk
 #update release 2019/12/23 v2.0 更新gui為同一份code,整合成兩個threading
 #update release 2019/12/24 v2.1更新清除登入門禁人物資訊
 #update release 2020/02/07 v2.2新增整理每月彙整表及上傳資料
 #update release 2020/02/10 v2.2修改資料夾位置models/day ==>放每天檔案 ./data==>放整理後每月的資料  ftp:  /home/AccessFace/day==>放每天  /home/AccessFace/month==>放每個月
 #update release 2020/02/27 v2.3修改禮拜一到五啟動六日不運作
+#update release 2020/03/17 v2.4新增save陌生人open pass進入影像 ,修正同時間同一個人長時間偵測改為6秒間隔
 reading='stranger'
 predictionMax=0.73
 predictionMin=0.60
@@ -220,7 +221,7 @@ def frameflesh(start_hour,start_min):
                                     #x = datetime.datetime.now()
                                     #print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) 
                                     historyFull(HumanNames[best_class_indices[0]] ,int((np.max(predictions[0]).tolist())*100) )
-                                    print('HumanNames[best_class_indices',HumanNames[best_class_indices[0]])
+                                    #print('HumanNames[best_class_indices',HumanNames[best_class_indices[0]])
                                     keyname=HumanNames[best_class_indices[0]].split('_')
                                     #reading=HumanNames[best_class_indices[0]] ,int((np.max(predictions[0]).tolist())*100) 
                                     #reading(ser)
@@ -261,6 +262,9 @@ def frameflesh(start_hour,start_min):
                                     ser.write( 'fail_'.encode('utf-8')+str(int((np.max(predictions[0]).tolist())*1000)).encode('utf-8')+'_'.encode('utf-8')+HumanNames[best_class_indices[0]].encode('utf-8')+'\r\n'.encode('utf-8') )
                                     #reading= 'fail_'.encode('utf-8')+str(int((np.max(predictions[0]).tolist())*1000)).encode('utf-8')+'_'.encode('utf-8')+HumanNames[best_class_indices[0]].encode('utf-8')+'\r\n'.encode('utf-8')
                                     historyFull(HumanNames[best_class_indices[0]] ,int((np.max(predictions[0]).tolist())*100) )
+                                    keyname=HumanNames[best_class_indices[0]].split('_')
+                                    xtime=datetime.now().strftime("%Y-%m-%d_%H%M%S")
+                                    nowtime=datetime.now()                                    
                                     #reading(ser)
                                     #updategui(reading)
                                     
@@ -291,6 +295,9 @@ def frameflesh(start_hour,start_min):
                                     cv2.putText(frame, put_text, (text_x, text_y), cv2.FONT_HERSHEY_COMPLEX_SMALL,
                                                 1, (0, 225, 255), thickness=2, lineType=2)                                  
                                     historyFull(put_text ,put_text )
+                                    keyname=HumanNames[best_class_indices[0]].split('_')
+                                    xtime=datetime.now().strftime("%Y-%m-%d_%H%M%S")
+                                    nowtime=datetime.now()                                    
                                     ser.write('stranger\r\n'.encode('utf-8'))
                                     reading= 'stranger\r\n'.encode('utf-8')
                                     #updategui(reading)
@@ -500,7 +507,7 @@ def retraining():
     
 
 def fixgui():
-    os.system("wmctrl -r Video -e 0,10,10,645,485")
+    os.system("wmctrl -r Video -e 0,630,10,645,485")
     print('setting wmctrl Video seccess')
 def refleshDay():
     
@@ -608,7 +615,7 @@ def refleshDay():
         ftp = FTP()
         timeout = 30
         port = 21
-        ftp.connect('192.168.99.158',port,timeout) # 連線FTP伺服器
+        ftp.connect('192.168.91.158',port,timeout) # 連線FTP伺服器
         ftp.login('Vincent','helloworld') # 登入
         print (ftp.getwelcome())  # 獲得歡迎資訊 
         #d=ftp.cwd('home/AccessFace/')    # 設定FTP路徑
@@ -735,15 +742,17 @@ pdID = dict(zip(number123, pd123))
 print(persenID)
 print(pdID)
 
-
-
 #建立資料夾
-#建立資料夾
+if not os.path.isdir('../datasets/'):
+    os.mkdir('../datasets/')    
+else :
+    print ('data  file exist')
+    
 if not os.path.isdir('../datasets/historyImage/'):
     os.mkdir('../datasets/historyImage/')    
 else :
     print ('data  file exist') 
-    
+
 #建立每個人照片資料夾
 for numberid in number123:
     if not os.path.isdir('../datasets/historyImage/'+numberid+'_'+persenID[numberid]):
