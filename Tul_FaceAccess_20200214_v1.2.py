@@ -10,6 +10,7 @@ from  tkinter import ttk
 from ftplib import FTP
 from ftplib import FTP_TLS
 from tkinter import filedialog
+#import faceRegistered
 #20190203 v1.0版 篩選資料，呈現12個月的資料至表格中
 #update release 2020/02/10 v1.1修改資料夾位置models/day ==>放每天檔案 ./data==>放整理後每月的資料  ftp:  /home/AccessFace/day==>放每天  /home/AccessFace/month==>放每個月
                             #新增從到ftp下載每個月份的檔案的設定
@@ -20,6 +21,8 @@ import csv
 
 dpartment=[100,120,121,150,210,220,230,310,325,350,750,756,754,570,160,510,530]
 
+def facebuind():
+    os.system('python3 faceRegistered.py')
 
 def setectfile():
     file_path = filedialog.askopenfilename()
@@ -96,7 +99,7 @@ def setectfile():
         ftp = FTP()
         timeout = 30
         port = 21
-        ftp=FTP_TLS('192.168.99.158')
+        ftp=FTP_TLS('192.168.91.158')
         #ftp.connect('192.168.99.158',port,timeout) # 連線FTP伺服器
         ftp.login('Vincent','helloworld') # 登入
         print (ftp.getwelcome())  # 獲得歡迎資訊 
@@ -731,7 +734,7 @@ class personpage(object):
             print(glob.glob('data/'+self.stryear+self.strmonth+'-idcard.csv'))
             onlyidcard = np.loadtxt('data/'+self.stryear+self.strmonth+'-idcard.csv',dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5))
             print('===========onlyidcard===========',onlyidcard) 
-            onlyuse=np.concatenate((onlyidcard,onlyuse),axis=0)        
+            onlyuse=np.concatenate((onlyidcard,onlyuse),axis=0)    #拼接陣列     
         
         
         
@@ -1566,7 +1569,7 @@ port = 21
 #如果ftp有啟動ftps (ssl/tls)加密服務則需要用以下方式連線
 #https://stackoverflow.com/questions/5534830/ftpes-ftp-over-explicit-tls-ssl-in-python
 #from ftplib import FTP_TLS
-downftp=FTP_TLS('192.168.99.158')
+downftp=FTP_TLS('192.168.91.158')
 #downftp.connect('192.168.99.158',port,timeout) # 連線FTP伺服器
 downftp.login('Vincent','helloworld') # 登入
 print (downftp.getwelcome())  # 獲得歡迎資訊 
@@ -1749,7 +1752,7 @@ menubar.add_cascade(label='開始', menu=filemenu)
 
 # 在File中加入New、Open、Save等小菜单，即我们平时看到的下拉菜单，每一个小菜单对应命令操作。
 
-filemenu.add_command(label='員工資料建立', command=read_train_object )
+filemenu.add_command(label='員工資料建立', command=facebuind )
 filemenu.add_command(label='偏好設定', command=read_train_object)
 filemenu.add_command(label='後台管理', command=read_train_object)
 filemenu.add_separator()    # 添加一条分隔线

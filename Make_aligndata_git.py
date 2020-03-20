@@ -29,7 +29,7 @@ with tf.Graph().as_default():
         pnet, rnet, onet = detect_face.create_mtcnn(sess, './')
 
 #minsize = 300  # minimum size of face
-minsize = 300  # minimum size of face
+minsize = 200  # minimum size of face
 threshold = [0.6, 0.7, 0.7]  # three steps's threshold
 factor = 0.709  # scale factor
 margin = 44

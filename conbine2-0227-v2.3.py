@@ -25,23 +25,20 @@ import pickle
 from sklearn.svm import SVC
 from sklearn.externals import joblib
 import serial
+import time
 import threading
 import tkinter
 from tkinter import Tk, Label, Entry, Radiobutton, IntVar
-#import datetime,re
-import re
-from datetime import datetime, timedelta
+import datetime,re
 from multiprocessing import Process, Pipe
 import queue
 import chardet
 from ftplib import FTP
-#from PIL import Image, ImageTk
 #update release 2019/12/23 v2.0 更新gui為同一份code,整合成兩個threading
 #update release 2019/12/24 v2.1更新清除登入門禁人物資訊
 #update release 2020/02/07 v2.2新增整理每月彙整表及上傳資料
 #update release 2020/02/10 v2.2修改資料夾位置models/day ==>放每天檔案 ./data==>放整理後每月的資料  ftp:  /home/AccessFace/day==>放每天  /home/AccessFace/month==>放每個月
 #update release 2020/02/27 v2.3修改禮拜一到五啟動六日不運作
-#update release 2020/03/17 v2.4新增save陌生人open pass進入影像 ,修正同時間同一個人長時間偵測改為6秒間隔
 reading='stranger'
 predictionMax=0.73
 predictionMin=0.60
@@ -51,27 +48,23 @@ failNum=5
 strangerNum=11
 passRate=1
 
-startime=1 #設定1開啟定時模式週一到週五 6:30 啟動,設定0則不運作
+startime=0
 start_hour=6
 start_min=30
-upload_hour=12
-upload_min=10
-
-train_hour=11
-train_min=19
-
+upload_hour=20
+upload_min=40
 
 ser = serial.Serial('/dev/ttyS3', 115200) 
 ser.write( 'set_0'.encode('utf-8') + str(successNum).encode('utf-8')+'_'.encode('utf-8')+str(strangerNum).encode('utf-8')+'_0'.encode('utf-8')+str(failNum).encode('utf-8')+'_'.encode('utf-8')+str(int(predictionMax*1000)).encode('utf-8')+'_'.encode('utf-8')+str(int(setFailLimit*1000)).encode('utf-8')+'_'.encode('utf-8')+str(passRate*100).encode('utf-8')+'\r\n'.encode('utf-8'))
 print('[Set System] (Success Limit): %s (Stranger Limit): %s (Fail Limit): %s (Prediction Max): %s (Prediction Min): %s (Set Fail Limit): %s (Pass Rate): %s \n'%(str(successNum) ,str(strangerNum) ,str(failNum) ,str(predictionMax) ,str(predictionMin) ,str(setFailLimit) ,str(passRate) ) )
 #set_success筆數_stranger筆數_fail筆數_辨識度上限_辨識度下限_打折率\r\n
 
-q = queue.Queue(maxsize = 300)
+
 
 def frameflesh(start_hour,start_min):
 
     with tf.Graph().as_default():
-        gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.8)
+        gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.6)
         sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options, log_device_placement=False))
         with sess.as_default():
             
@@ -127,17 +120,15 @@ def frameflesh(start_hour,start_min):
                 #reading=q.get()
                 #updategui(reading)
                 
-            savereset=3    
-            savereset2=3
-            savereset3=3  
+    
             while True:
                 
                 #reading=q.get()
                 #updategui(reading)            
                 #data =recv(ser) 
                 
-                ret, frame = video_capture.read(0)
-                saveframe = frame.copy()
+                ret, frame = video_capture.read()
+    
                 # frame = cv2.resize(frame, (0,0), fx=0.5, fy=0.5)    #resize frame (optional)
     
                 curTime = time.time()    # calc fps
@@ -220,38 +211,9 @@ def frameflesh(start_hour,start_min):
                                     #x = datetime.datetime.now()
                                     #print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) 
                                     historyFull(HumanNames[best_class_indices[0]] ,int((np.max(predictions[0]).tolist())*100) )
-                                    #print('HumanNames[best_class_indices',HumanNames[best_class_indices[0]])
-                                    keyname=HumanNames[best_class_indices[0]].split('_')
                                     #reading=HumanNames[best_class_indices[0]] ,int((np.max(predictions[0]).tolist())*100) 
                                     #reading(ser)
                                     #updategui(reading)
-                                    xtime=datetime.now().strftime("%Y-%m-%d_%H%M%S")
-                                    nowtime=datetime.now()
-                                    #print('savereset',savereset)
-                                    #print('nowtime',nowtime)
-                                    
-                                    if savereset==3 : #第一次
-      
-                                        cv2.imwrite('../datasets/historyImage/'+keyname[0]+'_'+keyname[1]+'/open_' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg',saveframe,[int(cv2.IMWRITE_JPEG_QUALITY), 100])
-                                        savereset=1
-                                        savetime=nowtime
-                                        #print('savetime',savetime)
-                                        q.put('../datasets/historyImage/'+keyname[0]+'_'+keyname[1]+'/open_' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg')
-                                        
-                                    if savereset==1 and  nowtime-savetime > timedelta(seconds=6) : #第一次以外滿足六秒以上紀錄，解決不會一直儲存照片的問題
-                                        
-                                        cv2.imwrite('../datasets/historyImage/'+keyname[0]+'_'+keyname[1]+'/open_' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg',saveframe,[int(cv2.IMWRITE_JPEG_QUALITY), 100])
-                                        savetime=nowtime
-                                        #print('hello============')
-                                        #print('savetime',savetime)
-                                        q.put('../datasets/historyImage/'+keyname[0]+'_'+keyname[1]+'/open_' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg')
-                   
-                                    #存JPG寫法
-                                    #cv2.imwrite('../datasets/historyImage/'+keyname[0]+'_'+keyname[1]+'/' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg',saveframe,[int(cv2.IMWRITE_JPEG_QUALITY), 100])
-                                    #存PNG寫法
-                                    #cv2.imwrite('../models/historyImage/'+keyname[0]+'_'+keyname[1]+'/' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.png',saveframe,[int(cv2.IMWRITE_PNG_COMPRESSION), 8])
-                                    
-                                
                                 elif np.max(predictions[0]) < predictionMax and np.max(predictions[0]) > predictionMin and HumanNames[best_class_indices[0]]:
                                     put_text = '{name} {confidence: 3.2f}'.format(name = HumanNames[best_class_indices[0]], confidence = (np.max(predictions[0]).tolist())*100)
                                     #gonumber1=int((np.max(predictions[0]).tolist())*1000)
@@ -261,67 +223,20 @@ def frameflesh(start_hour,start_min):
                                     ser.write( 'fail_'.encode('utf-8')+str(int((np.max(predictions[0]).tolist())*1000)).encode('utf-8')+'_'.encode('utf-8')+HumanNames[best_class_indices[0]].encode('utf-8')+'\r\n'.encode('utf-8') )
                                     #reading= 'fail_'.encode('utf-8')+str(int((np.max(predictions[0]).tolist())*1000)).encode('utf-8')+'_'.encode('utf-8')+HumanNames[best_class_indices[0]].encode('utf-8')+'\r\n'.encode('utf-8')
                                     historyFull(HumanNames[best_class_indices[0]] ,int((np.max(predictions[0]).tolist())*100) )
-                                    keyname=HumanNames[best_class_indices[0]].split('_')
-                                    xtime=datetime.now().strftime("%Y-%m-%d_%H%M%S")
-                                    nowtime=datetime.now()                                    
                                     #reading(ser)
                                     #updategui(reading)
-                                    
-                                    
-
-                                    if savereset2==3 : #第一次
-      
-                                        cv2.imwrite('../datasets/historyImage/'+keyname[0]+'_'+keyname[1]+'/fail_' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg',saveframe,[int(cv2.IMWRITE_JPEG_QUALITY), 100])
-                                        savereset2=1
-                                        savetime=nowtime
-                                        #print('savetime',savetime)
-                                        q.put('../datasets/historyImage/'+keyname[0]+'_'+keyname[1]+'/fail_' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg')
-                                        
-                                    if savereset2==1 and  nowtime-savetime > timedelta(seconds=6) : #第一次以外滿足六秒以上紀錄，解決不會一直儲存照片的問題
-                                        
-                                        cv2.imwrite('../datasets/historyImage/'+keyname[0]+'_'+keyname[1]+'/fail_' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg',saveframe,[int(cv2.IMWRITE_JPEG_QUALITY), 100])
-                                        savetime=nowtime
-                                        #print('hello============')
-                                        #print('savetime',savetime)
-                                        q.put('../datasets/historyImage/'+keyname[0]+'_'+keyname[1]+'/fail_' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg')
-                                                       
-                                    
-                                    
-                                    
                                 else:
                                     put_text = 'Stranger'
                                     cv2.rectangle(frame, (bb[i][0], bb[i][1]), (bb[i][2], bb[i][3]), (0, 225, 255), 2)    #boxing face
                                     cv2.putText(frame, put_text, (text_x, text_y), cv2.FONT_HERSHEY_COMPLEX_SMALL,
                                                 1, (0, 225, 255), thickness=2, lineType=2)                                  
                                     historyFull(put_text ,put_text )
-                                    keyname=HumanNames[best_class_indices[0]].split('_')
-                                    xtime=datetime.now().strftime("%Y-%m-%d_%H%M%S")
-                                    nowtime=datetime.now()                                    
                                     ser.write('stranger\r\n'.encode('utf-8'))
                                     reading= 'stranger\r\n'.encode('utf-8')
                                     #updategui(reading)
                                 #cv2.putText(frame, put_text, (text_x, text_y), cv2.FONT_HERSHEY_COMPLEX_SMALL,
                                             #1, (25, i*125, 25), thickness=2, lineType=2)                    
                                     #reading(ser)
-                                    
-                                    if savereset3==3 : #第一次
-      
-                                        cv2.imwrite('../datasets/historyImage/'+keyname[0]+'_'+keyname[1]+'/Stranger_' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg',saveframe,[int(cv2.IMWRITE_JPEG_QUALITY), 100])
-                                        savereset3=1
-                                        savetime=nowtime
-                                        #print('savetime',savetime)
-                                        q.put('../datasets/historyImage/'+keyname[0]+'_'+keyname[1]+'/Stranger_' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg')
-                                        
-                                    if savereset3==1 and  nowtime-savetime > timedelta(seconds=6) : #第一次以外滿足六秒以上紀錄，解決不會一直儲存照片的問題
-                                        
-                                        cv2.imwrite('../datasets/historyImage/'+keyname[0]+'_'+keyname[1]+'/Stranger_' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg',saveframe,[int(cv2.IMWRITE_JPEG_QUALITY), 100])
-                                        savetime=nowtime
-                                        #print('hello============')
-                                        #print('savetime',savetime)
-                                        q.put('../datasets/historyImage/'+keyname[0]+'_'+keyname[1]+'/Stranger_' +keyname[0]+'_'+keyname[1]+'_'+xtime+'_'+ str(bb[i][0])+'_'+ str(bb[i][1])+'_'+ str(bb[i][2])+'_'+ str(bb[i][3])  +'.jpg')
-                                                       
-                                                                        
-                                    
                             except IndexError :
                                 print("Oh No! IndexError : list index out of range for multi-faces")                        
     
@@ -374,7 +289,7 @@ def recordfile(dataframe):
 
 
 def month_and_day():
-    x = datetime.now()
+    x = datetime.datetime.now()
     
     # x.month=10
     if x.month<10 and x.month>=1:
@@ -395,7 +310,7 @@ def month_and_day():
 
 def historyIdentification(name,confidence):
     date=month_and_day()
-    xtime=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    xtime=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     chineseNow = open('/home/vincent/facenet/models/'+date+'-Identification','a')
     
@@ -404,7 +319,7 @@ def historyIdentification(name,confidence):
 
 def historyFull_setting(setting):
     date=month_and_day()
-    xtime=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    xtime=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
     chineseNow = open('/home/vincent/facenet/models/day/'+date+'-Full','a')
     
@@ -414,7 +329,7 @@ def historyFull_setting(setting):
 
 def historyFull(name,confidence):
     date=month_and_day()
-    xtime=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    xtime=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
     chineseNow = open('/home/vincent/facenet/models/day/'+date+'-Full','a')
     
@@ -479,34 +394,9 @@ def setting4_fix(start_hour,start_min):
     scheduler = BackgroundScheduler()
     scheduler.add_job(fixgui, 'cron', day_of_week='mon-fri', hour=start_hour, minute=start_min+1)
     scheduler.start()  
-    
-def setting5_retrain(start_hour,start_min):
-    #print(btime)
-    # BlockingScheduler
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(retraining, 'cron', day_of_week='mon-fri', hour=start_hour, minute=start_min)
-    scheduler.start()
-    
-    
-def setting6_saveimage():
-    #print(btime)
-    # BlockingScheduler
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(saveimage,  'interval', seconds=3)
-    scheduler.dae
-    scheduler.start()
-    
-    
-def saveimage():
-    print('===========flesh==========')
-    reflesh()
-
-def retraining():
-    os.system("sudo chown -R  vincent:vincent ../datasets/historyImage/")
-    
 
 def fixgui():
-    os.system("wmctrl -r Video -e 0,630,10,645,485")
+    os.system("wmctrl -r Video -e 0,500,10,645,485")
     print('setting wmctrl Video seccess')
 def refleshDay():
     
@@ -614,7 +504,7 @@ def refleshDay():
         ftp = FTP()
         timeout = 30
         port = 21
-        ftp.connect('192.168.91.158',port,timeout) # 連線FTP伺服器
+        ftp.connect('192.168.99.158',port,timeout) # 連線FTP伺服器
         ftp.login('Vincent','helloworld') # 登入
         print (ftp.getwelcome())  # 獲得歡迎資訊 
         #d=ftp.cwd('home/AccessFace/')    # 設定FTP路徑
@@ -644,7 +534,7 @@ def restart():
     
 def reflesh():
 
-    time.sleep(3)
+    time.sleep(2)
     firstLabel = Label(mainWin, text='辨識中..' ,font=('Arial',40) )        
     successLabel = Label(mainWin, text="門禁限制",font=('Arial',40),fg="#DC143C" )
     
@@ -681,10 +571,6 @@ else:
     ts=threading.Thread(target=frameflesh,args=(start_hour,start_min))
     ts.start()
     
-setting5_retrain(train_hour,train_min)    
-
-    
-    
 print('Creating networks and loading parameters')
 historyFull_setting('[Set System] (Success Limit): '+ str(successNum)  + ' (Stranger Limit): '+ str(strangerNum)+ ' (Fail Limit): '+ str(failNum) + ' (Prediction Max): '+ str(predictionMax) + ' (Prediction Min): '+ str(predictionMin) + ' (Set Fail Limit): '+ str(setFailLimit) + ' (Pass Rate): '+ str(passRate))
 
@@ -704,7 +590,7 @@ operation = [ '+', '-', '*', '/']
 # 視窗標題
 mainWin.title("face-gui")
 # 視窗大小
-mainWin.geometry("550x500")
+mainWin.geometry("640x280")
 
 # 步驟三：建立視窗控制項元件。
 # 建立標籤
@@ -712,8 +598,6 @@ mainWin.geometry("550x500")
 #var1 = tkinter.StringVar()
 #a1='辨識中..'
 #var1.set(a1)
-
-
 
 
 allname=read_train_object()
@@ -741,25 +625,6 @@ pdID = dict(zip(number123, pd123))
 print(persenID)
 print(pdID)
 
-#建立資料夾
-if not os.path.isdir('../datasets/'):
-    os.mkdir('../datasets/')    
-else :
-    print ('data  file exist')
-    
-if not os.path.isdir('../datasets/historyImage/'):
-    os.mkdir('../datasets/historyImage/')    
-else :
-    print ('data  file exist') 
-
-#建立每個人照片資料夾
-for numberid in number123:
-    if not os.path.isdir('../datasets/historyImage/'+numberid+'_'+persenID[numberid]):
-        os.mkdir('../datasets/historyImage/'+numberid+'_'+persenID[numberid])    
-    else :
-        print ('../datasets/historyImage/'+numberid+'_'+persenID[numberid]+'  file exist')    
-
-
 
 firstLabel = Label(mainWin, text='辨識中..' ,font=('Arial',40) )        
 successLabel = Label(mainWin, text="門禁限制",font=('Arial',40),fg="#DC143C" )
@@ -777,7 +642,6 @@ personLabel.grid(row=2,column=1, sticky='w')
 pdLabel.grid(row=3,column=0, sticky='w')
 pdresultLabel.grid(row=3,column=1, sticky='w') 
 mainWin.update() 
-showreset=3
 while True:
 
 
@@ -788,8 +652,7 @@ while True:
     print('reading : ',reading)
     #https://blog.csdn.net/jieli_/article/details/70166244
     #mainWin.after(20)  
-    
-    
+          
     if re.findall("Open", reading) or re.findall("Pass", reading) :
         
 
@@ -801,159 +664,36 @@ while True:
         
         if re.findall("Open", reading):
             
-            
-            
             print(re.findall("ID:+[0-9]+[0-9]", reading) )
             idd=re.findall("ID:+[0-9]+[0-9]", reading)
             print(idd)
             iddd=idd[0].split(":")
             realID=iddd[1]
 
+            person = tkinter.StringVar()
+            person.set(persenID[realID]+'                            ')
 
-            
-            
-            
-            
-            nowtime=datetime.now()
-            
-            
-            
-            if showreset==3 :
-                
-                
-                person = tkinter.StringVar()
-                person.set(persenID[realID]+'                            ')
-    
-                pd = tkinter.StringVar()
-                pd.set('DP '+pdID[realID]+'             ')       
-    
-                firstLabel = Label(mainWin, text='辨識中..',font=('Arial',40) )        
-                successLabel = Label(mainWin,text="辨識成功",font=('Arial',40),fg="#40E0D0" )
-    
-                resultLabel = Label(mainWin, text="辨識身份",font=('Arial',40))
-                personLabel = Label(mainWin,  textvariable=person,font=('Arial',40),fg="#9400D3" )
-    
-                pdLabel = Label(mainWin, text="部門為",font=('Arial',40))
-                pdresultLabel = Label(mainWin,  textvariable=pd,font=('Arial',40),fg="#9400D3" )
-                reading=q.get()
-                print('q.get:  ',reading)            
-                
-                
-                #photosucs = tkinter.PhotoImage(file=reading)  #file：t图片路径
-                #imgLabelsucs  = tkinter.Label(mainWin,image=photosucs)#把图片整合到标签类中
-                #imgLabelsucs.grid(column=0, row=4, sticky='w')
-                
-                
-                firstLabel.grid(row=1,column=0, sticky='w')
-                successLabel.grid(row=1,column=1, sticky='w')
-                resultLabel.grid(row=2,column=0, sticky='w')
-                personLabel.grid(row=2,column=1, sticky='w')
-                pdLabel.grid(row=3,column=0, sticky='w')
-                
-                pdresultLabel.grid(row=3,column=1, sticky='w') 
-                #imgLabelsucs.grid(column=0, row=4, sticky='w')
-                mainWin.update()                 
-                
-                
-                
-                reflesh()
-                savetime=nowtime
-                showreset=1
-                saveID=realID
-                #t1= threading.Timer(5,function=reflesh)
-                #t1.start
-                
-            elif showreset==1  and saveID==realID  and nowtime-savetime > timedelta(seconds=6) :
-                
-                
-                
-                person = tkinter.StringVar()
-                person.set(persenID[realID]+'                            ')
-    
-                pd = tkinter.StringVar()
-                pd.set('DP '+pdID[realID]+'             ')       
-    
-                firstLabel = Label(mainWin, text='辨識中..',font=('Arial',40) )        
-                successLabel = Label(mainWin,text="辨識成功",font=('Arial',40),fg="#40E0D0" )
-    
-                resultLabel = Label(mainWin, text="辨識身份",font=('Arial',40))
-                personLabel = Label(mainWin,  textvariable=person,font=('Arial',40),fg="#9400D3" )
-    
-                pdLabel = Label(mainWin, text="部門為",font=('Arial',40))
-                pdresultLabel = Label(mainWin,  textvariable=pd,font=('Arial',40),fg="#9400D3" )
-                reading=q.get()
-                print('q.get:  ',reading)            
-                
-                
-                #photosucs = tkinter.PhotoImage(file=reading)  #file：t图片路径
-                #imgLabelsucs  = tkinter.Label(mainWin,image=photosucs)#把图片整合到标签类中
-                #imgLabelsucs.grid(column=0, row=4, sticky='w')
-                
-                
-                firstLabel.grid(row=1,column=0, sticky='w')
-                successLabel.grid(row=1,column=1, sticky='w')
-                resultLabel.grid(row=2,column=0, sticky='w')
-                personLabel.grid(row=2,column=1, sticky='w')
-                pdLabel.grid(row=3,column=0, sticky='w')
-                
-                pdresultLabel.grid(row=3,column=1, sticky='w') 
-                #imgLabelsucs.grid(column=0, row=4, sticky='w')
-                mainWin.update()                 
-                
-                
-                savetime=nowtime
-                reflesh()
-                #setting6_saveimage()
-                #t1= threading.Timer(5,function=reflesh)
-                #t1.start                
-                
-            elif showreset==1 and saveID != realID :
-                
-                
-                person = tkinter.StringVar()
-                person.set(persenID[realID]+'                            ')
-    
-                pd = tkinter.StringVar()
-                pd.set('DP '+pdID[realID]+'             ')       
-    
-                firstLabel = Label(mainWin, text='辨識中..',font=('Arial',40) )        
-                successLabel = Label(mainWin,text="辨識成功",font=('Arial',40),fg="#40E0D0" )
-    
-                resultLabel = Label(mainWin, text="辨識身份",font=('Arial',40))
-                personLabel = Label(mainWin,  textvariable=person,font=('Arial',40),fg="#9400D3" )
-    
-                pdLabel = Label(mainWin, text="部門為",font=('Arial',40))
-                pdresultLabel = Label(mainWin,  textvariable=pd,font=('Arial',40),fg="#9400D3" )
-                reading=q.get()
-                print('q.get:  ',reading)            
-                
-                
-                #photosucs = tkinter.PhotoImage(file=reading)  #file：t图片路径
-                #imgLabelsucs  = tkinter.Label(mainWin,image=photosucs)#把图片整合到标签类中
-                #imgLabelsucs.grid(column=0, row=4, sticky='w')
-                
-                
-                firstLabel.grid(row=1,column=0, sticky='w')
-                successLabel.grid(row=1,column=1, sticky='w')
-                resultLabel.grid(row=2,column=0, sticky='w')
-                personLabel.grid(row=2,column=1, sticky='w')
-                pdLabel.grid(row=3,column=0, sticky='w')
-                
-                pdresultLabel.grid(row=3,column=1, sticky='w') 
-                #imgLabelsucs.grid(column=0, row=4, sticky='w')
-                mainWin.update()                 
-                
-                
+            pd = tkinter.StringVar()
+            pd.set('DP '+pdID[realID]+'             ')       
 
-                savetime=nowtime
-                saveID=realID
-                reflesh()
-                #setting6_saveimage()
-                #t1= threading.Timer(5,function=reflesh)
-                #t1.start                
+            firstLabel = Label(mainWin, text='辨識中..',font=('Arial',40) )        
+            successLabel = Label(mainWin,text="辨識成功",font=('Arial',40),fg="#40E0D0" )
+
+            resultLabel = Label(mainWin, text="辨識身份",font=('Arial',40))
+            personLabel = Label(mainWin,  textvariable=person,font=('Arial',40),fg="#9400D3" )
+
+            pdLabel = Label(mainWin, text="部門為",font=('Arial',40))
+            pdresultLabel = Label(mainWin,  textvariable=pd,font=('Arial',40),fg="#9400D3" )
+   
             
-            
-            
+            firstLabel.grid(row=1,column=0, sticky='w')
+            successLabel.grid(row=1,column=1, sticky='w')
+            resultLabel.grid(row=2,column=0, sticky='w')
+            personLabel.grid(row=2,column=1, sticky='w')
+            pdLabel.grid(row=3,column=0, sticky='w')
+            pdresultLabel.grid(row=3,column=1, sticky='w') 
+            mainWin.update() 
+            reflesh()
 
         #elif re.findall("Pass", autosave) and int(strangercount1[1])<=8:
             #print(re.findall("ID:+[0-9]+[0-9]", reading) )
