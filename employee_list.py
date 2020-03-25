@@ -17,3 +17,5 @@ for Employeelist in Employeefile1:
     Employeelist=Employeelist.replace(" ", "") #全形
  
     print(Employeelist)
+
+
