@@ -205,7 +205,7 @@ class mainpage(object):
 class secondpage(object):
     def __init__(self, master=None,dp=0):
         self.root = master
-        root.geometry('600x800')
+        root.geometry('700x800')
 
         self.page = tk.Frame(self.root)
         self.page.grid() 
@@ -252,10 +252,10 @@ class secondpage(object):
         #self.mode=""
    
         
-        self.selectcircle1=tk.Radiobutton(self.page,text = '  異地上班', variable=self.var1, value='A',command=partial(self.dtest,'work')  , font=('Arial', 12) )
+        self.selectcircle1=tk.Radiobutton(self.page,text = '  上班', variable=self.var1, value='A',command=partial(self.dtest,'Work')  , font=('Arial', 12) )
         self.selectcircle1.grid(column=0, row=6, pady=1, sticky=tk.W)      
         
-        self.selectcircle2=tk.Radiobutton(self.page,text = '  異地下班',variable=self.var1,value='B',command=partial(self.dtest,'offwork')  , font=('Arial', 12) )
+        self.selectcircle2=tk.Radiobutton(self.page,text = '  下班',variable=self.var1,value='B',command=partial(self.dtest,'OffWork')  , font=('Arial', 12) )
         self.selectcircle2.grid(column=0, row=6, pady=2, sticky=tk.N+tk.S)       
         
         #空白
@@ -268,7 +268,7 @@ class secondpage(object):
         
         
         
-        self.selectcircle3=tk.Radiobutton(self.page,text = '  外出',variable=self.var1,value='C',command=partial(self.dtest,'businesstrip')  , font=('Arial', 12) )
+        self.selectcircle3=tk.Radiobutton(self.page,text = '  公出',variable=self.var1,value='C',command=partial(self.dtest,'OutsideWork')  , font=('Arial', 12) )
         self.selectcircle3.grid(column=0, row=9, pady=1, sticky=tk.W  )     
         
         
@@ -330,7 +330,7 @@ class secondpage(object):
         
         
         #選擇月份bar
-        monthlist=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月']
+        monthlist=['01月','02月','03月','04月','05月','06月','07月','08月','09月','10月','11月','12月']
         self.comboMonth = ttk.Combobox(self.page, width=7 ,values=monthlist, font=('Arial', 12),state="readonly") 
         print(dict(self.comboMonth)) 
         self.comboMonth.grid(columnspan=2,column=0, row=14,sticky=tk.N+tk.S)
@@ -339,7 +339,7 @@ class secondpage(object):
         
         
         #選擇月份bar
-        daylist=['1日','2日','3日','4日','5日','6日','7日','8日','9日','10日','11日','12日','13日','14日','15日','16日','17日','18日','19日','20日',
+        daylist=['01日','02日','03日','04日','05日','06日','07日','08日','09日','10日','11日','12日','13日','14日','15日','16日','17日','18日','19日','20日',
                  '21日','22日','23日','24日','25日','26日','27日','28日','29日','30日','31日']
         self.comboDay = ttk.Combobox(self.page, width=7 ,values=daylist, font=('Arial', 12),state="readonly") 
         print(dict(self.comboDay)) 
@@ -358,21 +358,35 @@ class secondpage(object):
         self.varBusinessOutTime.set('00:00')
         
 
+
         
         #空白
         spaceLabel= tk.Label(self.page,textvariable="             " )
         spaceLabel.grid(column=0, row=17, sticky=tk.W)          
         
+        #分隔線
         self.sv = ttk.Separator(self.page, orient=tk.HORIZONTAL)
         self.sv.grid(row=18,columnspan=8,sticky="ew")         
 
-        #空白
+        #反應
+        self.varreback=tk.StringVar()
+        self.varrebackLabel= tk.Label(self.page,textvariable=self.varreback, font=('Arial', 12),fg="#DC143C" ,justify = tk.RIGHT )
+        self.varrebackLabel.grid(columnspan=9,column=0, row=19, pady=1, sticky=tk.W)  
+
+
+
+        #反應
         spaceLabel= tk.Label(self.page,textvariable="             " )
-        spaceLabel.grid(column=0, row=19, sticky=tk.W) 
-
-
+        spaceLabel.grid(column=0, row=20, sticky=tk.W) 
+        
+        
+        
+        
         self.Button = tk.Button(self.page, text=u'確定',font=('Arial', 12),justify = tk.LEFT,command=partial(self.takerun)  ) 
-        self.Button.grid(column=0,row=20, sticky=tk.N+tk.S)   
+        self.Button.grid(column=0,row=21, sticky=tk.N+tk.S)   
+        
+        self.Button = tk.Button(self.page, text=u'清除',font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,self.dp)  ) 
+        self.Button.grid(column=1,row=21, sticky=tk.W)          
         
 
         root.mainloop()   
@@ -381,33 +395,60 @@ class secondpage(object):
         self.mode=mode
         print('self.mode',self.mode)
         
+    def no_file_worning11(self):
+        tk.messagebox.showwarning( title='錯誤', message='請正確輸入六位數字員工編號')
+    def no_file_worning12(self):
+        tk.messagebox.showwarning( title='錯誤', message='該員工尚未建檔，請重新確認')
+    def no_file_worning13(self):
+        tk.messagebox.showwarning( title='錯誤', message='事由及地點請勿空白，時間請正確填寫')
         
     def takerun(self):
         #print('mode',mode)
         if not os.path.isdir('data/'):
             os.mkdir('data/')    
         else :
-            print ('data  file exist')         
-        
-        path='home/AccessFace/home_card/'+self.dp+'/'
-        personftp=downftp.nlst(path)
+            print ('data  file exist')     
             
-        print('personftp',personftp)     
-        path88='data/'
-        values12=self.dp+'-'+newyear+newmonth
-        for pathperson in personftp:
-            personfile=pathperson.split('/')
-            personmonth=personfile[-1]
-            print('personmonth',personmonth)
-            personmonth1=personmonth.split('.')
-            pmonth=personmonth1[0].split('-')
-            if pmonth[1]==newyear+newmonth :
-                print('pathperson yes',pathperson)
-                
-                f=open(path88+values12+'-personal.csv', 'wb')
-                downftp.retrbinary('RETR ' + pathperson, f.write )
-                print('download file'+path88+values12+'-personal.csv')                    
-                f.close()
+            
+        
+
+        
+        
+        #去確認remote所有目錄
+        pathqq='home/AccessFace/remote/'
+        idperson=[]
+        personftpqq=downftp.nlst(pathqq)   
+        for personfty in personftpqq:
+            personww=personfty.split('/')
+            idperson.append(personww[-1])
+        print('idperson',idperson)
+        
+        #沒有則建資料夾
+        if self.dp not in idperson:
+            print(self.dp+'沒有在ftp建立資料夾')
+            downftp.mkd(pathqq+self.dp)
+            print('home/AccessFace/remote/'+self.dp+': 成功建立資料夾')        
+        
+        
+        else:
+            path88='data/'
+            values12=self.dp+'-'+newyear+newmonth
+            personfileget=downftp.nlst(pathqq+self.dp+'/')
+            print('len(personfileget)',len(personfileget))
+            if len(personfileget) > 0:
+                for pathperson in personfileget:
+                    personfile=pathperson.split('/')
+                    personmonth=personfile[-1]
+                    print('personmonth',personmonth)
+                    personmonth1=personmonth.split('.')
+                    pmonth=personmonth1[0].split('-')
+                    if pmonth[1]==newyear+newmonth :
+                        print('pathperson yes',pathperson)
+                        
+                        f=open(path88+values12+'-personal.csv', 'wb')
+                        downftp.retrbinary('RETR ' + pathperson, f.write )
+                        print('download file'+path88+values12+'-personal.csv')                    
+                        f.close()
                 
         
         newdate=datetime.now().strftime("%Y-%m-%d")
@@ -415,7 +456,10 @@ class secondpage(object):
         
         try: 
             print('self.mode',self.mode)
-            if self.mode=="offwork" :
+            if self.mode=="OffWork" :
+           
+                path88='data/'
+                values12=self.dp+'-'+newyear+newmonth
                 finalid=[]
                 
                 finalid.append(self.mode+','+ self.dp  +','+ persenID[self.dp] +','+ pdID[self.dp] +','+ newdate +','+newdtime+',None,None' )
@@ -425,13 +469,224 @@ class secondpage(object):
                 #np.savetxt(path_database+'database_Employee.csv', finalid,fmt='%s', delimiter=',')
                 with open(path88+values12+'-personal.csv','a') as f: 
                     np.savetxt(f, finalid,fmt='%s', delimiter=',')
-                f.close                    
+                f.close      
                 
-            elif self.mode=="businesstrip" :
+                
+                try:
+                    #d=ftp.cwd('home/AccessFace/')
+                    downftp.storbinary('STOR '+'home/AccessFace/remote/'+self.dp+'/'+values12+'-personal.csv' , open(path88+values12+'-personal.csv', 'rb')) # 上傳FTP檔案
+                    print("succes upload: " +'home/AccessFace/remote/'+self.dp+'/'+values12+'-personal.csv')
+                except:
+                    print("upload failed: " +'home/AccessFace/remote/'+self.dp+'/'+values12+'-personal.csv')
+                    print("upload failed. check.................        ......")                
+                
+                
+                self.varreback.set("                            ")        
+                self.varreback.set("Update: " +  persenID[self.dp] + ' 新增下班紀錄 '+ newdate+ ' '+ newdtime)
+                
+            elif self.mode=="OutsideWork" :
+                
+        
+                #如果事由及地點沒填則不會繼續接下來動作
+                person1=self.varBusinessPerson1.get()
+                person2=self.varBusinessPerson2.get()
+                person3=self.varBusinessPerson3.get()
+                person4=self.varBusinessPerson4.get()   
+                failBusinessWhy=0
+                failBusinessPerson=0
+                fail=0
+                if self.varBusinessWhy.get()=="" or self.varBusinessLocation.get()==""  :
+                    self.no_file_worning13()
+                    failBusinessWhy=1
+                
+                if person1!="同事1"  or person2!="同事2"  or person3!="同事3"  or person4!="同事4" :
+                    print('有除了同事1-4以外的資訊')
+                    if person1.isdigit() and len(person1)==6 or person1=="同事1" :
+                        print ('person1 is ok')
+                    else:
+                        fail=fail+1
+                        failBusinessPerson=1
+                    if person2.isdigit() and len(person2)==6 or person2=="同事2" :
+                        print ('person2 is ok')
+                    else:
+                        fail=fail+1           
+                        failBusinessPerson=1
+                    if person3.isdigit() and len(person3)==6 or person3=="同事3" :
+                        print ('person3 is ok') 
+                    else:
+                        fail=fail+1   
+                        failBusinessPerson=1
+                    if person4.isdigit() and len(person4)==6 or person4=="同事4":
+                        print ('person4 is ok')  
+                    else:
+                        fail=fail+1
+                        failBusinessPerson=1
+                    if fail!=0:
+                        self.no_file_worning11()    
+                
+                
+                #事由及地點非空白 繼續動作
+                if failBusinessPerson==0 and failBusinessWhy==0:
+                    
+                    addperson=[]
+                    addperson.append(self.dp)
+                    
+                    if len(person1)==6 and person1.isdigit() :
+                        
+                        print ('person1 add ok')
+                        addperson.append(person1)
+        
+                    if len(person2)==6 and person2.isdigit() :
+                        
+                        print ('person2 add ok')
+                        addperson.append(person2)   
+                        
+                    if len(person3)==6 and person3.isdigit() :
+                        
+                        print ('person3 add ok')
+                        addperson.append(person3)
+        
+                    if len(person4)==6 and person4.isdigit() :
+                        
+                        print ('person4 add ok')
+                        addperson.append(person4)   
+                        
+                    ##判斷輸入的隨行同事是否為無效值    
+                    #fail=0
+                    #if person1!="同事1"  or person2!="同事2"  or person3!="同事3"  or person4!="同事4" :
+                        #print('有除了同事1-4以外的資訊')
+                        #if person1.isdigit() and len(person1)==6 or person1=="同事1" :
+                            #print ('person1 is ok')
+                        #else:
+                            #fail=fail+1
+                        #if person2.isdigit() and len(person2)==6 or person2=="同事2" :
+                            #print ('person2 is ok')
+                        #else:
+                            #fail=fail+1                    
+                        #if person3.isdigit() and len(person3)==6 or person3=="同事3" :
+                            #print ('person3 is ok') 
+                        #else:
+                            #fail=fail+1                    
+                        #if person4.isdigit() and len(person4)==6 or person4=="同事4":
+                            #print ('person4 is ok')  
+                        #else:
+                            #fail=fail+1
+                            
+                            
+                    #if fail!=0:
+                        #self.no_file_worning11()
+                            
+                       
+                    #去確認remote所有目錄
+                    pathqq='home/AccessFace/remote/'
+                    idperson=[]
+                    personftpqq=downftp.nlst(pathqq)   
+                    for personfty in personftpqq:
+                        personww=personfty.split('/')
+                        idperson.append(personww[-1])
+                    print('idperson',idperson)
+                    
+                    print('addperson',addperson)
+                    ghostpersonefail=0
+                    
+                    for oneperson in addperson: 
+                        if oneperson not in persenID:
+                            print(oneperson+'該同仁沒建檔')
+                            ghostpersonefail=1
+                            self.no_file_worning12()
+                            
+                    if ghostpersonefail==0:
+                        for oneperson in addperson:
+                    
+                            finalid=[]
+                            finalid.append(self.mode+','+ oneperson  +','+ persenID[oneperson] +','+ pdID[oneperson] +','+newyear+'-'+ self.comboMonth.get()[0:2] +'-'+ 
+                                           self.comboDay.get()[0:2]+','+ self.varBusinessOutTime.get()+','+ self.varBusinessWhy.get()+','+ self.varBusinessLocation.get() )
+                                     #comboDay +','+ self.varBusinessOutTime.get+','+ self.varBusinessWhy.get+','+ self.varBusinessLocation.get)
+                            
+                            print('finalid',finalid)
+                            
+                            
+                            pathqq='home/AccessFace/remote/'
+                            personftpqq=downftp.nlst(pathqq)
+                                
+                            print('personftpqq',personftpqq)     
+                            path88='data/'
+                            values123=oneperson+'-'+newyear+ self.comboMonth.get()[0:2]
+                            
+                            #判斷有沒有該工號資料夾 沒有的話就新建一個
+                            if oneperson  not in   idperson :
+                                print(oneperson+'沒有在ftp建立資料夾')
+                                downftp.mkd(pathqq+oneperson)
+                                print('home/AccessFace/remote/'+oneperson+': 成功建立資料夾')
+                                
+                                #上傳檔案
+                                with open(path88+values123 +'-personal.csv','a') as f: 
+                                    np.savetxt(f, finalid,fmt='%s', delimiter=',')
+                                f.close
+                                
+                                try:
+                                    #d=ftp.cwd('home/AccessFace/')
+                                    downftp.storbinary('STOR '+'home/AccessFace/remote/'+oneperson+'/'+values123+'-personal.csv' , open(path88+values123+'-personal.csv', 'rb')) # 上傳FTP檔案
+                                    print("succes upload: " +'home/AccessFace/remote/'+oneperson+'/'+values123+'-personal.csv')
+                                except:
+                                    print("upload failed: " +'home/AccessFace/remote/'+oneperson+'/'+values123+'-personal.csv')
+                                    print("upload failed. check.................        ....                    ..")    
+                            
+                            #其餘如果該員工在ftp有見過資料夾則上去確認是否有已存的檔案，下載修改後在上傳
+                            else:
+                                
+                                #ftp找尋目錄是否有該資料夾的檔案
+                                path='home/AccessFace/remote/'+oneperson+'/'
+                                personftp=downftp.nlst(path)
+                                    
+                                print('personftp',personftp)     
+                                path88='data/'
+                                values123=oneperson+'-'+newyear+ self.comboMonth.get()[0:2]
+                                for pathperson in personftp:
+                                    personfile=pathperson.split('/')
+                                    personmonth=personfile[-1]
+                                    print('personmonth',personmonth)
+                                    personmonth1=personmonth.split('.')
+                                    pmonth=personmonth1[0].split('-')
+                                    if pmonth[1]==newyear+self.comboMonth.get()[0:2] :
+                                        print('pathperson yes',pathperson)
+                                        
+                                        f=open(path88+values123+'-personal.csv', 'wb')
+                                        downftp.retrbinary('RETR ' + pathperson, f.write )
+                                        print('download file'+path88+values123+'-personal.csv')                    
+                                        f.close()
+                                
+                                #上傳檔案
+                                with open(path88+values123+'-personal.csv','a') as f: 
+                                    np.savetxt(f, finalid,fmt='%s', delimiter=',')
+                                f.close
+                                
+                                try:
+                                    #d=ftp.cwd('home/AccessFace/')
+                                    downftp.storbinary('STOR '+'home/AccessFace/remote/'+oneperson+'/'+values123+'-personal.csv' , open(path88+values123+'-personal.csv', 'rb')) # 上傳FTP檔案
+                                    print("succes upload: " +'home/AccessFace/remote/'+oneperson+'/'+values123+'-personal.csv')
+                                except:
+                                    print("upload failed: " +'home/AccessFace/remote/'+oneperson+'/'+values123+'-personal.csv')
+                                    print("upload failed. check...............")
+                                    
+                        #list = ['a', 'b', 'c', 'd']
+                        arraddperson = np.array(addperson)
+                        strarraddperson = ' '.join(arraddperson)
+                        #print(str)     
+                        #https://blog.csdn.net/FrankieHello/article/details/80766439
+                     
+                        self.varreback.set("                            ")        
+                        self.varreback.set("Update: 工號 " +  strarraddperson + ' 新增公出紀錄 '+ newyear+'-'+ self.comboMonth.get()[0:2] +'-'+ 
+                                   self.comboDay.get()[0:2]+' '+ self.varBusinessOutTime.get()  )                                
+             
+                        
+                        
+                
+            elif self.mode=="Work" :
+           
+                path88='data/'
+                values12=self.dp+'-'+newyear+newmonth
                 finalid=[]
-                
-                #if self.varBusinessPerson1.get=="" or self.varBusinessPerson1.get=="同事1"  or  self.varBusinessPerson1.get==:
-                
                 
                 finalid.append(self.mode+','+ self.dp  +','+ persenID[self.dp] +','+ pdID[self.dp] +','+ newdate +','+newdtime+',None,None' )
                 
@@ -440,12 +695,25 @@ class secondpage(object):
                 #np.savetxt(path_database+'database_Employee.csv', finalid,fmt='%s', delimiter=',')
                 with open(path88+values12+'-personal.csv','a') as f: 
                     np.savetxt(f, finalid,fmt='%s', delimiter=',')
-                f.close        
-            
+                f.close      
+                
+                
+                try:
+                    #d=ftp.cwd('home/AccessFace/')
+                    downftp.storbinary('STOR '+'home/AccessFace/remote/'+self.dp+'/'+values12+'-personal.csv' , open(path88+values12+'-personal.csv', 'rb')) # 上傳FTP檔案
+                    print("succes upload: " +'home/AccessFace/remote/'+self.dp+'/'+values12+'-personal.csv')
+                except:
+                    print("upload failed: " +'home/AccessFace/remote/'+self.dp+'/'+values12+'-personal.csv')
+                    print("upload failed. check.................        ......")                  
+                    
+                self.varreback.set("                            ")        
+                self.varreback.set("Update: " +  persenID[self.dp] + ' 新增上班紀錄 '+ newdate+ ' '+ newdtime)
             
         except:
-            self.mode='work'
+            self.mode='Work'
             print('self.mode',self.mode)
+            path88='data/'
+            values12=self.dp+'-'+newyear+newmonth            
             finalid=[]
             
             finalid.append(self.mode+','+ self.dp  +','+ persenID[self.dp] +','+ pdID[self.dp] +','+ newdate +','+newdtime+',None,None' )
@@ -457,13 +725,19 @@ class secondpage(object):
                 np.savetxt(f, finalid,fmt='%s', delimiter=',')
             f.close
             
-        try:
-            #d=ftp.cwd('home/AccessFace/')
-            downftp.storbinary('STOR '+'home/AccessFace/home_card/'+self.dp+'/'+values12+'-personal.csv' , open(path88+values12+'-personal.csv', 'rb')) # 上傳FTP檔案
-            print("succes upload: " +'home/AccessFace/home_card/'+self.dp+'/'+values12+'-personal.csv')
-        except:
-            print("upload failed: " +'home/AccessFace/home_card/'+self.dp+'/'+values12+'-personal.csv')
-            print("upload failed. check.................        ......")
+            try:
+                #d=ftp.cwd('home/AccessFace/')
+                downftp.storbinary('STOR '+'home/AccessFace/remote/'+self.dp+'/'+values12+'-personal.csv' , open(path88+values12+'-personal.csv', 'rb')) # 上傳FTP檔案
+                print("succes upload: " +'home/AccessFace/remote/'+self.dp+'/'+values12+'-personal.csv')
+            except:
+                print("upload failed: " +'home/AccessFace/remote/'+self.dp+'/'+values12+'-personal.csv')
+                print("upload failed. check.......................")
+                
+                
+                
+                
+            self.varreback.set("                            ")        
+            self.varreback.set("Update: " +  persenID[self.dp] + ' 新增上班紀錄 '+ newdate+ ' '+ newdtime)            
         
             
     def mainpage(self):
@@ -475,6 +749,13 @@ class secondpage(object):
         print('personq',personq)
         self.page.destroy()
         personpage(self.root,personq)
+        
+        
+    def secpage(self,personq ):
+        
+        print('personq',personq)
+        self.page.destroy()
+        secondpage(self.root,personq)        
 
 class personpage(object):
     def __init__(self, master=None,personq=0):
@@ -491,6 +772,9 @@ class personpage(object):
         #製作一年日期的查詢表
         sourceyear,sourcemonth,sourceday=month_and_day()
         #newtyear,newmonth,newday=month_and_day()
+        
+        
+        
         
         print(sourceyear)
         print(sourcemonth)
@@ -521,6 +805,8 @@ class personpage(object):
                 valuesmonth.append(str(newmonth) )                
                 newmonth=int(newmonth)-1        
         
+        #self.callbackallthing(newmonth)
+        #print('self.onlyRemote1',self.onlyRemote1)        
         
         spaceLabel= tk.Label(self.page,textvariable="             " )
         spaceLabel.grid(column=0, row=1, sticky=tk.W)
@@ -579,7 +865,7 @@ class personpage(object):
         self.selectcircle=tk.Radiobutton(self.page,text = '檢視人臉識別', variable=self.var1,value='C',command=partial(self.show_face_callbackFunc,personq)  , font=('Arial', 12) )
         self.selectcircle.grid(column=1, row=4, pady=1, sticky=tk.W)   
         
-        self.selectcircle=tk.Radiobutton(self.page,text = '遠端', variable=self.var1,value='D',command=partial(self.show_remote_callbackFunc,personq)  , font=('Arial', 12) )
+        self.selectcircle=tk.Radiobutton(self.page,text = '公出及遠端', variable=self.var1,value='D',command=partial(self.show_remote_callbackFunc,personq)  , font=('Arial', 12) )
         self.selectcircle.grid(column=1, row=5, pady=1, sticky=tk.W)         
         
         #空白
@@ -589,19 +875,44 @@ class personpage(object):
         
         
         #讀取csv並且取012345 colums
-        onlyuse = np.loadtxt('data/'+self.stryear+self.strmonth+'.csv',dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5))
+        onlyuse = np.loadtxt('data/'+self.stryear+self.strmonth+'.csv',dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5,0,1))
         print('onlyuse',onlyuse)        
         
         if len(glob.glob('data/'+self.stryear+self.strmonth+'-idcard.csv'))>=1 :
             print(glob.glob('data/'+self.stryear+self.strmonth+'-idcard.csv'))
-            onlyidcard = np.loadtxt('data/'+self.stryear+self.strmonth+'-idcard.csv',dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5))
+            onlyidcard = np.loadtxt('data/'+self.stryear+self.strmonth+'-idcard.csv',dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5,0,1))
+            print('onlyonlyidcard.shape,onlyonlyidcard.ndim',onlyonlyidcard.shape[0],onlyonlyidcard.shape[1],onlyonlyidcard.ndim)
             print('===========onlyidcard===========',onlyidcard) 
+            
             onlyuse=np.concatenate((onlyidcard,onlyuse),axis=0)    #拼接陣列     
         
-        
+        if len(glob.glob('data/'+self.personq+'-'+self.stryear+self.strmonth+'-personal.csv'))>=1 :
+             
+            print(glob.glob('data/'+self.personq+'-'+self.stryear+self.strmonth+'-personal.csv'))
+            
+            
+            onlyRemote = np.loadtxt('data/'+self.personq+'-'+self.stryear+self.strmonth+'-personal.csv',dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5,6,7))
+            print('onlyRemote.shape,onlyRemote.ndim',onlyRemote.shape[0],onlyRemote.ndim)
+            if onlyRemote.ndim==1:
+                #np.reshape(onlyRemote,(2,6) , order='F') 
+                #print('reshape onlyRemote',onlyRemote)
+                #onlyRemote[None,:].shape 
+                #arrayB = np.ones((1, onlyRemote.shape[0] ))
+                arrayB = np.empty([1, onlyRemote.shape[0] ], dtype='string')
+                numset=0
+                for onevole in onlyRemote:
+                    arrayB[0][numset]=onevole
+                    numset=numset+1
+                    
+                    
+                    
+                np.append(onlyuse, onlyRemote, axis=0)
+            else:
+                onlyuse=np.concatenate((onlyRemote,onlyuse),axis=0)        
+    
         
         #搜尋是"vincent"的索引值
-        userid=np.argwhere(onlyuse==persenID[self.personq])     
+        userid=np.argwhere(onlyuse==self.personq)     
         #print('userid',userid)
 
         #透過索引值取出符合"vincent"要的rows
@@ -728,15 +1039,19 @@ class personpage(object):
         #print('最後調整的項目（含刪除）after',onlyuse_id)
         
         tree=ttk.Treeview(self.page,height =20 ,show='headings')#表格show='headings'隱藏第一欄
-        tree["columns"]=("姓名","日期","第一筆時間","最後筆時間")
-        tree.column("姓名",width=100)   #表示列,不显示
+        tree["columns"]=("狀態別","日期","第一筆時間","最後筆時間","事由","地點")
+        tree.column("狀態別",width=100)   #表示列,不显示
         tree.column("日期",width=100)   #表示列,不显示
         tree.column("第一筆時間",width=100)
         tree.column("最後筆時間",width=100)
-        tree.heading("姓名",text="姓名")  #显示表头
+        tree.column("事由",width=100)
+        tree.column("地點",width=100)
+        tree.heading("狀態別",text="狀態別")  #显示表头
         tree.heading("日期",text="日期")  #显示表头
         tree.heading("第一筆時間",text="第一筆時間")
         tree.heading("最後筆時間",text="最後筆時間")
+        tree.heading("事由",text="事由")
+        tree.heading("地點",text="地點")     
         #tree.insert("", insert_mode, text='name first col')
         style = ttk.Style()
         style.configure("Treeview", font=('Arial',12))
@@ -755,19 +1070,46 @@ class personpage(object):
             #print('onlyuse_id_a',onlyuse_id_a)
             #print('vvvv', onlyuse_id_a[:,5]  )
             
+            type123=onlyuse_id_a[0:1,0]
             name123=onlyuse_id_a[0:1,2]
             datetime=onlyuse_id_a[0:1,4]
             ontime=onlyuse_id_a[0:1,5]
             offtime=onlyuse_id_a[:,5]
+            print('type123',type123)
+            print('name123',name123)
+            print('datetime',datetime)
+            print('ontime',ontime)
+            print('offtime',offtime)
             
-            
-            
+                    
             if len(id1)==1:
-                tree.insert("",line123,text=name123[0] ,values=(name123[0],datetime[0],ontime[0],"  ") )
+                if type123[0]=='open':
+                    type123[0]='Face'
+                if type123[0]=='idcard':
+                    type123[0]='Card'    
+                if type123[0]=='OutsideWork':
+                    type123[0]='公出'  
+                    thing123=onlyuse_id_a[0:1,6]
+                    location123=onlyuse_id_a[0:1,7]                    
+                    tree.insert("",line123,text=name123[0] ,values=(type123[0],datetime[0],ontime[0],"  ",thing123[0],location123[0]))
+                else:
+                    tree.insert("",line123,text=name123[0] ,values=(type123[0],datetime[0],ontime[0],"  "," "," "))
+                    
         
             else :
-                tree.insert("",line123,text=name123[0] ,values=(name123[0],datetime[0],ontime[0],offtime[1]  ))
-                
+                if type123[0]=='open':
+                    type123[0]='Face'   
+                if type123[0]=='idcard':
+                    type123[0]='Card'       
+                if type123[0]=='OutsideWork':
+                    type123[0]='公出'  
+                    thing123=onlyuse_id_a[0:1,6]
+                    location123=onlyuse_id_a[0:1,7]  
+                    tree.insert("",line123,text=name123[0] ,values=(type123[0],datetime[0],ontime[0],offtime[1],thing123[0],location123[0]  ) )
+
+                else:    
+                    tree.insert("",line123,text=name123[0] ,values=(type123[0],datetime[0],ontime[0],offtime[1]," "," "  ) )
+
             line123=line123+1
     
         #vertical scrollbar------------    https://www.cnblogs.com/Tommy-Yu/p/4156014.html
@@ -778,7 +1120,53 @@ class personpage(object):
         tree.grid(columnspan=9,row=7,sticky=tk.W)    
         
         root.mainloop()   
+    
+    
+    def callbackallthing(self,backmonth):
         
+        idperson=[]
+        #去確認remote所有目錄
+        pathqq='home/AccessFace/remote/'
+        personftpqq=downftp.nlst(pathqq)   
+        for personfty in personftpqq:
+            personww=personfty.split('/')
+            idperson.append(personww[-1])
+        print('idperson',idperson)
+        
+        #該同仁沒建檔，則建檔案資料夾
+        if self.personq not in idperson:
+            print(self.personq+'該同仁沒建檔')
+            downftp.mkd(pathqq+self.personq)
+            print('home/AccessFace/remote/'+self.personq+': 成功建立資料夾')
+            
+            
+        else:#ftp找尋目錄是否有該資料夾的檔案
+
+            path='home/AccessFace/remote/'+self.personq+'/'
+            personftp=downftp.nlst(path)
+                
+            if len(personftp)>=1: 
+                print('personftp',personftp)     
+                path88='data/'
+                values123=self.personq+'-'+newyear+str(backmonth)
+                
+                for pathperson in personftp:
+                    personfile=pathperson.split('/')
+                    personmonth=personfile[-1]
+                    print('personmonth',personmonth)
+                    personmonth1=personmonth.split('.')
+                    pmonth=personmonth1[0].split('-')
+                    if str(pmonth[1])==str(newyear)+str(backmonth) :
+                        print('pathperson 找到了',pathperson)
+                        
+                        f=open(path88+values123+'-personal.csv', 'wb')
+                        downftp.retrbinary('RETR ' + pathperson, f.write )
+                        print('download file'+path88+values123+'-personal.csv')                    
+                        f.close()   
+                        self.onlyRemote1 = np.loadtxt('data/'+self.personq+'-'+path88+values123+'-personal.csv',dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5,6,7))
+                        os.remove('data/'+self.personq+'-'+path88+values123+'-personal.csv')
+    
+    
     def mainpage(self):
         self.page.destroy()
         mainpage(self.root)
@@ -928,160 +1316,199 @@ class personpage(object):
         
         #讀取csv並且取012345 colums
         
-        try:
-            onlyuse = np.loadtxt('data/'+callbackmonth[0]+backmonth+'.csv',dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5))
-            print(onlyuse)
-            
-            
-            if len(glob.glob('data/'+callbackmonth[0]+backmonth+'-idcard.csv'))>=1 :
-                print(glob.glob('data/'+callbackmonth[0]+backmonth+'-idcard.csv'))
-                onlyidcard = np.loadtxt('data/'+callbackmonth[0]+backmonth+'-idcard.csv',dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5))
-                print('===========onlyidcard===========',onlyidcard) 
-                onlyuse=np.concatenate((onlyidcard,onlyuse),axis=0)
-                
-            print('===========onlyuse===========',onlyuse)
-            #搜尋是"vincent"的索引值
-            userid=np.argwhere(onlyuse==persenID[self.personq])     
-            #print('userid',userid)
-    
-            #透過索引值取出符合"vincent"要的rows
-            onlyuse_id=onlyuse[userid[:,0],: ]
-            #print('onlyuse_id',onlyuse_id)
-       
-            #針對日期做排序 
-            #這個寫法參考https://stackoverflow.com/questions/2828059/sorting-arrays-in-numpy-by-column/30623882
-            ind = np.argsort( onlyuse_id[:,4] )
-            #print('ind',ind)
-            onlyuse_id = onlyuse_id[ind]
-            #print('onlyuse_id',onlyuse_id)
-    
-            #======針對日期下的時間做排序======
-            #取出日期
-            date=onlyuse_id[:,4]
-            #print(date)
-            #刪除重複的日期
-            uniquedate = np.unique(date) #刪除重複的元素https://www.twblogs.net/a/5c1f8d88bd9eee16b3daa874/
-            #print('uniquedate',uniquedate)
-            
-            #找尋除了第一筆跟最後一筆的其餘資料等要刪除的資料，並將index放入到detnum裡面
-            detnum=[]
-            for d in uniquedate:
-                #找出符合日期的rows,取得index  ex.2020-01-01
-                dindex_onlyuse=np.argwhere(onlyuse_id==d)
-                #取得在原來array的index
-                id1=dindex_onlyuse[:,0]
-                #print('id1',id1)
-                #利用index取出那兩rows
-                onlyuse_id_a=onlyuse_id[dindex_onlyuse[:,0]]
-                #print('onlyuse_id_a',onlyuse_id_a)
-                
-                #針對該兩rows排序 取出index
-                index1=np.argsort(onlyuse_id_a[:,5] )
-                #print('index1',index1)
-                dingy=len(index1)-1
-                
-                if len(index1)>2:
-                    #print('index len pass>2',len(index1))
-                    
-                    for num in range(len(index1) ) :
-                        #print(num)
-                        if  (num != 0  and num != dingy) :
-                            #print("num must detete")
-                            #print('id1[index1[num]]',id1[index1[num]])
-                            #從num順序找到id的實際index，並把它加到detnum最後在一次刪除
-                            detnum.append(id1[index1[num]])
-                        
-                        #elif num==0:
-                            #print("num is 0")                        
-                        
-                        #elif num == dingy  :
-                            #print("num is last")
-           
-            #刪除除了第一筆跟最後一筆的其餘資料            
-            print('除了當日第一筆跟最後一筆保留，其餘要刪除的項目detnum',detnum)
-            onlyuse_id = np.delete(onlyuse_id, detnum, axis = 0)        
-            
-            #針對第一筆及最後一筆偵測如果時間相反則調換順序
-            for d in uniquedate:
-                #找出符合日期的rows,取得index  ex.2020-01-01
-                dindex_onlyuse1=np.argwhere(onlyuse_id==d)
-                #取得在原來array的index
-                id1_1=dindex_onlyuse1[:,0]
-                #print('id1_1',id1_1)
-                #利用index取出那兩rows
-                onlyuse_id_a_1=onlyuse_id[dindex_onlyuse1[:,0]]
-                #print('onlyuse_id_a_1',onlyuse_id_a_1)
-                
-                index1_1=np.argsort(onlyuse_id_a_1[:,5] )
-                #print('index1_1',index1_1)                
-                
-                #實際排序
-                #onlyuse_id_a=onlyuse_id_a[index1]
-                #print('change',onlyuse_id_a)
-                
-                #如果index第一個值為1，則時間順序需要交換，則需要在實際的陣列交喚
-                if index1_1[0]>=1:
-                    #互換，僅限於兩個rows互換
-                    onlyuse_id[[id1_1[-1],id1_1[0]], :] = onlyuse_id[[id1_1[0], id1_1[1]], :]
-    
-            #print('最後調整的項目（含刪除）after',onlyuse_id)
-            
-            tree=ttk.Treeview(self.page,height =20 ,show='headings')#表格show='headings'隱藏第一欄
-            tree["columns"]=("姓名","日期","第一筆時間","最後筆時間")
-            tree.column("姓名",width=100)   #表示列,不显示
-            tree.column("日期",width=100)   #表示列,不显示
-            tree.column("第一筆時間",width=100)
-            tree.column("最後筆時間",width=100)
-            tree.heading("姓名",text="姓名")  #显示表头
-            tree.heading("日期",text="日期")  #显示表头
-            tree.heading("第一筆時間",text="第一筆時間")
-            tree.heading("最後筆時間",text="最後筆時間")
-            #tree.insert("", insert_mode, text='name first col')
-            style = ttk.Style()
-            style.configure("Treeview", font=('Arial',12))
-            style.configure("Treeview.Heading", font=('Arial', 12)) 
-            
-            line123=0
-            for d in uniquedate:
-                #找出符合日期的rows,取得index  ex.2020-01-01
-                dindex_onlyuse=np.argwhere(onlyuse_id==d)
-                #取得在原來array的index
-                id1=dindex_onlyuse[:,0]
-                #利用index取出那兩rows
-                onlyuse_id_a=onlyuse_id[dindex_onlyuse[:,0]]
-                #print            ('onlyuse_id_a',onlyuse_id_a)
-                
-                #print('onlyuse_id_a',onlyuse_id_a)
-                #print('vvvv', onlyuse_id_a[:,5]  )
-                
-                name123=onlyuse_id_a[0:1,2]
-                datetime=onlyuse_id_a[0:1,4]
-                ontime=onlyuse_id_a[0:1,5]
-                offtime=onlyuse_id_a[:,5]
-                
-                
-                        
-                if len(id1)==1:
-                    tree.insert("",line123,text=name123[0] ,values=(name123[0],datetime[0],ontime[0],"  "))
-            
-                else :
-                    tree.insert("",line123,text=name123[0] ,values=(name123[0],datetime[0],ontime[0],offtime[1]  ) )
-                    
-                line123=line123+1
+        #try:
+        onlyuse = np.loadtxt('data/'+callbackmonth[0]+backmonth+'.csv',dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5,0,1))
+        print(onlyuse)
         
-            #vertical scrollbar------------    https://www.cnblogs.com/Tommy-Yu/p/4156014.html
-            vbar = ttk.Scrollbar(self.page,orient=tk.VERTICAL,command=tree.yview)
-            vbar.grid(column=10,row=5,sticky=tk.NS) 
-            tree.configure(yscrollcommand=vbar.set)
+        
+        if len(glob.glob('data/'+callbackmonth[0]+backmonth+'-idcard.csv'))>=1 :
+            print(glob.glob('data/'+callbackmonth[0]+backmonth+'-idcard.csv'))
+            onlyidcard = np.loadtxt('data/'+callbackmonth[0]+backmonth+'-idcard.csv',dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5,0,1))
+            print('===========onlyidcard===========',onlyidcard) 
+            onlyuse=np.concatenate((onlyidcard,onlyuse),axis=0)
             
-            tree.grid(columnspan=9,row=5,sticky=tk.W)    
+
+        if len(glob.glob('data/'+self.personq+'-'+callbackmonth[0]+backmonth+'-personal.csv'))>=1 :
+            print(glob.glob('data/'+self.personq+'-'+callbackmonth[0]+backmonth+'-personal.csv'))
+            onlyRemote = np.loadtxt('data/'+self.personq+'-'+callbackmonth[0]+backmonth+'-personal.csv',dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5,6,7))
+            print('===========onlyRemote===========',onlyRemote) 
+            onlyuse=np.concatenate((onlyRemote,onlyuse),axis=0)
+
+        print('===========onlyuse===========',onlyuse)
+        #搜尋是"vincent"的索引值
+        userid=np.argwhere(onlyuse==self.personq)     
+        #print('userid',userid)
+
+        #透過索引值取出符合"vincent"要的rows
+        onlyuse_id=onlyuse[userid[:,0],: ]
+        #print('onlyuse_id',onlyuse_id)
+   
+        #針對日期做排序 
+        #這個寫法參考https://stackoverflow.com/questions/2828059/sorting-arrays-in-numpy-by-column/30623882
+        ind = np.argsort( onlyuse_id[:,4] )
+        #print('ind',ind)
+        onlyuse_id = onlyuse_id[ind]
+        #print('onlyuse_id',onlyuse_id)
+
+        #======針對日期下的時間做排序======
+        #取出日期
+        date=onlyuse_id[:,4]
+        #print(date)
+        #刪除重複的日期
+        uniquedate = np.unique(date) #刪除重複的元素https://www.twblogs.net/a/5c1f8d88bd9eee16b3daa874/
+        #print('uniquedate',uniquedate)
+        
+        #找尋除了第一筆跟最後一筆的其餘資料等要刪除的資料，並將index放入到detnum裡面
+        detnum=[]
+        for d in uniquedate:
+            #找出符合日期的rows,取得index  ex.2020-01-01
+            dindex_onlyuse=np.argwhere(onlyuse_id==d)
+            #取得在原來array的index
+            id1=dindex_onlyuse[:,0]
+            #print('id1',id1)
+            #利用index取出那兩rows
+            onlyuse_id_a=onlyuse_id[dindex_onlyuse[:,0]]
+            #print('onlyuse_id_a',onlyuse_id_a)
+            
+            #針對該兩rows排序 取出index
+            index1=np.argsort(onlyuse_id_a[:,5] )
+            #print('index1',index1)
+            dingy=len(index1)-1
+            
+            if len(index1)>2:
+                #print('index len pass>2',len(index1))
+                
+                for num in range(len(index1) ) :
+                    #print(num)
+                    if  (num != 0  and num != dingy) :
+                        #print("num must detete")
+                        #print('id1[index1[num]]',id1[index1[num]])
+                        #從num順序找到id的實際index，並把它加到detnum最後在一次刪除
+                        detnum.append(id1[index1[num]])
+                    
+                    #elif num==0:
+                        #print("num is 0")                        
+                    
+                    #elif num == dingy  :
+                        #print("num is last")
+       
+        #刪除除了第一筆跟最後一筆的其餘資料            
+        print('除了當日第一筆跟最後一筆保留，其餘要刪除的項目detnum',detnum)
+        onlyuse_id = np.delete(onlyuse_id, detnum, axis = 0)        
+        
+        #針對第一筆及最後一筆偵測如果時間相反則調換順序
+        for d in uniquedate:
+            #找出符合日期的rows,取得index  ex.2020-01-01
+            dindex_onlyuse1=np.argwhere(onlyuse_id==d)
+            #取得在原來array的index
+            id1_1=dindex_onlyuse1[:,0]
+            #print('id1_1',id1_1)
+            #利用index取出那兩rows
+            onlyuse_id_a_1=onlyuse_id[dindex_onlyuse1[:,0]]
+            #print('onlyuse_id_a_1',onlyuse_id_a_1)
+            
+            index1_1=np.argsort(onlyuse_id_a_1[:,5] )
+            #print('index1_1',index1_1)                
+            
+            #實際排序
+            #onlyuse_id_a=onlyuse_id_a[index1]
+            #print('change',onlyuse_id_a)
+            
+            #如果index第一個值為1，則時間順序需要交換，則需要在實際的陣列交喚
+            if index1_1[0]>=1:
+                #互換，僅限於兩個rows互換
+                onlyuse_id[[id1_1[-1],id1_1[0]], :] = onlyuse_id[[id1_1[0], id1_1[1]], :]
+
+        #print('最後調整的項目（含刪除）after',onlyuse_id)
+        
+        tree=ttk.Treeview(self.page,height =20 ,show='headings')#表格show='headings'隱藏第一欄
+        tree["columns"]=("狀態別","日期","第一筆時間","最後筆時間","事由","地點")
+        tree.column("狀態別",width=100)   #表示列,不显示
+        tree.column("日期",width=100)   #表示列,不显示
+        tree.column("第一筆時間",width=100)
+        tree.column("最後筆時間",width=100)
+        tree.column("事由",width=100)
+        tree.column("地點",width=100)
+        tree.heading("狀態別",text="狀態別")  #显示表头
+        tree.heading("日期",text="日期")  #显示表头
+        tree.heading("第一筆時間",text="第一筆時間")
+        tree.heading("最後筆時間",text="最後筆時間")
+        tree.heading("事由",text="事由")
+        tree.heading("地點",text="地點")  
+        #tree.insert("", insert_mode, text='name first col')
+        style = ttk.Style()
+        style.configure("Treeview", font=('Arial',12))
+        style.configure("Treeview.Heading", font=('Arial', 12)) 
+        
+        line123=0
+        for d in uniquedate:
+            #找出符合日期的rows,取得index  ex.2020-01-01
+            dindex_onlyuse=np.argwhere(onlyuse_id==d)
+            #取得在原來array的index
+            id1=dindex_onlyuse[:,0]
+            #利用index取出那兩rows
+            onlyuse_id_a=onlyuse_id[dindex_onlyuse[:,0]]
+            #print            ('onlyuse_id_a',onlyuse_id_a)
+            
+            #print('onlyuse_id_a',onlyuse_id_a)
+            #print('vvvv', onlyuse_id_a[:,5]  )
+            
+            
+            type123=onlyuse_id_a[0:1,0]
+            name123=onlyuse_id_a[0:1,2]
+            datetime=onlyuse_id_a[0:1,4]
+            ontime=onlyuse_id_a[0:1,5]
+            offtime=onlyuse_id_a[:,5]
+            print('type123',type123)
+            print('name123',name123)
+            print('datetime',datetime)
+            print('ontime',ontime)
+            print('offtime',offtime)            
+            
+            
+            if len(id1)==1:
+                if type123[0]=='open':
+                    type123[0]='Face'
+                if type123[0]=='idcard':
+                    type123[0]='Card'    
+                if type123[0]=='OutsideWork':
+                    type123[0]='公出'  
+                    thing123=onlyuse_id_a[0:1,6]
+                    location123=onlyuse_id_a[0:1,7]                    
+                    tree.insert("",line123,text=name123[0] ,values=(type123[0],datetime[0],ontime[0],"  ",thing123[0],location123[0]))
+                else:
+                    tree.insert("",line123,text=name123[0] ,values=(type123[0],datetime[0],ontime[0],"  "," "," "))
+                    
+        
+            else :
+                if type123[0]=='open':
+                    type123[0]='Face'   
+                if type123[0]=='idcard':
+                    type123[0]='Card'       
+                if type123[0]=='OutsideWork':
+                    type123[0]='公出'  
+                    thing123=onlyuse_id_a[0:1,6]
+                    location123=onlyuse_id_a[0:1,7]  
+                    tree.insert("",line123,text=name123[0] ,values=(type123[0],datetime[0],ontime[0],offtime[1],thing123[0],location123[0]  ) )
+
+                else:    
+                    tree.insert("",line123,text=name123[0] ,values=(type123[0],datetime[0],ontime[0],offtime[1]," "," "  ) )
+                
+            line123=line123+1
     
-            root.mainloop()   
+        #vertical scrollbar------------    https://www.cnblogs.com/Tommy-Yu/p/4156014.html
+        vbar = ttk.Scrollbar(self.page,orient=tk.VERTICAL,command=tree.yview)
+        vbar.grid(column=10,row=5,sticky=tk.NS) 
+        tree.configure(yscrollcommand=vbar.set)
+        
+        tree.grid(columnspan=9,row=7,sticky=tk.W)    
+
+        root.mainloop()   
+        
             
             
-            
-        except:
-            self.no_file_worning()
+        #except:
+            #self.no_file_worning()
         
 
 
@@ -1199,15 +1626,19 @@ class personpage(object):
             #print('最後調整的項目（含刪除）after',onlyuse_id)
             
             tree=ttk.Treeview(self.page,height =20 ,show='headings')#表格show='headings'隱藏第一欄
-            tree["columns"]=("姓名","日期","第一筆時間","最後筆時間")
-            tree.column("姓名",width=100)   #表示列,不显示
+            tree["columns"]=("狀態別","日期","第一筆時間","最後筆時間","事由","地點")
+            tree.column("狀態別",width=100)   #表示列,不显示
             tree.column("日期",width=100)   #表示列,不显示
             tree.column("第一筆時間",width=100)
             tree.column("最後筆時間",width=100)
-            tree.heading("姓名",text="姓名")  #显示表头
+            tree.column("事由",width=100)
+            tree.column("地點",width=100)
+            tree.heading("狀態別",text="狀態別")  #显示表头
             tree.heading("日期",text="日期")  #显示表头
             tree.heading("第一筆時間",text="第一筆時間")
             tree.heading("最後筆時間",text="最後筆時間")
+            tree.heading("事由",text="事由")
+            tree.heading("地點",text="地點")  
             #tree.insert("", insert_mode, text='name first col')
             style = ttk.Style()
             style.configure("Treeview", font=('Arial',12))
@@ -1234,10 +1665,10 @@ class personpage(object):
                 
                         
                 if len(id1)==1:
-                    tree.insert("",line123,text=name123[0] ,values=(name123[0],datetime[0],ontime[0],"  "))
+                    tree.insert("",line123,text=name123[0] ,values=("Card",datetime[0],ontime[0],"  "," ", " "))
             
                 else :
-                    tree.insert("",line123,text=name123[0] ,values=(name123[0],datetime[0],ontime[0],offtime[1]  ) )
+                    tree.insert("",line123,text=name123[0] ,values=("Card",datetime[0],ontime[0],offtime[1], " "," "  ) )
                     
                 line123=line123+1
         
@@ -1246,7 +1677,7 @@ class personpage(object):
             vbar.grid(column=10,row=5,sticky=tk.NS) 
             tree.configure(yscrollcommand=vbar.set)
             
-            tree.grid(columnspan=9,row=5,sticky=tk.W)    
+            tree.grid(columnspan=9,row=7,sticky=tk.W)    
     
             root.mainloop()   
             
@@ -1368,15 +1799,19 @@ class personpage(object):
             #print('最後調整的項目（含刪除）after',onlyuse_id)
             
             tree=ttk.Treeview(self.page,height =20 ,show='headings')#表格show='headings'隱藏第一欄
-            tree["columns"]=("姓名","日期","第一筆時間","最後筆時間")
-            tree.column("姓名",width=100)   #表示列,不显示
+            tree["columns"]=("狀態別","日期","第一筆時間","最後筆時間","事由","地點")
+            tree.column("狀態別",width=100)   #表示列,不显示
             tree.column("日期",width=100)   #表示列,不显示
             tree.column("第一筆時間",width=100)
             tree.column("最後筆時間",width=100)
-            tree.heading("姓名",text="姓名")  #显示表头
+            tree.column("事由",width=100)
+            tree.column("地點",width=100)
+            tree.heading("狀態別",text="狀態別")  #显示表头
             tree.heading("日期",text="日期")  #显示表头
             tree.heading("第一筆時間",text="第一筆時間")
             tree.heading("最後筆時間",text="最後筆時間")
+            tree.heading("事由",text="事由")
+            tree.heading("地點",text="地點")  
             #tree.insert("", insert_mode, text='name first col')
             style = ttk.Style()
             style.configure("Treeview", font=('Arial',12))
@@ -1403,10 +1838,10 @@ class personpage(object):
                 
                         
                 if len(id1)==1:
-                    tree.insert("",line123,text=name123[0] ,values=(name123[0],datetime[0],ontime[0],"  "))
+                    tree.insert("",line123,text=name123[0] ,values=("Face",datetime[0],ontime[0],"  "," "," "))
             
                 else :
-                    tree.insert("",line123,text=name123[0] ,values=(name123[0],datetime[0],ontime[0],offtime[1]  ) )
+                    tree.insert("",line123,text=name123[0] ,values=("Face",datetime[0],ontime[0],offtime[1] ," "," " ) )
                     
                 line123=line123+1
         
@@ -1415,7 +1850,7 @@ class personpage(object):
             vbar.grid(column=10,row=5,sticky=tk.NS) 
             tree.configure(yscrollcommand=vbar.set)
             
-            tree.grid(columnspan=9,row=5,sticky=tk.W)    
+            tree.grid(columnspan=9,row=7,sticky=tk.W)    
     
             root.mainloop()   
             
@@ -1442,157 +1877,104 @@ class personpage(object):
         #print('backmonth',backmonth)
         
         #讀取csv並且取012345 colums
-        
-        #try:
-        onlyuse = np.loadtxt('data/'+self.personq+'-'+callbackmonth[0]+backmonth+'-personal.csv',dtype=np.str,delimiter=',',usecols=(0,1,4,5,6,7))
-        print(onlyuse)
-        
-        
- 
-            
-        print('===========onlyuse===========',onlyuse)
-        #搜尋是"vincent"的索引值
-        userid=np.argwhere(onlyuse==self.personq)     
-        #print('userid',userid)
-
-        #透過索引值取出符合"vincent"要的rows
-        onlyuse_id=onlyuse[userid[:,0],: ]
-        #print('onlyuse_id',onlyuse_id)
-   
-        #針對日期做排序 
-        #這個寫法參考https://stackoverflow.com/questions/2828059/sorting-arrays-in-numpy-by-column/30623882
-        ind = np.argsort( onlyuse_id[:,4] )
-        #print('ind',ind)
-        onlyuse_id = onlyuse_id[ind]
-        #print('onlyuse_id',onlyuse_id)
-
-        #======針對日期下的時間做排序======
-        #取出日期
-        date=onlyuse_id[:,4]
-        #print(date)
-        #刪除重複的日期
-        uniquedate = np.unique(date) #刪除重複的元素https://www.twblogs.net/a/5c1f8d88bd9eee16b3daa874/
-        #print('uniquedate',uniquedate)
-        
-        #找尋除了第一筆跟最後一筆的其餘資料等要刪除的資料，並將index放入到detnum裡面
-        detnum=[]
-        for d in uniquedate:
-            #找出符合日期的rows,取得index  ex.2020-01-01
-            dindex_onlyuse=np.argwhere(onlyuse_id==d)
-            #取得在原來array的index
-            id1=dindex_onlyuse[:,0]
-            #print('id1',id1)
-            #利用index取出那兩rows
-            onlyuse_id_a=onlyuse_id[dindex_onlyuse[:,0]]
-            #print('onlyuse_id_a',onlyuse_id_a)
-            
-            #針對該兩rows排序 取出index
-            index1=np.argsort(onlyuse_id_a[:,5] )
-            #print('index1',index1)
-            dingy=len(index1)-1
-            
-            if len(index1)>2:
-                #print('index len pass>2',len(index1))
-                
-                for num in range(len(index1) ) :
-                    #print(num)
-                    if  (num != 0  and num != dingy) :
-                        #print("num must detete")
-                        #print('id1[index1[num]]',id1[index1[num]])
-                        #從num順序找到id的實際index，並把它加到detnum最後在一次刪除
-                        detnum.append(id1[index1[num]])
-                    
-                    #elif num==0:
-                        #print("num is 0")                        
-                    
-                    #elif num == dingy  :
-                        #print("num is last")
-       
-        ##刪除除了第一筆跟最後一筆的其餘資料            
-        #print('除了當日第一筆跟最後一筆保留，其餘要刪除的項目detnum',detnum)
-        #onlyuse_id = np.delete(onlyuse_id, detnum, axis = 0)        
-        
-        ##針對第一筆及最後一筆偵測如果時間相反則調換順序
-        #for d in uniquedate:
-            ##找出符合日期的rows,取得index  ex.2020-01-01
-            #dindex_onlyuse1=np.argwhere(onlyuse_id==d)
-            ##取得在原來array的index
-            #id1_1=dindex_onlyuse1[:,0]
-            ##print('id1_1',id1_1)
-            ##利用index取出那兩rows
-            #onlyuse_id_a_1=onlyuse_id[dindex_onlyuse1[:,0]]
-            ##print('onlyuse_id_a_1',onlyuse_id_a_1)
-            
-            #index1_1=np.argsort(onlyuse_id_a_1[:,5] )
-            ##print('index1_1',index1_1)                
-            
-            ##實際排序
-            ##onlyuse_id_a=onlyuse_id_a[index1]
-            ##print('change',onlyuse_id_a)
-            
-            ##如果index第一個值為1，則時間順序需要交換，則需要在實際的陣列交喚
-            #if index1_1[0]>=1:
-                ##互換，僅限於兩個rows互換
-                #onlyuse_id[[id1_1[-1],id1_1[0]], :] = onlyuse_id[[id1_1[0], id1_1[1]], :]
-
-        #print('最後調整的項目（含刪除）after',onlyuse_id)
-        
-        tree=ttk.Treeview(self.page,height =20 ,show='headings')#表格show='headings'隱藏第一欄
-        tree["columns"]=("狀態","日期","第一筆時間","最後筆時間")
-        tree.column("狀態",width=100)   #表示列,不显示
-        tree.column("日期",width=100)   #表示列,不显示
-        tree.column("第一筆時間",width=100)
-        tree.column("最後筆時間",width=100)
-        tree.heading("狀態",text="狀態")  #显示表头
-        tree.heading("日期",text="日期")  #显示表头
-        tree.heading("第一筆時間",text="第一筆時間")
-        tree.heading("最後筆時間",text="最後筆時間")
-        #tree.insert("", insert_mode, text='name first col')
-        style = ttk.Style()
-        style.configure("Treeview", font=('Arial',12))
-        style.configure("Treeview.Heading", font=('Arial', 12)) 
-        
-        line123=0
-        for d in uniquedate:
-            #找出符合日期的rows,取得index  ex.2020-01-01
-            dindex_onlyuse=np.argwhere(onlyuse_id==d)
-            #取得在原來array的index
-            id1=dindex_onlyuse[:,0]
-            #利用index取出那兩rows
-            onlyuse_id_a=onlyuse_id[dindex_onlyuse[:,0]]
-            #print            ('onlyuse_id_a',onlyuse_id_a)
-            
-            print('onlyuse_id_a',onlyuse_id_a)
-            print('vvvv', onlyuse_id_a[:,5]  )
-            
-            name123=onlyuse_id_a[0:1,0]
-            datetime=onlyuse_id_a[0:1,2]
-            ontime=onlyuse_id_a[0:1,3]
-            offtime=onlyuse_id_a[:,3]
+        print('callbackmonth[0]',callbackmonth[0])
+        print('backmonth',backmonth)
+        try:
+            onlyuse = np.loadtxt('data/'+self.personq+'-'+callbackmonth[0]+backmonth+'-personal.csv',dtype=np.str,delimiter=',',usecols=(0,1,4,5,6,7))
+            print(onlyuse)
             
             
-                    
-            if len(id1)==1:
-                tree.insert("",line123,text=name123[0] ,values=(name123[0],datetime[0],ontime[0],"  "))
-        
-            else :
-                tree.insert("",line123,text=name123[0] ,values=(name123[0],datetime[0],ontime[0],offtime[1]  ) )
-                
-            line123=line123+1
+     
     
-        #vertical scrollbar------------    https://www.cnblogs.com/Tommy-Yu/p/4156014.html
-        vbar = ttk.Scrollbar(self.page,orient=tk.VERTICAL,command=tree.yview)
-        vbar.grid(column=10,row=5,sticky=tk.NS) 
-        tree.configure(yscrollcommand=vbar.set)
+            tree=ttk.Treeview(self.page,height =20 ,show='headings')#表格show='headings'隱藏第一欄
+            tree["columns"]=("狀態別","日期","第一筆時間","最後筆時間","事由","地點")
+            tree.column("狀態別",width=100)   #表示列,不显示
+            tree.column("日期",width=100)   #表示列,不显示
+            tree.column("第一筆時間",width=100)
+            tree.column("最後筆時間",width=100)
+            tree.column("事由",width=100)
+            tree.column("地點",width=100)
+            tree.heading("狀態別",text="狀態別")  #显示表头
+            tree.heading("日期",text="日期")  #显示表头
+            tree.heading("第一筆時間",text="第一筆時間")
+            tree.heading("最後筆時間",text="最後筆時間")
+            tree.heading("事由",text="事由")
+            tree.heading("地點",text="地點")        
+            #tree.insert("", insert_mode, text='name first col')
+            style = ttk.Style()
+            style.configure("Treeview", font=('Arial',12))
+            style.configure("Treeview.Heading", font=('Arial', 12)) 
+            
+            line123=0
+            
+            if onlyuse.ndim>1:
+            #try:#如果只有一個row的話就不會有onlyuse.shape[1]，只有onlyuse.shape[0]會造成錯誤，因此用except去接
+                print('onlyuse.shape[0],onlyuse.shape[1]',onlyuse.shape[0],onlyuse.shape[1])
+                for line in range(onlyuse.shape[0]) :
+                    name123=onlyuse[line,0]
+                    datetime=onlyuse[line,2]
+                    ontime=onlyuse[line,3]
+                    why=onlyuse[line,4]
+                    location=onlyuse[line,5]   
+                    print('name123',name123)
+                    print('datetime',datetime)
+                    print('ontime',ontime)
+                    print('why',why)  
+                    if why=='None':
+                        why=''
+                    if location=='None':
+                        location=''            
+                    print('location',location)  
+                    if name123=='OutsideWork':
+                        name123='公出'
+                    tree.insert("",line123,text=name123 ,values=(name123,datetime,ontime,"  ",why,location ) )   
+                 
+                    line123=line123+1
+            
+                #vertical scrollbar------------    https://www.cnblogs.com/Tommy-Yu/p/4156014.html
+                vbar = ttk.Scrollbar(self.page,orient=tk.VERTICAL,command=tree.yview)
+                vbar.grid(column=10,row=5,sticky=tk.NS) 
+                tree.configure(yscrollcommand=vbar.set)
+                
+                tree.grid(columnspan=9,row=7,sticky=tk.W)    
         
-        tree.grid(columnspan=9,row=5,sticky=tk.W)    
-
-        root.mainloop()   
-        
+                root.mainloop()   
+            else:
+            #except:
+                print('onlyuse.shape[0]',onlyuse.shape[0])
+               
+                name123=onlyuse[0]
+                datetime=onlyuse[2]
+                ontime=onlyuse[3]
+                why=onlyuse[4]
+                location=onlyuse[5]   
+                print('name123',name123)
+                print('datetime',datetime)
+                print('ontime',ontime)
+                print('why',why)  
+                if why=='None':
+                    why=''
+                if location=='None':
+                    location=''            
+                print('location',location)  
+                if name123=='OutsideWork':
+                    name123='公出'
+                tree.insert("",0,text=name123 ,values=(name123,datetime,ontime,"  ",why,location ) )   
+             
             
             
-        #except:
-            #self.no_file_worning()
+                #vertical scrollbar------------    https://www.cnblogs.com/Tommy-Yu/p/4156014.html
+                vbar = ttk.Scrollbar(self.page,orient=tk.VERTICAL,command=tree.yview)
+                vbar.grid(column=10,row=5,sticky=tk.NS) 
+                tree.configure(yscrollcommand=vbar.set)
+                
+                tree.grid(columnspan=9,row=7,sticky=tk.W)    
+        
+                root.mainloop()               
+            
+            
+        except:
+            self.no_file_worning()
 
 
 
@@ -1624,7 +2006,7 @@ number123,persenID,pdID,fullID,pwdID,nameID=person_pd_ID()
 
 
 newyear,newmonth,newday=month_and_day()
-
+print(newmonth)
 print(nameID)
 print(pwdID)
 
@@ -1656,76 +2038,3 @@ root.config(menu=menubar)
 mainpage(root)
 
 root.mainloop() 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-"""
-import tkinter as tk
-
-window = tk.Tk()
-window.title('撼訊科技 人資查詢系統')
-window.geometry('500x300')
-
-# welcome image
-canvas = tk.Canvas(window, height=200, width=500)
-image_file = tk.PhotoImage(file='tul_logo1.gif')
-image = canvas.create_image(0,0, anchor='nw', image=image_file)
-canvas.pack(side='top')
-
-# user information
-tk.Label(window, text='中文姓名: ').place(x=50, y= 150)
-tk.Label(window, text='密碼: ').place(x=50, y= 190)
-tk.Label(window, text='預設密碼為工號').place(x=160, y= 210)
-var_usr_name = tk.StringVar()
-var_usr_pwd = tk.StringVar()
-#var_usr_name.set('請輸入中文姓名')
-var_usr_pwd.set('預設密碼為工號')
-entry_usr_name = tk.Entry(window, textvariable=var_usr_name)
-entry_usr_pwd = tk.Entry(window, textvariable=var_usr_pwd)
-entry_usr_name.place(x=160, y=150)
-var_usr_pwd = tk.StringVar()
-entry_usr_pwd = tk.Entry(window, textvariable=var_usr_pwd, show='*')
-entry_usr_pwd.place(x=160, y=190)
-
-def usr_login():
-    pass
-def usr_sign_up():
-    pass
-
-# login and sign up button
-btn_login = tk.Button(window, text='登入', command=usr_login)
-btn_login.place(x=170, y=230)
-#btn_sign_up = tk.Button(window, text='註冊', command=usr_sign_up)
-#btn_sign_up.place(x=270, y=230)
-
-window.mainloop()
-
-"""
