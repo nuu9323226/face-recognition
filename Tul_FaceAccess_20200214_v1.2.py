@@ -24,7 +24,69 @@ dpartment=[100,120,121,150,210,220,230,310,325,350,750,756,754,570,160,510,530]
 def facebuind():
     os.system('python3 faceRegistered.py')
 
+
+
+def read_name_object():
+    train_name = open('data/database_Employee.csv','r') 
+    
+    lines = train_name.readlines()
+    count=0
+    for a in lines:
+        b=a.split('\n')
+        lines[count]=b[0]
+        count += 1
+    train_name.close
+    return lines
+
+
+def person_pd_ID():
+    allname=read_name_object()
+    #print('allname',allname)
+    name123=[]
+    number123=[]
+    pd123=[]
+    pwd123=[]
+    twzhname123=[]
+    for a in allname:
+        #print(a)
+        all_23=a.split(",")
+        #print(all_23)
+        number15=all_23[2]
+        name15=all_23[4]
+        twzhname15=all_23[3]
+        pd15=all_23[5]
+        number123.append(number15)
+        name123.append(name15)
+        pd123.append(pd15)
+        twzhname123.append(twzhname15)
+
+    persenID = dict(zip(number123, name123))
+    pdID = dict(zip(number123, pd123))
+    nameID=dict(zip(name123,number123) )
+    twzhnameID=dict(zip(number123,twzhname123) )
+    fullID=dict(zip(number123,allname) )
+    
+    return number123,persenID,pdID,nameID,twzhnameID,fullID
+
+
+
+
 def setectfile():
+    
+    if len(glob.glob('data/database_Employee.csv') ) ==0:
+        try:
+            f=open('data/database_Employee.csv', 'wb')
+            downftp.retrbinary('RETR ' + 'home/AccessFace/config/database_Employee.csv', f.write )
+            print('download file  data/database_Employee.csv')                    
+            f.close()    
+            
+        except:
+            print("failed  data/database_Employee.csv' download. check.......................")    
+            
+    
+    number123,persenID,pdID,nameID,twzhnameID,fullID=person_pd_ID()
+    
+    
     file_path = filedialog.askopenfilename()
     #print(file_path)
     pathtofile='data/'
@@ -32,12 +94,9 @@ def setectfile():
     xlsx_to_csv(file_path,pathtofile)
     sp1=file_path.split('/')
     sp2=os.path.splitext(sp1[-1])[0]
-    chinesenumber,chinesepersenID=chineseperson_pd_ID()
     onlyuse = np.loadtxt(open(pathtofile+sp2+'.csv',encoding='utf-8'),dtype=np.str,delimiter=',',usecols=(0,3,4,5))
     onlyuse = np.delete(onlyuse, 0, axis=0)
     #print('onlyuse',onlyuse)
-    ID,persenID,pdID,fullID=person_pd_ID()
-    chinese_number,chinese_persenID=chineseperson_pd_ID()
     #將日期從202002 ==> 2020/02
     sp3=sp2[:6]
     
@@ -58,24 +117,27 @@ def setectfile():
         finalid=[]
         for ddd in uniquedate:
             if daymonth in ddd: #ddd為20200201 daymonth為202002
-                #print('ddd yes',ddd)
+                print('ddd yes',ddd)
                 use_dayindex=np.argwhere(onlyuse==ddd)
-                #print('use_dayindex',use_dayindex)
+                print('use_dayindex',use_dayindex)
                 d2d=ddd[:4]+'-'+ddd[5:7]+'-'+ddd[8:]
                 dayonlyuse=onlyuse[use_dayindex[:,0]]
-                #print('dayonlyuse',dayonlyuse)
+                print('dayonlyuse',dayonlyuse)
                 #在該日期2020/02/01下針對name.txt有註冊的每個人取行
-                for idfile in ID:
-                    chinese_persenID[idfile]
-                    dayonlyuseindex=np.argwhere(dayonlyuse==chinese_persenID[idfile])
+                for idfile in number123:
+                    print('start to name: ' +idfile)
+                    dayonlyuseindex=np.argwhere(dayonlyuse==twzhnameID[idfile])
+                    print('start to twzh name: ' +twzhnameID[idfile])
                     dayperson_only=dayonlyuse[dayonlyuseindex[:,0]]
-                    #print('dayperson_only',dayperson_only)
+                    print('dayperson_only',dayperson_only)
+                    
+                    #上班
                     if  dayperson_only[:,2] != ''  :
-                        #print(dayperson_only[0,2])
+                        print(dayperson_only[0,2])
                         dn2=dayperson_only[0,2]
                         final = 'idcard,'+ idfile +','+persenID[idfile] +','+ pdID[idfile] +','+d2d+','+dn2+':00'
                         finalid.append(final)
-                            
+                    #下班
                     if  dayperson_only[:,3] != ''  :
                         print(dayperson_only[0,3])
                         dn3=dayperson_only[0,3]
@@ -174,68 +236,8 @@ def read_train_object():
     train_name.close
     return lines
 
-def read_chinesename_object():
-    train_name = open('data/chinesename.txt','r',encoding="utf-8") 
-    
-    lines = train_name.readlines()
-    count=0
-    for a in lines:
-        b=a.split('\n')
-        lines[count]=b[0]
-        count += 1
-    train_name.close
-    return lines
 
 
-def chineseperson_pd_ID():
-    allname=read_chinesename_object()
-    #print('allname',allname)
-    name123=[]
-    number123=[]
-    for a in allname:
-        #print(a)
-        all_23=a.split(",")
-        #print(all_23)
-        number15=all_23[0]
-        name15=all_23[1]
-        number123.append(number15)
-        name123.append(name15)
-    #print(name123)
-    #print(number123)
-
-    persenID = dict(zip(number123, name123))
- 
-    return number123,persenID
-
-
-
-def person_pd_ID():
-    allname=read_train_object()
-    #print('allname',allname)
-    name123=[]
-    number123=[]
-    pd123=[]
-    for a in allname:
-        #print(a)
-        all_23=a.split("_")
-        #print(all_23)
-        number15=all_23[0]
-        name15=all_23[1]
-        pd15=all_23[2]
-        number123.append(number15)
-        name123.append(name15)
-        pd123.append(pd15)
-
-    #print(name123)
-    #print(number123)
-    #print(pd123)
-
-    persenID = dict(zip(number123, name123))
-    pdID = dict(zip(number123, pd123))
-    fullID=dict(zip(number123,allname) )
-    #print(persenID)
-    #print(pdID)
-    return number123,persenID,pdID,fullID
 
 
 
@@ -1605,7 +1607,7 @@ try:
 except:
     print("download failed. check.......................")
 
-number123,persenID,pdID,fullID =person_pd_ID()    
+number123,persenID,pdID,nameID,twzhnameID,fullID =person_pd_ID()    
 
 
 newyear,newmonth,newday=month_and_day()
