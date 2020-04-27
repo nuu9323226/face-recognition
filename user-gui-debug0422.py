@@ -1,4 +1,5 @@
 import datetime,os
+#import os
 import tkinter as tk
 import tkinter.messagebox
 import glob
@@ -9,7 +10,6 @@ from ftplib import FTP
 from ftplib import FTP_TLS
 from tkinter import filedialog
 from datetime import datetime, timedelta
-
 # windows版本打包指令 pyinstaller.exe -F -w .\user-gui-csv.py -i tul_logo.ico
 # windows版本 更改 Arial==>微軟正黑體
 """
@@ -55,8 +55,25 @@ except:
     print('not connect to ftp')
     failconn=1
 
-
-
+def weekreport(daytime):
+    weekreturn=0
+    qweek=datetime.strptime (daytime,'%Y-%m-%d').weekday() 
+    if qweek==0:
+        weekreturn='一'
+    if qweek==1:
+        weekreturn='二'
+    if qweek==2:
+        weekreturn='三'
+    if qweek==3:
+        weekreturn='四'  
+    if qweek==4:
+        weekreturn='五'  
+    if qweek==5:
+        weekreturn='六'  
+    if qweek==6:
+        weekreturn='日'         
+    
+    return weekreturn
 
 def ftpconn():
     try:
@@ -209,8 +226,8 @@ class mainpage(object):
         # login and sign up button
         self.btn_login = tk.Button(self.page, text='登入',font=('Arial', 12) , command=self.conform)
         self.btn_login.place(x=180, y=240)
-#         self.btn_sign_up = tk.Button(self.page, text='輸入工號直接登入',font=('Arial', 12), command=self.conform1 )
-#         self.btn_sign_up.place(x=270, y=240)
+        self.btn_sign_up = tk.Button(self.page, text='輸入工號直接登入',font=('Arial', 12), command=self.conform1 )
+        self.btn_sign_up.place(x=270, y=240)
 
 
 
@@ -715,7 +732,7 @@ class secondpage(object):
                     
                             finalid=[]
                             finalid.append(self.mode+','+ oneperson  +','+ persenID[oneperson] +','+ pdID[oneperson] +','+newyear+'-'+ self.comboMonth.get()[0:2] +'-'+ 
-                                           self.comboDay.get()[0:2]+','+ self.varBusinessOutTime.get()+','+ self.varBusinessWhy.get()+','+ self.varBusinessLocation.get() )
+                                           self.comboDay.get()[0:2]+','+ self.varBusinessOutTime.get()+':00'+','+ self.varBusinessWhy.get()+','+ self.varBusinessLocation.get() )
                                      #comboDay +','+ self.varBusinessOutTime.get+','+ self.varBusinessWhy.get+','+ self.varBusinessLocation.get)
                             
                             print('finalid',finalid)
@@ -792,7 +809,7 @@ class secondpage(object):
                      
                         self.varreback.set("                            ")        
                         self.varreback.set("Update: 工號 " +  strarraddperson + ' 新增公出紀錄 '+ newyear+'-'+ self.comboMonth.get()[0:2] +'-'+ 
-                                   self.comboDay.get()[0:2]+' '+ self.varBusinessOutTime.get()  )                                
+                                   self.comboDay.get()[0:2]+' '+ self.varBusinessOutTime.get()+':00'  )                                
              
                         os.remove(path88+values123+'-personal.csv')
                         
@@ -931,7 +948,7 @@ class personpage(object):
                 month='0'+str(valuesset123[1])
                 print (month)
             else :
-                month=str(x.month)
+                month=str(valuesset123[1])
                 print (month)     
             value_mmdd.append(valuesset123[0]+month)
                 
@@ -1173,8 +1190,8 @@ class personpage(object):
         
         tree=ttk.Treeview(self.page,height =20 ,show='headings')#表格show='headings'隱藏第一欄
         tree["columns"]=("狀態別","日期","第一筆時間","最後筆時間","事由","地點")
-        tree.column("狀態別",width=100)   #表示列,不显示
-        tree.column("日期",width=100)   #表示列,不显示
+        tree.column("狀態別",width=80)   #表示列,不显示
+        tree.column("日期",width=130)   #表示列,不显示
         tree.column("第一筆時間",width=100)
         tree.column("最後筆時間",width=100)
         tree.column("事由",width=100)
@@ -1208,9 +1225,14 @@ class personpage(object):
             datetime=onlyuse_id_a[0:1,4]
             ontime=onlyuse_id_a[0:1,5]
             offtime=onlyuse_id_a[:,5]
+            #day1time=datetime[0]
             #print('type123',type123)
             #print('name123',name123)
-            #print('datetime',datetime)
+            #print('datetime[0]',datetime[0])
+            weekfial=weekreport(datetime[0])
+            #print('week',weekfial)
+
+            
             #print('ontime',ontime)
             #print('offtime',offtime)
             
@@ -1224,9 +1246,9 @@ class personpage(object):
                     type123[0]='公出'  
                     thing123=onlyuse_id_a[0:1,6]
                     location123=onlyuse_id_a[0:1,7]                    
-                    tree.insert("",line123,text=name123[0] ,values=(type123[0],datetime[0],ontime[0],"  ",thing123[0],location123[0]))
+                    tree.insert("",line123,text=name123[0] ,values=(type123[0],datetime[0]+'('+weekfial+')',ontime[0],"  ",thing123[0],location123[0]))
                 else:
-                    tree.insert("",line123,text=name123[0] ,values=(type123[0],datetime[0],ontime[0],"  "," "," "))
+                    tree.insert("",line123,text=name123[0] ,values=(type123[0],datetime[0]+'('+weekfial+')',ontime[0],"  "," "," "))
                     
         
             else :
@@ -1238,10 +1260,10 @@ class personpage(object):
                     type123[0]='公出'  
                     thing123=onlyuse_id_a[0:1,6]
                     location123=onlyuse_id_a[0:1,7]  
-                    tree.insert("",line123,text=name123[0] ,values=(type123[0],datetime[0],ontime[0],offtime[1],thing123[0],location123[0]  ) )
+                    tree.insert("",line123,text=name123[0] ,values=(type123[0],datetime[0]+'('+weekfial+')',ontime[0],offtime[1],thing123[0],location123[0]  ) )
 
                 else:    
-                    tree.insert("",line123,text=name123[0] ,values=(type123[0],datetime[0],ontime[0],offtime[1]," "," "  ) )
+                    tree.insert("",line123,text=name123[0] ,values=(type123[0],datetime[0]+'('+weekfial+')',ontime[0],offtime[1]," "," "  ) )
 
             line123=line123+1
     
@@ -1266,7 +1288,7 @@ class personpage(object):
                 month='0'+str(valuesset123[1])
                 print (month)
             else :
-                month=str(x.month)
+                month=str(valuesset123[1])
                 print (month)     
             values1.append(valuesset123[0]+month)
         
@@ -1886,8 +1908,8 @@ class personpage(object):
         
         tree=ttk.Treeview(self.page,height =20 ,show='headings')#表格show='headings'隱藏第一欄
         tree["columns"]=("狀態別","日期","第一筆時間","最後筆時間","事由","地點")
-        tree.column("狀態別",width=100)   #表示列,不显示
-        tree.column("日期",width=100)   #表示列,不显示
+        tree.column("狀態別",width=80)   #表示列,不显示
+        tree.column("日期",width=130)   #表示列,不显示
         tree.column("第一筆時間",width=100)
         tree.column("最後筆時間",width=100)
         tree.column("事由",width=100)
@@ -1927,7 +1949,7 @@ class personpage(object):
             #print('datetime',datetime)
             #print('ontime',ontime)
             #print('offtime',offtime)            
-            
+            weekfial=weekreport(datetime[0])
             
             if len(id1)==1:
                 if type123[0]=='open':
@@ -1938,9 +1960,9 @@ class personpage(object):
                     type123[0]='公出'  
                     thing123=onlyuse_id_a[0:1,6]
                     location123=onlyuse_id_a[0:1,7]                    
-                    tree.insert("",line123,text=name123[0] ,values=(type123[0],datetime[0],ontime[0],"  ",thing123[0],location123[0]))
+                    tree.insert("",line123,text=name123[0] ,values=(type123[0],datetime[0]+'('+weekfial+')',ontime[0],"  ",thing123[0],location123[0]))
                 else:
-                    tree.insert("",line123,text=name123[0] ,values=(type123[0],datetime[0],ontime[0],"  "," "," "))
+                    tree.insert("",line123,text=name123[0] ,values=(type123[0],datetime[0]+'('+weekfial+')',ontime[0],"  "," "," "))
                     
         
             else :
@@ -1952,10 +1974,10 @@ class personpage(object):
                     type123[0]='公出'  
                     thing123=onlyuse_id_a[0:1,6]
                     location123=onlyuse_id_a[0:1,7]  
-                    tree.insert("",line123,text=name123[0] ,values=(type123[0],datetime[0],ontime[0],offtime[1],thing123[0],location123[0]  ) )
+                    tree.insert("",line123,text=name123[0] ,values=(type123[0],datetime[0]+'('+weekfial+')',ontime[0],offtime[1],thing123[0],location123[0]  ) )
 
                 else:    
-                    tree.insert("",line123,text=name123[0] ,values=(type123[0],datetime[0],ontime[0],offtime[1]," "," "  ) )
+                    tree.insert("",line123,text=name123[0] ,values=(type123[0],datetime[0]+'('+weekfial+')',ontime[0],offtime[1]," "," "  ) )
                 
             line123=line123+1
     
@@ -2090,8 +2112,8 @@ class personpage(object):
             
             tree=ttk.Treeview(self.page,height =20 ,show='headings')#表格show='headings'隱藏第一欄
             tree["columns"]=("狀態別","日期","第一筆時間","最後筆時間","事由","地點")
-            tree.column("狀態別",width=100)   #表示列,不显示
-            tree.column("日期",width=100)   #表示列,不显示
+            tree.column("狀態別",width=80)   #表示列,不显示
+            tree.column("日期",width=130)   #表示列,不显示
             tree.column("第一筆時間",width=100)
             tree.column("最後筆時間",width=100)
             tree.column("事由",width=100)
@@ -2124,14 +2146,14 @@ class personpage(object):
                 datetime=onlyuse_id_a[0:1,4]
                 ontime=onlyuse_id_a[0:1,5]
                 offtime=onlyuse_id_a[:,5]
-                
+                weekfial=weekreport(datetime[0])
                 
                         
                 if len(id1)==1:
-                    tree.insert("",line123,text=name123[0] ,values=("Card",datetime[0],ontime[0],"  "," ", " "))
+                    tree.insert("",line123,text=name123[0] ,values=("Card",datetime[0]+'('+weekfial+')',ontime[0],"  "," ", " "))
             
                 else :
-                    tree.insert("",line123,text=name123[0] ,values=("Card",datetime[0],ontime[0],offtime[1], " "," "  ) )
+                    tree.insert("",line123,text=name123[0] ,values=("Card",datetime[0]+'('+weekfial+')',ontime[0],offtime[1], " "," "  ) )
                     
                 line123=line123+1
         
@@ -2263,8 +2285,8 @@ class personpage(object):
             
             tree=ttk.Treeview(self.page,height =20 ,show='headings')#表格show='headings'隱藏第一欄
             tree["columns"]=("狀態別","日期","第一筆時間","最後筆時間","事由","地點")
-            tree.column("狀態別",width=100)   #表示列,不显示
-            tree.column("日期",width=100)   #表示列,不显示
+            tree.column("狀態別",width=80)   #表示列,不显示
+            tree.column("日期",width=130)   #表示列,不显示
             tree.column("第一筆時間",width=100)
             tree.column("最後筆時間",width=100)
             tree.column("事由",width=100)
@@ -2297,14 +2319,14 @@ class personpage(object):
                 datetime=onlyuse_id_a[0:1,4]
                 ontime=onlyuse_id_a[0:1,5]
                 offtime=onlyuse_id_a[:,5]
-                
+                weekfial=weekreport(datetime[0])
                 
                         
                 if len(id1)==1:
-                    tree.insert("",line123,text=name123[0] ,values=("Face",datetime[0],ontime[0],"  "," "," "))
+                    tree.insert("",line123,text=name123[0] ,values=("Face",datetime[0]+'('+weekfial+')',ontime[0],"  "," "," "))
             
                 else :
-                    tree.insert("",line123,text=name123[0] ,values=("Face",datetime[0],ontime[0],offtime[1] ," "," " ) )
+                    tree.insert("",line123,text=name123[0] ,values=("Face",datetime[0]+'('+weekfial+')',ontime[0],offtime[1] ," "," " ) )
                     
                 line123=line123+1
         
@@ -2351,8 +2373,8 @@ class personpage(object):
     
             tree=ttk.Treeview(self.page,height =20 ,show='headings')#表格show='headings'隱藏第一欄
             tree["columns"]=("狀態別","日期","第一筆時間","最後筆時間","事由","地點")
-            tree.column("狀態別",width=100)   #表示列,不显示
-            tree.column("日期",width=100)   #表示列,不显示
+            tree.column("狀態別",width=80)   #表示列,不显示
+            tree.column("日期",width=130)   #表示列,不显示
             tree.column("第一筆時間",width=100)
             tree.column("最後筆時間",width=100)
             tree.column("事由",width=100)
@@ -2383,6 +2405,7 @@ class personpage(object):
                     print('datetime',datetime)
                     print('ontime',ontime)
                     print('why',why)  
+                    weekfial=weekreport(datetime)
                     if why=='None':
                         why=''
                     if location=='None':
@@ -2390,7 +2413,7 @@ class personpage(object):
                     print('location',location)  
                     if name123=='OutsideWork':
                         name123='公出'
-                    tree.insert("",line123,text=name123 ,values=(name123,datetime,ontime,"  ",why,location ) )   
+                    tree.insert("",line123,text=name123 ,values=(name123,datetime+'('+weekfial+')',ontime,"  ",why,location ) )   
                  
                     line123=line123+1
             
@@ -2411,6 +2434,7 @@ class personpage(object):
                 ontime=onlyuse[3]
                 why=onlyuse[4]
                 location=onlyuse[5]   
+                weekfial=weekreport(datetime)
                 #print('name123',name123)
                 #print('datetime',datetime)
                 #print('ontime',ontime)
@@ -2422,7 +2446,7 @@ class personpage(object):
                 print('location',location)  
                 if name123=='OutsideWork':
                     name123='公出'
-                tree.insert("",0,text=name123 ,values=(name123,datetime,ontime,"  ",why,location ) )   
+                tree.insert("",0,text=name123 ,values=(name123,datetime+'('+weekfial+')',ontime,"  ",why,location ) )   
              
             
             

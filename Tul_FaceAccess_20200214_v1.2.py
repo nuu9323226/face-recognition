@@ -729,7 +729,7 @@ class personpage(object):
         
         
         #讀取csv並且取012345 colums
-        onlyuse = np.loadtxt('data/'+self.stryear+self.strmonth+'.csv',dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5))
+        onlyuse = np.loadtxt('data/'+self.stryear+self.strmonth+'-face.csv',dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5))
         print('onlyuse',onlyuse)        
         
         if len(glob.glob('data/'+self.stryear+self.strmonth+'-idcard.csv'))>=1 :
@@ -1069,7 +1069,7 @@ class personpage(object):
         #讀取csv並且取012345 colums
         
         try:
-            onlyuse = np.loadtxt('data/'+callbackmonth[0]+backmonth+'.csv',dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5))
+            onlyuse = np.loadtxt('data/'+callbackmonth[0]+backmonth+'-face.csv',dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5))
             print(onlyuse)
             
             
@@ -1081,7 +1081,7 @@ class personpage(object):
                 
             print('===========onlyuse===========',onlyuse)
             #搜尋是"vincent"的索引值
-            userid=np.argwhere(onlyuse==persenID[self.personq])     
+            userid=np.argwhere(onlyuse==self.personq)     
             #print('userid',userid)
     
             #透過索引值取出符合"vincent"要的rows
@@ -1253,7 +1253,7 @@ class personpage(object):
                 
             print('===========onlyuse===========',onlyuse)
             #搜尋是"vincent"的索引值
-            userid=np.argwhere(onlyuse==persenID[self.personq])     
+            userid=np.argwhere(onlyuse==self.personq)     
             #print('userid',userid)
     
             #透過索引值取出符合"vincent"要的rows
@@ -1414,7 +1414,7 @@ class personpage(object):
         #讀取csv並且取012345 colums
         
         try:
-            onlyuse = np.loadtxt('data/'+callbackmonth[0]+backmonth+'.csv',dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5))
+            onlyuse = np.loadtxt('data/'+callbackmonth[0]+backmonth+'-face.csv',dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5))
             print(onlyuse)
             
             
@@ -1422,7 +1422,7 @@ class personpage(object):
                 
             print('===========onlyuse===========',onlyuse)
             #搜尋是"vincent"的索引值
-            userid=np.argwhere(onlyuse==persenID[self.personq])     
+            userid=np.argwhere(onlyuse==self.personq)     
             #print('userid',userid)
     
             #透過索引值取出符合"vincent"要的rows
@@ -1668,19 +1668,19 @@ print('pdtrue888',pdtrue888)
 #下載12個月份內的入出資料，比對ftp上所有的月份的檔案中，如果滿足當月回推12的月內的資料則進行下載的動作
 for monthftp12 in monthftp:
     for values12 in pdtrue888 :
-        if values12+'.csv' in monthftp12:
-            print('glob=====',glob.glob(path88+values12+'.csv'))
+        if values12+'-face.csv' in monthftp12:
+            print('glob=====',glob.glob(path88+values12+'-face.csv'))
             try:
                 #如果同時滿足"已經下載過"得跟"不為當月份的"可以不下載
-                if len(glob.glob(path88+values12+'.csv'))>=1 and newyear+newmonth+'.csv' != values12+'.csv':
-                    print(values12+'.csv yes exist')
+                if len(glob.glob(path88+values12+'-face.csv'))>=1 and newyear+newmonth+'-face.csv' != values12+'-face.csv':
+                    print(values12+'-face.csv yes exist')
                 #其餘都會重新下載資料
                 else:
                     
-                    print(values12+'.csv yes')
-                    f=open(path88+values12+'.csv', 'wb')
+                    print(values12+'-face.csv yes')
+                    f=open(path88+values12+'-face.csv', 'wb')
                     downftp.retrbinary('RETR ' + monthftp12, f.write )
-                    print('download file'+path88+values12+'.csv')                    
+                    print('download file'+path88+values12+'-face.csv')                    
                     f.close()
             except:
                 print("download failed. check.......................")
