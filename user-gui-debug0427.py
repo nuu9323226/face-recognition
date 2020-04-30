@@ -461,22 +461,45 @@ class secondpage(object):
         
         
         #選擇月份bar
-        monthlist=['01月','02月','03月','04月','05月','06月','07月','08月','09月','10月','11月','12月']
+        #monthlist=['01月','02月','03月','04月','05月','06月','07月','08月','09月','10月','11月','12月']
+        #設定只鎖定當月
+        monthlist=[newmonth+'月']
         self.comboMonth = ttk.Combobox(self.page, width=7 ,values=monthlist, font=('Arial', 12),state="readonly") 
         print(dict(self.comboMonth)) 
         self.comboMonth.grid(columnspan=2,column=0, row=14,sticky=tk.N+tk.S)
-        self.comboMonth.current(int(newmonth)-1)
+        self.comboMonth.current(0)
         print(self.comboMonth.current(), self.comboMonth.get())
         
         
         #選擇月份bar
-        daylist=['01日','02日','03日','04日','05日','06日','07日','08日','09日','10日','11日','12日','13日','14日','15日','16日','17日','18日','19日','20日',
+        daylistdefault=['01日','02日','03日','04日','05日','06日','07日','08日','09日','10日','11日','12日','13日','14日','15日','16日','17日','18日','19日','20日',
                  '21日','22日','23日','24日','25日','26日','27日','28日','29日','30日','31日']
+        daylist=[]
+        numserial=0
+        #newday='30'
+        #設定鎖定只能往回推10天
+        if int(newday)>9:
+            for numnum in range(10): 
+                print('numnum',numnum)
+                print('daylistdefault[int(newday)-1]',daylistdefault[int(newday)-1-numserial])
+                daylist.append(daylistdefault[int(newday)-1-numserial])
+                print('daylist',daylist)
+                numserial=numserial+1
+        else:
+            for numnum in range(int(newday)): 
+                print('numnum',numnum)
+                print('daylistdefault[int(newday)-1]',daylistdefault[int(newday)-1-numserial])
+                daylist.append(daylistdefault[int(newday)-1-numserial])
+                print('daylist',daylist)
+                numserial=numserial+1            
+            
+                
         self.comboDay = ttk.Combobox(self.page, width=7 ,values=daylist, font=('Arial', 12),state="readonly") 
         print(dict(self.comboDay)) 
         self.comboDay.grid(columnspan=2,column=1, row=14,sticky=tk.N+tk.S)
-        self.comboDay.current(int(newday)-1)
+        self.comboDay.current(0)
         print(self.comboDay.current(), self.comboDay.get())   
+        
         
         self.varthing2=tk.StringVar()
         self.varthing2.set("     外出時間:")
@@ -532,6 +555,9 @@ class secondpage(object):
         tk.messagebox.showwarning( title='錯誤', message='該員工尚未建檔，請重新確認')
     def no_file_worning13(self):
         tk.messagebox.showwarning( title='錯誤', message='事由及地點請勿空白，時間請正確填寫')
+
+    def no_file_worning14(self):
+        tk.messagebox.showwarning( title='錯誤', message='時間請按照範例hh:mm填寫正確')
         
     def takerun(self):
         #print('mode',mode)
@@ -580,6 +606,7 @@ class secondpage(object):
                         downftp.retrbinary('RETR ' + pathperson, f.write )
                         print('download file'+path88+values12+'-personal.csv')                    
                         f.close()
+                        
                 
         
         newdate=datetime.now().strftime("%Y-%m-%d")
@@ -627,11 +654,18 @@ class secondpage(object):
         person4=self.varBusinessPerson4.get()   
         failBusinessWhy=0
         failBusinessPerson=0
+        failBusinesstTime=0
         fail=0
         if self.varBusinessWhy.get()=="" or self.varBusinessLocation.get()==""  :
             self.no_file_worning13()
             failBusinessWhy=1
-        
+            
+            
+        if self.varBusinessOutTime.get()[0:2]=="00" :
+            print('self.varBusinessOutTime.get()[0:2]',self.varBusinessOutTime.get()[0:2])
+            failBusinesstTime=1
+            self.no_file_worning14()
+            
         if person1!="同事1"  or person2!="同事2"  or person3!="同事3"  or person4!="同事4" :
             print('有除了同事1-4以外的資訊')
             if person1.isdigit() and len(person1)==6 or person1=="同事1" :
@@ -659,7 +693,7 @@ class secondpage(object):
         
         
         #事由及地點非空白 繼續動作
-        if failBusinessPerson==0 and failBusinessWhy==0:
+        if failBusinessPerson==0 and failBusinessWhy==0 and failBusinesstTime==0:
             
             addperson=[]
             addperson.append(self.dp)
@@ -730,7 +764,7 @@ class secondpage(object):
                     
             if ghostpersonefail==0:
                 for oneperson in addperson:
-            
+                    DOWNLOAD_bug_flag=0
                     finalid=[]
                     finalid.append(self.mode+','+ oneperson  +','+ persenID[oneperson] +','+ pdID[oneperson] +','+newyear+'-'+ self.comboMonth.get()[0:2] +'-'+ 
                                    self.comboDay.get()[0:2]+','+ self.varBusinessOutTime.get()+':00'+','+ self.varBusinessWhy.get()+','+ self.varBusinessLocation.get() )
@@ -752,10 +786,15 @@ class secondpage(object):
                         downftp.mkd(pathqq+oneperson)
                         print('home/AccessFace/remote/'+oneperson+': 成功建立資料夾')
                         
+                        
+                
                         #上傳檔案
+                        finalid.append(self.mode+','+ oneperson  +','+ persenID[oneperson] +','+ pdID[oneperson] +','+newyear+'-'+ self.comboMonth.get()[0:2] +'-'+ 
+                               self.comboDay.get()[0:2]+','+ self.varBusinessOutTime.get()+':00'+','+ self.varBusinessWhy.get()+','+ self.varBusinessLocation.get() )
                         with open(path88+values123 +'-personal.csv','a',encoding = 'utf-8') as f: 
                             np.savetxt(f, finalid,fmt='%s', delimiter=',',encoding = 'utf-8')
                         f.close
+                            
                         
                         try:
                             #d=ftp.cwd('home/AccessFace/')
@@ -763,7 +802,7 @@ class secondpage(object):
                             print("succes upload: " +'home/AccessFace/remote/'+oneperson+'/'+values123+'-personal.csv')
                         except:
                             print("upload failed: " +'home/AccessFace/remote/'+oneperson+'/'+values123+'-personal.csv')
-                            print("upload failed. check.................        ....                    ..")    
+                            print("upload failed. check...................")    
                     
                     #其餘如果該員工在ftp有見過資料夾則上去確認是否有已存的檔案，下載修改後在上傳
                     else:
@@ -788,11 +827,20 @@ class secondpage(object):
                                 downftp.retrbinary('RETR ' + pathperson, f.write )
                                 print('download file'+path88+values123+'-personal.csv')                    
                                 f.close()
+                                DOWNLOAD_bug_flag=1 #因為如果有檔案表示有紀錄 可以不用啟動bug修復
                         
                         #上傳檔案
-                        with open(path88+values123+'-personal.csv','a',encoding = 'utf-8') as f: 
-                            np.savetxt(f, finalid,fmt='%s', delimiter=',',encoding = 'utf-8')
-                        f.close
+                        if DOWNLOAD_bug_flag==0: #啟動bug修復 自動新增一行以符合2維陣列
+                            finalid.append(self.mode+','+ oneperson  +','+ persenID[oneperson] +','+ pdID[oneperson] +','+newyear+'-'+ self.comboMonth.get()[0:2] +'-'+ 
+                                   self.comboDay.get()[0:2]+','+ self.varBusinessOutTime.get()+':00'+','+ self.varBusinessWhy.get()+','+ self.varBusinessLocation.get() )                            
+                            with open(path88+values123+'-personal.csv','a',encoding = 'utf-8') as f: 
+                                np.savetxt(f, finalid,fmt='%s', delimiter=',',encoding = 'utf-8')
+                            f.close
+                            
+                        else:
+                            with open(path88+values123+'-personal.csv','a',encoding = 'utf-8') as f: 
+                                np.savetxt(f, finalid,fmt='%s', delimiter=',',encoding = 'utf-8')
+                            f.close                            
                         
                         try:
                             #d=ftp.cwd('home/AccessFace/')
@@ -807,12 +855,13 @@ class secondpage(object):
                 strarraddperson = ' '.join(arraddperson)
                 #print(str)     
                 #https://blog.csdn.net/FrankieHello/article/details/80766439
-             
-                self.varreback.set("                            ")        
-                self.varreback.set("Update: 工號 " +  strarraddperson + ' 新增公出紀錄 '+ newyear+'-'+ self.comboMonth.get()[0:2] +'-'+ 
-                           self.comboDay.get()[0:2]+' '+ self.varBusinessOutTime.get()+':00'  )                                
-     
                 os.remove(path88+values123+'-personal.csv')
+                
+            self.varreback.set("                            ")        
+            self.varreback.set("Update: 工號 " +  strarraddperson + ' 新增公出紀錄 '+ newyear+'-'+ self.comboMonth.get()[0:2] +'-'+ 
+                       self.comboDay.get()[0:2]+' '+ self.varBusinessOutTime.get()+':00'  )                                
+     
+                
                         
             """修改遠端上下班不使用  
             elif self.mode=="Work" :
@@ -1047,21 +1096,19 @@ class personpage(object):
             print('onlyRemote.shape,onlyRemote.ndim',onlyRemote.shape[0],onlyRemote.ndim)
             if onlyRemote.ndim==1:
                 ##np.reshape(onlyRemote,(2,6) , order='F') 
-                ##print('reshape onlyRemote',onlyRemote)
+                print('reshape onlyRemote',onlyRemote)
                 ##onlyRemote[None,:].shape 
                 ##arrayB = np.ones((1, onlyRemote.shape[0] ))
                 #arrayB = np.empty([1, onlyRemote.shape[0] ], dtype='string')
                 #numset=0
                 #for onevole in onlyRemote:
-                np.insert(onlyuse,-1,onlyRemote,axis=0)
-                    
-                    
-                    
-                #np.append(onlyuse, onlyRemote, axis=0)
+                np.insert(onlyuse,-1,[onlyRemote],axis=0)
+                #np.append(onlyuse, [onlyRemote], axis=0)
+                #onlyuse=np.concatenate((onlyRemote,[[onlyuse]]),axis=0) 
             else:
                 onlyuse=np.concatenate((onlyRemote,onlyuse),axis=0)        
     
-        
+        print('FINAL onlyuse',onlyuse)
         #搜尋是"vincent"的索引值
         userid=np.argwhere(onlyuse==self.personq)     
         #print('userid',userid)

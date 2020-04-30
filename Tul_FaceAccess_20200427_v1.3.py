@@ -838,7 +838,7 @@ class personpage(object):
         if len(glob.glob('datas/'+ self.stryear+self.strmonth  + '-idcard.csv' ))>=1 :
             print(glob.glob('datas/'+self.stryear+self.strmonth + '-idcard.csv' ))
             onlyidcard = np.loadtxt('datas/'+ self.stryear+self.strmonth  + '-idcard.csv'  ,dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5,0,1),encoding = 'utf-8')
-#             print('onlyonlyidcard.shape,onlyonlyidcard.ndim',onlyonlyidcard.shape[0],onlyonlyidcard.shape[1],onlyonlyidcard.ndim)
+            print('onlyonlyidcard.shape,onlyidcard.ndim',onlyidcard.shape[0],onlyidcard.shape[1],onlyidcard.ndim)
             print('===========onlyidcard===========',onlyidcard) 
             
             onlyuse=np.concatenate((onlyidcard,onlyuse),axis=0)    #拼接陣列     
