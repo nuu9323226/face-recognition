@@ -226,8 +226,8 @@ class mainpage(object):
         # login and sign up button
         self.btn_login = tk.Button(self.page, text='登入',font=('Arial', 12) , command=self.conform)
         self.btn_login.place(x=180, y=240)
-#         self.btn_sign_up = tk.Button(self.page, text='輸入工號直接登入',font=('Arial', 12), command=self.conform1 )
-#         self.btn_sign_up.place(x=270, y=240)
+        self.btn_sign_up = tk.Button(self.page, text='輸入工號直接登入',font=('Arial', 12), command=self.conform1 )
+        self.btn_sign_up.place(x=270, y=240)
 
 
 
@@ -358,7 +358,7 @@ class secondpage(object):
         self.pwdtitleLabel.grid(column=0, row=1, sticky=tk.W)       
         
         self.vartitle=tk.StringVar()
-        self.vartitle.set("撼訊科技 遠端出勤打卡系統")
+        self.vartitle.set("撼訊科技 公出電子表單")
         self.titleLabel= tk.Label(self.page,textvariable=self.vartitle, font=('Arial', 14),justify = tk.RIGHT )
         self.titleLabel.grid(column=0, row=2, sticky=tk.W)   
         
@@ -377,17 +377,17 @@ class secondpage(object):
         
         #self.mode='A'
         self.var1 = tk.StringVar()
-        self.var1.set("A")
+        self.var1.set("C")
         #self.var1.grid(column=1, row=3,sticky=tk.W)
         
         #self.mode=""
    
         
-        self.selectcircle1=tk.Radiobutton(self.page,text = '  上班', variable=self.var1, value='A',command=partial(self.dtest,'Work')  , font=('Arial', 12) )
-        self.selectcircle1.grid(column=0, row=6, pady=1, sticky=tk.W)      
+        #self.selectcircle1=tk.Radiobutton(self.page,text = '  上班', variable=self.var1, value='A',command=partial(self.dtest,'Work')  , font=('Arial', 12) )
+        #self.selectcircle1.grid(column=0, row=6, pady=1, sticky=tk.W)      
         
-        self.selectcircle2=tk.Radiobutton(self.page,text = '  下班',variable=self.var1,value='B',command=partial(self.dtest,'OffWork')  , font=('Arial', 12) )
-        self.selectcircle2.grid(column=0, row=6, pady=2, sticky=tk.N+tk.S)       
+        #self.selectcircle2=tk.Radiobutton(self.page,text = '  下班',variable=self.var1,value='B',command=partial(self.dtest,'OffWork')  , font=('Arial', 12) )
+        #self.selectcircle2.grid(column=0, row=6, pady=2, sticky=tk.N+tk.S)       
         
         #空白
         spaceLabel= tk.Label(self.page,textvariable="             " )
@@ -585,235 +585,236 @@ class secondpage(object):
         newdate=datetime.now().strftime("%Y-%m-%d")
         newdtime=datetime.now().strftime("%H:%M:%S")
         
-        try: 
-            print('self.mode',self.mode)
-            if self.mode=="OffWork" :
+        """修改為遠端上下班不使用
+        #try: 
+            #print('self.mode',self.mode)
+            #if self.mode=="OffWork" :
            
-                path88='data/'
-                values12=self.dp+'-'+newyear+newmonth
-                finalid=[]
+                #path88='data/'
+                #values12=self.dp+'-'+newyear+newmonth
+                #finalid=[]
                 
-                finalid.append(self.mode+','+ self.dp  +','+ persenID[self.dp] +','+ pdID[self.dp] +','+ newdate +','+newdtime+',None,None' )
+                #finalid.append(self.mode+','+ self.dp  +','+ persenID[self.dp] +','+ pdID[self.dp] +','+ newdate +','+newdtime+',None,None' )
                 
-                print('finalid',finalid)
+                #print('finalid',finalid)
                 
-                #np.savetxt(path_database+'database_Employee.csv', finalid,fmt='%s', delimiter=',')
-                with open(path88+values12+'-personal.csv','a') as f: 
-                    np.savetxt(f, finalid,fmt='%s', delimiter=',')
-                f.close      
-                
-                
-                try:
-                    #d=ftp.cwd('home/AccessFace/')
-                    downftp.storbinary('STOR '+'home/AccessFace/remote/'+self.dp+'/'+values12+'-personal.csv' , open(path88+values12+'-personal.csv', 'rb')) # 上傳FTP檔案
-                    print("succes upload: " +'home/AccessFace/remote/'+self.dp+'/'+values12+'-personal.csv')
-                except:
-                    print("upload failed: " +'home/AccessFace/remote/'+self.dp+'/'+values12+'-personal.csv')
-                    print("upload failed. check.................        ......")                
+                ##np.savetxt(path_database+'database_Employee.csv', finalid,fmt='%s', delimiter=',')
+                #with open(path88+values12+'-personal.csv','a') as f: 
+                    #np.savetxt(f, finalid,fmt='%s', delimiter=',')
+                #f.close      
                 
                 
-                self.varreback.set("                            ")        
-                self.varreback.set("Update: " +  persenID[self.dp] + ' 新增下班紀錄 '+ newdate+ ' '+ newdtime)
-                os.remove(path88+values12+'-personal.csv')
+                #try:
+                    ##d=ftp.cwd('home/AccessFace/')
+                    #downftp.storbinary('STOR '+'home/AccessFace/remote/'+self.dp+'/'+values12+'-personal.csv' , open(path88+values12+'-personal.csv', 'rb')) # 上傳FTP檔案
+                    #print("succes upload: " +'home/AccessFace/remote/'+self.dp+'/'+values12+'-personal.csv')
+                #except:
+                    #print("upload failed: " +'home/AccessFace/remote/'+self.dp+'/'+values12+'-personal.csv')
+                    #print("upload failed. check.................        ......")                
+                
+                
+                #self.varreback.set("                            ")        
+                #self.varreback.set("Update: " +  persenID[self.dp] + ' 新增下班紀錄 '+ newdate+ ' '+ newdtime)
+                #os.remove(path88+values12+'-personal.csv')
                 
             elif self.mode=="OutsideWork" :
-                
+          """      
+        self.mode="OutsideWork"
+        #如果事由及地點沒填則不會繼續接下來動作
+        person1=self.varBusinessPerson1.get()
+        person2=self.varBusinessPerson2.get()
+        person3=self.varBusinessPerson3.get()
+        person4=self.varBusinessPerson4.get()   
+        failBusinessWhy=0
+        failBusinessPerson=0
+        fail=0
+        if self.varBusinessWhy.get()=="" or self.varBusinessLocation.get()==""  :
+            self.no_file_worning13()
+            failBusinessWhy=1
         
-                #如果事由及地點沒填則不會繼續接下來動作
-                person1=self.varBusinessPerson1.get()
-                person2=self.varBusinessPerson2.get()
-                person3=self.varBusinessPerson3.get()
-                person4=self.varBusinessPerson4.get()   
-                failBusinessWhy=0
-                failBusinessPerson=0
-                fail=0
-                if self.varBusinessWhy.get()=="" or self.varBusinessLocation.get()==""  :
-                    self.no_file_worning13()
-                    failBusinessWhy=1
+        if person1!="同事1"  or person2!="同事2"  or person3!="同事3"  or person4!="同事4" :
+            print('有除了同事1-4以外的資訊')
+            if person1.isdigit() and len(person1)==6 or person1=="同事1" :
+                print ('person1 is ok')
+            else:
+                fail=fail+1
+                failBusinessPerson=1
+            if person2.isdigit() and len(person2)==6 or person2=="同事2" :
+                print ('person2 is ok')
+            else:
+                fail=fail+1           
+                failBusinessPerson=1
+            if person3.isdigit() and len(person3)==6 or person3=="同事3" :
+                print ('person3 is ok') 
+            else:
+                fail=fail+1   
+                failBusinessPerson=1
+            if person4.isdigit() and len(person4)==6 or person4=="同事4":
+                print ('person4 is ok')  
+            else:
+                fail=fail+1
+                failBusinessPerson=1
+            if fail!=0:
+                self.no_file_worning11()    
+        
+        
+        #事由及地點非空白 繼續動作
+        if failBusinessPerson==0 and failBusinessWhy==0:
+            
+            addperson=[]
+            addperson.append(self.dp)
+            
+            if len(person1)==6 and person1.isdigit() :
                 
-                if person1!="同事1"  or person2!="同事2"  or person3!="同事3"  or person4!="同事4" :
-                    print('有除了同事1-4以外的資訊')
-                    if person1.isdigit() and len(person1)==6 or person1=="同事1" :
-                        print ('person1 is ok')
-                    else:
-                        fail=fail+1
-                        failBusinessPerson=1
-                    if person2.isdigit() and len(person2)==6 or person2=="同事2" :
-                        print ('person2 is ok')
-                    else:
-                        fail=fail+1           
-                        failBusinessPerson=1
-                    if person3.isdigit() and len(person3)==6 or person3=="同事3" :
-                        print ('person3 is ok') 
-                    else:
-                        fail=fail+1   
-                        failBusinessPerson=1
-                    if person4.isdigit() and len(person4)==6 or person4=="同事4":
-                        print ('person4 is ok')  
-                    else:
-                        fail=fail+1
-                        failBusinessPerson=1
-                    if fail!=0:
-                        self.no_file_worning11()    
+                print ('person1 add ok')
+                addperson.append(person1)
+
+            if len(person2)==6 and person2.isdigit() :
                 
+                print ('person2 add ok')
+                addperson.append(person2)   
                 
-                #事由及地點非空白 繼續動作
-                if failBusinessPerson==0 and failBusinessWhy==0:
+            if len(person3)==6 and person3.isdigit() :
+                
+                print ('person3 add ok')
+                addperson.append(person3)
+
+            if len(person4)==6 and person4.isdigit() :
+                
+                print ('person4 add ok')
+                addperson.append(person4)   
+                
+            ##判斷輸入的隨行同事是否為無效值    
+            #fail=0
+            #if person1!="同事1"  or person2!="同事2"  or person3!="同事3"  or person4!="同事4" :
+                #print('有除了同事1-4以外的資訊')
+                #if person1.isdigit() and len(person1)==6 or person1=="同事1" :
+                    #print ('person1 is ok')
+                #else:
+                    #fail=fail+1
+                #if person2.isdigit() and len(person2)==6 or person2=="同事2" :
+                    #print ('person2 is ok')
+                #else:
+                    #fail=fail+1                    
+                #if person3.isdigit() and len(person3)==6 or person3=="同事3" :
+                    #print ('person3 is ok') 
+                #else:
+                    #fail=fail+1                    
+                #if person4.isdigit() and len(person4)==6 or person4=="同事4":
+                    #print ('person4 is ok')  
+                #else:
+                    #fail=fail+1
                     
-                    addperson=[]
-                    addperson.append(self.dp)
                     
-                    if len(person1)==6 and person1.isdigit() :
-                        
-                        print ('person1 add ok')
-                        addperson.append(person1)
-        
-                    if len(person2)==6 and person2.isdigit() :
-                        
-                        print ('person2 add ok')
-                        addperson.append(person2)   
-                        
-                    if len(person3)==6 and person3.isdigit() :
-                        
-                        print ('person3 add ok')
-                        addperson.append(person3)
-        
-                    if len(person4)==6 and person4.isdigit() :
-                        
-                        print ('person4 add ok')
-                        addperson.append(person4)   
-                        
-                    ##判斷輸入的隨行同事是否為無效值    
-                    #fail=0
-                    #if person1!="同事1"  or person2!="同事2"  or person3!="同事3"  or person4!="同事4" :
-                        #print('有除了同事1-4以外的資訊')
-                        #if person1.isdigit() and len(person1)==6 or person1=="同事1" :
-                            #print ('person1 is ok')
-                        #else:
-                            #fail=fail+1
-                        #if person2.isdigit() and len(person2)==6 or person2=="同事2" :
-                            #print ('person2 is ok')
-                        #else:
-                            #fail=fail+1                    
-                        #if person3.isdigit() and len(person3)==6 or person3=="同事3" :
-                            #print ('person3 is ok') 
-                        #else:
-                            #fail=fail+1                    
-                        #if person4.isdigit() and len(person4)==6 or person4=="同事4":
-                            #print ('person4 is ok')  
-                        #else:
-                            #fail=fail+1
-                            
-                            
-                    #if fail!=0:
-                        #self.no_file_worning11()
-                            
-                       
-                    #去確認remote所有目錄
+            #if fail!=0:
+                #self.no_file_worning11()
+                    
+               
+            #去確認remote所有目錄
+            pathqq='home/AccessFace/remote/'
+            idperson=[]
+            personftpqq=downftp.nlst(pathqq)   
+            for personfty in personftpqq:
+                personww=personfty.split('/')
+                idperson.append(personww[-1])
+            print('idperson',idperson)
+            
+            print('addperson',addperson)
+            ghostpersonefail=0
+            
+            for oneperson in addperson: 
+                if oneperson not in persenID:
+                    print(oneperson+'該同仁沒建檔')
+                    ghostpersonefail=1
+                    self.no_file_worning12()
+                    
+            if ghostpersonefail==0:
+                for oneperson in addperson:
+            
+                    finalid=[]
+                    finalid.append(self.mode+','+ oneperson  +','+ persenID[oneperson] +','+ pdID[oneperson] +','+newyear+'-'+ self.comboMonth.get()[0:2] +'-'+ 
+                                   self.comboDay.get()[0:2]+','+ self.varBusinessOutTime.get()+':00'+','+ self.varBusinessWhy.get()+','+ self.varBusinessLocation.get() )
+                             #comboDay +','+ self.varBusinessOutTime.get+','+ self.varBusinessWhy.get+','+ self.varBusinessLocation.get)
+                    
+                    print('finalid',finalid)
+                    
+                    
                     pathqq='home/AccessFace/remote/'
-                    idperson=[]
-                    personftpqq=downftp.nlst(pathqq)   
-                    for personfty in personftpqq:
-                        personww=personfty.split('/')
-                        idperson.append(personww[-1])
-                    print('idperson',idperson)
-                    
-                    print('addperson',addperson)
-                    ghostpersonefail=0
-                    
-                    for oneperson in addperson: 
-                        if oneperson not in persenID:
-                            print(oneperson+'該同仁沒建檔')
-                            ghostpersonefail=1
-                            self.no_file_worning12()
-                            
-                    if ghostpersonefail==0:
-                        for oneperson in addperson:
-                    
-                            finalid=[]
-                            finalid.append(self.mode+','+ oneperson  +','+ persenID[oneperson] +','+ pdID[oneperson] +','+newyear+'-'+ self.comboMonth.get()[0:2] +'-'+ 
-                                           self.comboDay.get()[0:2]+','+ self.varBusinessOutTime.get()+':00'+','+ self.varBusinessWhy.get()+','+ self.varBusinessLocation.get() )
-                                     #comboDay +','+ self.varBusinessOutTime.get+','+ self.varBusinessWhy.get+','+ self.varBusinessLocation.get)
-                            
-                            print('finalid',finalid)
-                            
-                            
-                            pathqq='home/AccessFace/remote/'
-                            personftpqq=downftp.nlst(pathqq)
-                                
-                            print('personftpqq',personftpqq)     
-                            path88='data/'
-                            values123=oneperson+'-'+newyear+ self.comboMonth.get()[0:2]
-                            
-                            #判斷有沒有該工號資料夾 沒有的話就新建一個
-                            if oneperson  not in   idperson :
-                                print(oneperson+'沒有在ftp建立資料夾')
-                                downftp.mkd(pathqq+oneperson)
-                                print('home/AccessFace/remote/'+oneperson+': 成功建立資料夾')
-                                
-                                #上傳檔案
-                                with open(path88+values123 +'-personal.csv','a',encoding = 'utf-8') as f: 
-                                    np.savetxt(f, finalid,fmt='%s', delimiter=',',encoding = 'utf-8')
-                                f.close
-                                
-                                try:
-                                    #d=ftp.cwd('home/AccessFace/')
-                                    downftp.storbinary('STOR '+'home/AccessFace/remote/'+oneperson+'/'+values123+'-personal.csv' , open(path88+values123+'-personal.csv', 'rb')) # 上傳FTP檔案
-                                    print("succes upload: " +'home/AccessFace/remote/'+oneperson+'/'+values123+'-personal.csv')
-                                except:
-                                    print("upload failed: " +'home/AccessFace/remote/'+oneperson+'/'+values123+'-personal.csv')
-                                    print("upload failed. check.................        ....                    ..")    
-                            
-                            #其餘如果該員工在ftp有見過資料夾則上去確認是否有已存的檔案，下載修改後在上傳
-                            else:
-                                
-                                #ftp找尋目錄是否有該資料夾的檔案
-                                path='home/AccessFace/remote/'+oneperson+'/'
-                                personftp=downftp.nlst(path)
-                                    
-                                print('personftp',personftp)     
-                                path88='data/'
-                                values123=oneperson+'-'+newyear+ self.comboMonth.get()[0:2]
-                                for pathperson in personftp:
-                                    personfile=pathperson.split('/')
-                                    personmonth=personfile[-1]
-                                    print('personmonth',personmonth)
-                                    personmonth1=personmonth.split('.')
-                                    pmonth=personmonth1[0].split('-')
-                                    if pmonth[1]==newyear+self.comboMonth.get()[0:2] :
-                                        print('pathperson yes',pathperson)
-                                        
-                                        f=open(path88+values123+'-personal.csv', 'wb')
-                                        downftp.retrbinary('RETR ' + pathperson, f.write )
-                                        print('download file'+path88+values123+'-personal.csv')                    
-                                        f.close()
-                                
-                                #上傳檔案
-                                with open(path88+values123+'-personal.csv','a',encoding = 'utf-8') as f: 
-                                    np.savetxt(f, finalid,fmt='%s', delimiter=',',encoding = 'utf-8')
-                                f.close
-                                
-                                try:
-                                    #d=ftp.cwd('home/AccessFace/')
-                                    downftp.storbinary('STOR '+'home/AccessFace/remote/'+oneperson+'/'+values123+'-personal.csv' , open(path88+values123+'-personal.csv', 'rb')) # 上傳FTP檔案
-                                    print("succes upload: " +'home/AccessFace/remote/'+oneperson+'/'+values123+'-personal.csv')
-                                except:
-                                    print("upload failed: " +'home/AccessFace/remote/'+oneperson+'/'+values123+'-personal.csv')
-                                    print("upload failed. check...............")
-                                    
-                        #list = ['a', 'b', 'c', 'd']
-                        arraddperson = np.array(addperson)
-                        strarraddperson = ' '.join(arraddperson)
-                        #print(str)     
-                        #https://blog.csdn.net/FrankieHello/article/details/80766439
-                     
-                        self.varreback.set("                            ")        
-                        self.varreback.set("Update: 工號 " +  strarraddperson + ' 新增公出紀錄 '+ newyear+'-'+ self.comboMonth.get()[0:2] +'-'+ 
-                                   self.comboDay.get()[0:2]+' '+ self.varBusinessOutTime.get()+':00'  )                                
-             
-                        os.remove(path88+values123+'-personal.csv')
+                    personftpqq=downftp.nlst(pathqq)
                         
-                
+                    print('personftpqq',personftpqq)     
+                    path88='data/'
+                    values123=oneperson+'-'+newyear+ self.comboMonth.get()[0:2]
+                    
+                    #判斷有沒有該工號資料夾 沒有的話就新建一個
+                    if oneperson  not in   idperson :
+                        print(oneperson+'沒有在ftp建立資料夾')
+                        downftp.mkd(pathqq+oneperson)
+                        print('home/AccessFace/remote/'+oneperson+': 成功建立資料夾')
+                        
+                        #上傳檔案
+                        with open(path88+values123 +'-personal.csv','a',encoding = 'utf-8') as f: 
+                            np.savetxt(f, finalid,fmt='%s', delimiter=',',encoding = 'utf-8')
+                        f.close
+                        
+                        try:
+                            #d=ftp.cwd('home/AccessFace/')
+                            downftp.storbinary('STOR '+'home/AccessFace/remote/'+oneperson+'/'+values123+'-personal.csv' , open(path88+values123+'-personal.csv', 'rb')) # 上傳FTP檔案
+                            print("succes upload: " +'home/AccessFace/remote/'+oneperson+'/'+values123+'-personal.csv')
+                        except:
+                            print("upload failed: " +'home/AccessFace/remote/'+oneperson+'/'+values123+'-personal.csv')
+                            print("upload failed. check.................        ....                    ..")    
+                    
+                    #其餘如果該員工在ftp有見過資料夾則上去確認是否有已存的檔案，下載修改後在上傳
+                    else:
+                        
+                        #ftp找尋目錄是否有該資料夾的檔案
+                        path='home/AccessFace/remote/'+oneperson+'/'
+                        personftp=downftp.nlst(path)
+                            
+                        print('personftp',personftp)     
+                        path88='data/'
+                        values123=oneperson+'-'+newyear+ self.comboMonth.get()[0:2]
+                        for pathperson in personftp:
+                            personfile=pathperson.split('/')
+                            personmonth=personfile[-1]
+                            print('personmonth',personmonth)
+                            personmonth1=personmonth.split('.')
+                            pmonth=personmonth1[0].split('-')
+                            if pmonth[1]==newyear+self.comboMonth.get()[0:2] :
+                                print('pathperson yes',pathperson)
+                                
+                                f=open(path88+values123+'-personal.csv', 'wb')
+                                downftp.retrbinary('RETR ' + pathperson, f.write )
+                                print('download file'+path88+values123+'-personal.csv')                    
+                                f.close()
+                        
+                        #上傳檔案
+                        with open(path88+values123+'-personal.csv','a',encoding = 'utf-8') as f: 
+                            np.savetxt(f, finalid,fmt='%s', delimiter=',',encoding = 'utf-8')
+                        f.close
+                        
+                        try:
+                            #d=ftp.cwd('home/AccessFace/')
+                            downftp.storbinary('STOR '+'home/AccessFace/remote/'+oneperson+'/'+values123+'-personal.csv' , open(path88+values123+'-personal.csv', 'rb')) # 上傳FTP檔案
+                            print("succes upload: " +'home/AccessFace/remote/'+oneperson+'/'+values123+'-personal.csv')
+                        except:
+                            print("upload failed: " +'home/AccessFace/remote/'+oneperson+'/'+values123+'-personal.csv')
+                            print("upload failed. check...............")
+                            
+                #list = ['a', 'b', 'c', 'd']
+                arraddperson = np.array(addperson)
+                strarraddperson = ' '.join(arraddperson)
+                #print(str)     
+                #https://blog.csdn.net/FrankieHello/article/details/80766439
+             
+                self.varreback.set("                            ")        
+                self.varreback.set("Update: 工號 " +  strarraddperson + ' 新增公出紀錄 '+ newyear+'-'+ self.comboMonth.get()[0:2] +'-'+ 
+                           self.comboDay.get()[0:2]+' '+ self.varBusinessOutTime.get()+':00'  )                                
+     
+                os.remove(path88+values123+'-personal.csv')
+                        
+            """修改遠端上下班不使用  
             elif self.mode=="Work" :
            
                 path88='data/'
@@ -870,7 +871,7 @@ class secondpage(object):
             self.varreback.set("                            ")        
             self.varreback.set("Update: " +  persenID[self.dp] + ' 新增上班紀錄 '+ newdate+ ' '+ newdtime)            
             os.remove(path88+values12+'-personal.csv')
-            
+            """
     def mainpage(self):
         self.page.destroy()
         mainpage(self.root)
