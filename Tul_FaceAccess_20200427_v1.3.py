@@ -925,7 +925,7 @@ class personpage(object):
         
     #======針對日期下的時間做排序======
         #取出日期
-        date=onlyuse_id[:,4]
+        date=onlyuse_id[0:1,4]
         #print(date)
         #刪除重複的日期
         uniquedate = np.unique(date) #刪除重複的元素https://www.twblogs.net/a/5c1f8d88bd9eee16b3daa874/

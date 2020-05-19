@@ -17,7 +17,7 @@ from datetime import datetime, timedelta
           3.增加使用亂碼檔名 4.增加網路錯誤時顯示網路連線錯誤提醒
 """
 
-VERSON='0504'
+VERSON='0518'
 
 #檔案密碼
 firstmonth='FSvQnEV'
@@ -146,7 +146,7 @@ def person_pd_ID():
         number15=all_23[2]
         name15=all_23[3]
         pd15=all_23[5]
-        pwd15=all_23[4]
+        pwd15=all_23[6]
         number123.append(number15)
         name123.append(name15)
         pd123.append(pd15)
@@ -204,7 +204,7 @@ class mainpage(object):
         
         
         self.varpwdtitle=tk.StringVar()
-        self.varpwdtitle.set("預設密碼為出生年月日，ex.19800101")
+        self.varpwdtitle.set("預設密碼為員工西元出生年月日，ex.19800101")
         self.pwdtitleLabel= tk.Label(self.page,textvariable=self.varpwdtitle, font=('Arial', 10),justify = tk.RIGHT )
         self.pwdtitleLabel.place(x=160, y= 215)          
         
@@ -227,8 +227,8 @@ class mainpage(object):
         # login and sign up button
         self.btn_login = tk.Button(self.page, text='登入',font=('Arial', 12) , command=self.conform)
         self.btn_login.place(x=180, y=240)
-        self.btn_sign_up = tk.Button(self.page, text='輸入工號直接登入',font=('Arial', 12), command=self.conform1 )
-        self.btn_sign_up.place(x=270, y=240)
+        #self.btn_sign_up = tk.Button(self.page, text='輸入工號直接登入',font=('Arial', 12), command=self.conform1 )
+        #self.btn_sign_up.place(x=270, y=240)
 
 
 
@@ -372,7 +372,7 @@ class secondpage(object):
         spaceLabel.grid(column=0, row=4, sticky=tk.W) 
         
         self.vartitle2=tk.StringVar()
-        self.vartitle2.set('  請輸入以下資訊，並按確定，系統將送出當下時間')
+        self.vartitle2.set('  請輸入以下資訊，並按確定')
         self.title2Label= tk.Label(self.page,textvariable=self.vartitle2, font=('Arial', 12),justify = tk.RIGHT )
         self.title2Label.grid(column=0,   row=5, sticky=tk.W)    
         
@@ -593,8 +593,8 @@ class secondpage(object):
         print('after verson: ',verson123) 
         if int(verson123[0])> int(VERSON):
         
-            if len(glob.glob('TUL-AttendanceMangement_user_'+VERSON+'.exe') )==1:
-                os.remove('TUL-AttendanceMangement_user_'+VERSON+'.exe')
+            #if len(glob.glob('TUL-AttendanceMangement_user_'+VERSON+'.exe') )==1:
+                #os.remove('TUL-AttendanceMangement_user_'+VERSON+'.exe')
             for personfty in personftpqq:
                 personww=personfty.split('/')
                 person11=personww[-1].split('.')
@@ -938,13 +938,14 @@ class secondpage(object):
                             print("upload failed: " +'home/AccessFace/remote/'+oneperson+'/'+values123+'-personal.csv')
                             print("upload failed. check...............")
                             
+                    os.remove(path88+values123+'-personal.csv')    
                 #list = ['a', 'b', 'c', 'd']
-                arraddperson = np.array(addperson)
-                strarraddperson = ' '.join(arraddperson)
+                
                 #print(str)     
                 #https://blog.csdn.net/FrankieHello/article/details/80766439
-                os.remove(path88+values123+'-personal.csv')
                 
+            arraddperson = np.array(addperson)
+            strarraddperson = ' '.join(arraddperson)    
             self.varreback.set("                            ")        
             self.varreback.set("Update: 工號 " +  strarraddperson + ' 新增公出紀錄 '+ newyear+'-'+ self.comboMonth.get()[0:2] +'-'+ 
                        self.comboDay.get()[0:2]+' '+ self.varBusinessOutTime.get()+':00'  )                                
@@ -1154,7 +1155,7 @@ class personpage(object):
         self.selectcircle=tk.Radiobutton(self.page,text = '檢視人臉識別', variable=self.var1,value='C',command=partial(self.show_face_callbackFunc,personq,allyesrmonthID)  , font=('Arial', 12) )
         self.selectcircle.grid(column=1, row=4, pady=0, sticky=tk.W)   
         
-        self.selectcircle=tk.Radiobutton(self.page,text = '公出及遠端', variable=self.var1,value='D',command=partial(self.show_remote_callbackFunc,personq,allyesrmonthID)  , font=('Arial', 12) )
+        self.selectcircle=tk.Radiobutton(self.page,text = '公出', variable=self.var1,value='D',command=partial(self.show_remote_callbackFunc,personq,allyesrmonthID)  , font=('Arial', 12) )
         self.selectcircle.grid(column=1, row=5, pady=0, sticky=tk.W)         
         
         #空白
@@ -1448,9 +1449,12 @@ class personpage(object):
             self.vartitle3=tk.StringVar()
             self.vartitle3.set('(2)人臉識別更新時間為隔日，每天更新1次')
             self.title3Label= tk.Label(self.page,textvariable=self.vartitle3, font=('Arial', 12),fg='#228B22',justify = tk.RIGHT )
-            self.title3Label.grid(columnspan=9,   row=10, sticky=tk.W)               
-            
-            
+            self.title3Label.grid(columnspan=9,   row=10, sticky=tk.W)  
+            self.vartitle4=tk.StringVar()
+            self.vartitle4.set('(3)資料若未更新，請按重新整理更新資料')
+            self.title4Label= tk.Label(self.page,textvariable=self.vartitle4, font=('Arial', 12),fg='#228B22',justify = tk.RIGHT )
+            self.title4Label.grid(columnspan=9,   row=11, sticky=tk.W)                     
+          
             
             root.mainloop()   
     
@@ -2198,8 +2202,10 @@ class personpage(object):
             self.vartitle3.set('(2)人臉識別更新時間為隔日，每天更新1次')
             self.title3Label= tk.Label(self.page,textvariable=self.vartitle3, font=('Arial', 12),fg='#228B22',justify = tk.RIGHT )
             self.title3Label.grid(columnspan=9,   row=10, sticky=tk.W)               
-    
-    
+            self.vartitle4=tk.StringVar()
+            self.vartitle4.set('(3)資料若未更新，請按重新整理更新資料')
+            self.title4Label= tk.Label(self.page,textvariable=self.vartitle4, font=('Arial', 12),fg='#228B22',justify = tk.RIGHT )
+            self.title4Label.grid(columnspan=9,   row=11, sticky=tk.W)   
     
             root.mainloop()   
         
@@ -2389,8 +2395,10 @@ class personpage(object):
             self.vartitle3.set('(2)人臉識別更新時間為隔日，每天更新1次')
             self.title3Label= tk.Label(self.page,textvariable=self.vartitle3, font=('Arial', 12),fg='#228B22',justify = tk.RIGHT )
             self.title3Label.grid(columnspan=9,   row=10, sticky=tk.W)               
-    
-        
+            self.vartitle4=tk.StringVar()
+            self.vartitle4.set('(3)資料若未更新，請按重新整理更新資料')
+            self.title4Label= tk.Label(self.page,textvariable=self.vartitle4, font=('Arial', 12),fg='#228B22',justify = tk.RIGHT )
+            self.title4Label.grid(columnspan=9,   row=11, sticky=tk.W)   
             root.mainloop()   
             
             
@@ -2575,8 +2583,10 @@ class personpage(object):
             self.vartitle3.set('(2)人臉識別更新時間為隔日，每天更新1次')
             self.title3Label= tk.Label(self.page,textvariable=self.vartitle3, font=('Arial', 12),fg='#228B22',justify = tk.RIGHT )
             self.title3Label.grid(columnspan=9,   row=10, sticky=tk.W)               
-    
-        
+            self.vartitle4=tk.StringVar()
+            self.vartitle4.set('(3)資料若未更新，請按重新整理更新資料')
+            self.title4Label= tk.Label(self.page,textvariable=self.vartitle4, font=('Arial', 12),fg='#228B22',justify = tk.RIGHT )
+            self.title4Label.grid(columnspan=9,   row=11, sticky=tk.W)   
             root.mainloop()   
             
             
@@ -2707,9 +2717,11 @@ class personpage(object):
                 self.vartitle3=tk.StringVar()
                 self.vartitle3.set('(2)人臉識別更新時間為隔日，每天更新1次')
                 self.title3Label= tk.Label(self.page,textvariable=self.vartitle3, font=('Arial', 12),fg='#228B22',justify = tk.RIGHT )
-                self.title3Label.grid(columnspan=9,   row=10, sticky=tk.W)               
-        
-                
+                self.title3Label.grid(columnspan=9,   row=10, sticky=tk.W) 
+                self.vartitle4=tk.StringVar()
+                self.vartitle4.set('(3)資料若未更新，請按重新整理更新資料')
+                self.title4Label= tk.Label(self.page,textvariable=self.vartitle4, font=('Arial', 12),fg='#228B22',justify = tk.RIGHT )
+                self.title4Label.grid(columnspan=9,   row=11, sticky=tk.W)   
                 root.mainloop()               
             
             
@@ -2724,11 +2736,9 @@ if not os.path.isdir('data/'):
 else :
     print ('data  file exist') 
     
-    
-
 
    
-if len(glob.glob(path88+'tul_logo1.gif') )==1:
+if len(glob.glob(path88+'tul_logo1.gif') )==1 and os.path.getsize(path88+'tul_logo1.gif')!=0:#修正圖片0KB問題
     print('tul_logo1.gif have file')
 else:
     try:
