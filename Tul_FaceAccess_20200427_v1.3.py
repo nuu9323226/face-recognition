@@ -11,6 +11,8 @@ from ftplib import FTP
 from ftplib import FTP_TLS
 from tkinter import filedialog
 from datetime import datetime, timedelta
+from tkinter.filedialog import askdirectory
+
 # windows版本打包指令 pyinstaller -F -w .\Tul_FaceAccess_20200427_v1.3.py -i tul_logo.ico
 # windows版本 更改 Arial==>微軟正黑體
 #import faceRegistered
@@ -133,90 +135,90 @@ def setectfile():
     #將日期從202002 ==> 2020/02
     sp3=sp2[:6]
     
+    #try:
+    a=int(sp3)
     try:
-        a=int(sp3)
-        try:
-            os.remove(pathtofile+sp3+'-idcard.csv')
-            print(pathtofile+sp3+'-idcard.csv 刪除成功' )
-        except:
-            print('datas'+sp3+'-idcard.csv 檔案不存在')
-        daymonth=sp3[:4]+'/'+sp3[4:]
-        #取出第一排日期，並刪除重複項目
-        date=onlyuse[:,0]
-        uniquedate = np.unique(date)
-        #uniquedate = np.argsort(uniquedate)
-        print(uniquedate)
-        #符合檔名的202002的月份才取出其index 例如2020/02/01
-        finalid=[]
-        for ddd in uniquedate:
-            if daymonth in ddd: #ddd為20200201 daymonth為202002
-                print('ddd yes',ddd)
-                use_dayindex=np.argwhere(onlyuse==ddd)
-                print('use_dayindex',use_dayindex)
-                d2d=ddd[:4]+'-'+ddd[5:7]+'-'+ddd[8:]
-                dayonlyuse=onlyuse[use_dayindex[:,0]]
-                print('dayonlyuse',dayonlyuse)
-                #在該日期2020/02/01下針對name.txt有註冊的每個人取行
-                for idfile in number123:
-                    print('start to name: ' +idfile)
-                    dayonlyuseindex=np.argwhere(dayonlyuse==persenID[idfile])
-                    print('start to twzh name: ' +persenID[idfile])
-                    dayperson_only=dayonlyuse[dayonlyuseindex[:,0]]
-                    print('dayperson_only',dayperson_only)
-                    
-                    #上班
-                    if  dayperson_only[:,2] != ''  :
-                        print(dayperson_only[0,2])
-                        dn2=dayperson_only[0,2]
-                        final = 'idcard,'+ idfile +','+engnameID[idfile] +','+ pdID[idfile] +','+d2d+','+dn2+':00'
-                        finalid.append(final)
-                    #下班
-                    if  dayperson_only[:,3] != ''  :
-                        print(dayperson_only[0,3])
-                        dn3=dayperson_only[0,3]
-                        final = 'idcard,'+ idfile +','+engnameID[idfile] +','+ pdID[idfile] +','+d2d+','+dn3+':00'
-                        finalid.append(final)       
-                
-                    
-                          
-                            
-        with open(pathtofile+sp3+'-idcard.csv','a') as f: 
-            np.savetxt(f, finalid,fmt='%s', delimiter=",")
-        f.close
-        
-        try:
-            os.remove(pathtofile+sp2+'.csv')
-            print(pathtofile+sp2+'.csv 刪除成功')
-        except:
-            print(pathtofile+sp2+'.csv 檔案不存在')        
-        
-        
-        ftp = FTP()
-        timeout = 30
-        port = 21
-        ftp=FTP_TLS('192.168.91.158')
-        #ftp.connect('192.168.99.158',port,timeout) # 連線FTP伺服器
-        ftp.login('Vincent','helloworld') # 登入
-        print (ftp.getwelcome())  # 獲得歡迎資訊 
-        #d=ftp.cwd('home/AccessFace/')    # 設定FTP路徑     
-        try:
-            #d=ftp.cwd('home/AccessFace/')
-            ftp.storbinary('STOR '+'home/AccessFace/month/'+sp3+'-idcard.csv' , open(pathtofile+sp3+'-idcard.csv', 'rb')) # 上傳FTP檔案
-            print("succes upload: " +'home/AccessFace/month/'+sp3+'-idcard.csv')
-        except:
-            print("upload failed. check.......................")
-            
-        ftp.quit()                  # 退出FTP伺服器      
-        
-        tkinter.messagebox.showinfo(title='成功訊息', message=sp3[:4]+'年'+sp3[4:]+'月資料已匯入完成')
-    
+        os.remove(pathtofile+sp3+'-idcard.csv')
+        print(pathtofile+sp3+'-idcard.csv 刪除成功' )
     except:
-        try:
-            os.remove(pathtofile+sp2+'.csv')
-            print(pathtofile+sp2+'.csv 刪除成功')
-        except:
-            print(pathtofile+sp2+'.csv 檔案不存在')  
-        tk.messagebox.showwarning( title='錯誤', message='請將檔名設置yyyymm開頭')
+        print('datas'+sp3+'-idcard.csv 檔案不存在')
+    daymonth=sp3[:4]+'/'+sp3[4:]
+    #取出第一排日期，並刪除重複項目
+    date=onlyuse[:,0]
+    uniquedate = np.unique(date)
+    #self.uniquedate = np.argsort(self.uniquedate)
+    print(uniquedate)
+    #符合檔名的202002的月份才取出其index 例如2020/02/01
+    finalid=[]
+    for ddd in uniquedate:
+        if daymonth in ddd: #ddd為20200201 daymonth為202002
+            print('ddd yes',ddd)
+            use_dayindex=np.argwhere(onlyuse==ddd)
+            print('use_dayindex',use_dayindex)
+            d2d=ddd[:4]+'-'+ddd[5:7]+'-'+ddd[8:]
+            dayonlyuse=onlyuse[use_dayindex[:,0]]
+            print('dayonlyuse',dayonlyuse)
+            #在該日期2020/02/01下針對name.txt有註冊的每個人取行
+            for idfile in number123:
+                print('start to name: ' +idfile)
+                dayonlyuseindex=np.argwhere(dayonlyuse==persenID[idfile])
+                print('start to twzh name: ' +persenID[idfile])
+                dayperson_only=dayonlyuse[dayonlyuseindex[:,0]]
+                print('dayperson_only',dayperson_only)
+                
+                #上班
+                if  dayperson_only[:,2] != ''  :
+                    print(dayperson_only[0,2])
+                    dn2=dayperson_only[0,2]
+                    final = 'idcard,'+ idfile +','+engnameID[idfile] +','+ pdID[idfile] +','+d2d+','+dn2+':00'
+                    finalid.append(final)
+                #下班
+                if  dayperson_only[:,3] != ''  :
+                    print(dayperson_only[0,3])
+                    dn3=dayperson_only[0,3]
+                    final = 'idcard,'+ idfile +','+engnameID[idfile] +','+ pdID[idfile] +','+d2d+','+dn3+':00'
+                    finalid.append(final)       
+            
+                
+                      
+                        
+    with open(pathtofile+sp3+'-idcard.csv','a') as f: 
+        np.savetxt(f, finalid,fmt='%s', delimiter=",")
+    f.close
+    
+    try:
+        os.remove(pathtofile+sp2+'.csv')
+        print(pathtofile+sp2+'.csv 刪除成功')
+    except:
+        print(pathtofile+sp2+'.csv 檔案不存在')        
+    
+    
+    ftp = FTP()
+    timeout = 30
+    port = 21
+    ftp=FTP_TLS('192.168.91.158')
+    #ftp.connect('192.168.99.158',port,timeout) # 連線FTP伺服器
+    ftp.login('Vincent','helloworld') # 登入
+    print (ftp.getwelcome())  # 獲得歡迎資訊 
+    #d=ftp.cwd('home/AccessFace/')    # 設定FTP路徑     
+    try:
+        #d=ftp.cwd('home/AccessFace/')
+        ftp.storbinary('STOR '+'home/AccessFace/month/'+sp3+'-idcard.csv' , open(pathtofile+sp3+'-idcard.csv', 'rb')) # 上傳FTP檔案
+        print("succes upload: " +'home/AccessFace/month/'+sp3+'-idcard.csv')
+    except:
+        print("upload failed. check.......................")
+        
+    ftp.quit()                  # 退出FTP伺服器      
+    
+    tkinter.messagebox.showinfo(title='成功訊息', message=sp3[:4]+'年'+sp3[4:]+'月資料已匯入完成')
+    
+    #except:
+        #try:
+            #os.remove(pathtofile+sp2+'.csv')
+            #print(pathtofile+sp2+'.csv 刪除成功')
+        #except:
+            #print(pathtofile+sp2+'.csv 檔案不存在')  
+        #tk.messagebox.showwarning( title='錯誤', message='請將檔名設置yyyymm開頭')
         
 def xlsx_to_csv(file_path,savepath):
     workbook = xlrd.open_workbook(file_path)
@@ -805,7 +807,10 @@ class personpage(object):
         
         #選擇月份事件按鈕
         self.addButton = tk.Button(self.page, text = '重新整理',command=partial(self.callbackallthingFlesh,values1), font=('Arial', 12) )
-        self.addButton.grid(column=1, row=3, pady=1, sticky=tk.E)   
+        self.addButton.grid(column=1, row=3, pady=1, sticky=tk.E) 
+        #選擇月份事件按鈕
+        self.addButton = tk.Button(self.page, text = '匯出檔案',command=self.exportfile, font=('Arial', 12) )
+        self.addButton.grid(column=2, row=3, pady=1, sticky=tk.E)         
         
         self.var1 = tk.StringVar()
         self.var1.set("A")
@@ -831,13 +836,14 @@ class personpage(object):
         
         path88='datas/remote/'+self.personq+'/'
         values123=self.personq+'-'+self.stryear+self.strmonth
+        print('self.stryear+self.strmonth',self.stryear,self.strmonth)
         #讀取csv並且取012345 colums
-        onlyuse = np.loadtxt('datas/'+self.stryear+self.strmonth +'-face.csv', dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5,0,1) )
+        onlyuse = np.loadtxt('datas/'+self.stryear+self.strmonth +'-face.csv', dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5,0,0) )
         print('onlyuse',onlyuse)        
         
         if len(glob.glob('datas/'+ self.stryear+self.strmonth  + '-idcard.csv' ))>=1 :
             print(glob.glob('datas/'+self.stryear+self.strmonth + '-idcard.csv' ))
-            onlyidcard = np.loadtxt('datas/'+ self.stryear+self.strmonth  + '-idcard.csv'  ,dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5,0,1),encoding = 'utf-8')
+            onlyidcard = np.loadtxt('datas/'+ self.stryear+self.strmonth  + '-idcard.csv'  ,dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5,0,0),encoding = 'utf-8')
             print('onlyonlyidcard.shape,onlyidcard.ndim',onlyidcard.shape[0],onlyidcard.shape[1],onlyidcard.ndim)
             print('===========onlyidcard===========',onlyidcard) 
             
@@ -869,11 +875,11 @@ class personpage(object):
         
         #搜尋是"vincent"的索引值
         userid=np.argwhere(onlyuse==self.personq)     
-        #print('userid',userid)
+        print('userid',userid)
 
         #透過索引值取出符合"vincent"要的rows
-        onlyuse_id=onlyuse[userid[:,0],: ]
-        #print('onlyuse_id',onlyuse_id)
+        self.onlyuse_id=onlyuse[userid[:,0],: ]
+        print('self.onlyuse_id',self.onlyuse_id)
    
         #=====learning=====保留搜尋到的列(row)到新的array
         #從array取得等於'Vincent'的索引
@@ -910,37 +916,37 @@ class personpage(object):
         
         #針對日期做排序 
         #這個寫法參考https://stackoverflow.com/questions/2828059/sorting-arrays-in-numpy-by-column/30623882
-        ind = np.argsort( onlyuse_id[:,4] )
+        ind = np.argsort( self.onlyuse_id[:,4] )
         #print('ind',ind)
-        onlyuse_id = onlyuse_id[ind]
-        #print('onlyuse_id',onlyuse_id)
+        self.onlyuse_id = self.onlyuse_id[ind]
+        #print('self.onlyuse_id',self.onlyuse_id)
         
         #=====learning=====排序
         #numpy.sort(a, axis, kind, order) 按照組數order排序
         #https://www.runoob.com/numpy/numpy-sort-search.html
         #dtype = [('state', str), ('id', int), ('name', str), ('dp', int), ('date', int), ('time', int)   ]
-        #new_onlyuse_id = np.array(onlyuse_id, dtype=dtype) 
+        #new_onlyuse_id = np.array(self.onlyuse_id, dtype=dtype) 
         #new_onlyuse_id=np.sort(new_onlyuse_id, order = date)        
         
         
     #======針對日期下的時間做排序======
         #取出日期
-        date=onlyuse_id[0:1,4]
-        #print(date)
+        date=self.onlyuse_id[:,4]
+        #print('date',date)
         #刪除重複的日期
-        uniquedate = np.unique(date) #刪除重複的元素https://www.twblogs.net/a/5c1f8d88bd9eee16b3daa874/
-        print('uniquedate',uniquedate)
+        self.uniquedate = np.unique(date) #刪除重複的元素https://www.twblogs.net/a/5c1f8d88bd9eee16b3daa874/
+        #print('self.uniquedate',self.uniquedate)
         
         #找尋除了第一筆跟最後一筆的其餘資料等要刪除的資料，並將index放入到detnum裡面
         detnum=[]
-        for d in uniquedate:
+        for d in self.uniquedate:
             #找出符合日期的rows,取得index  ex.2020-01-01
-            dindex_onlyuse=np.argwhere(onlyuse_id==d)
+            dindex_onlyuse=np.argwhere(self.onlyuse_id==d)
             #取得在原來array的index
             id1=dindex_onlyuse[:,0]
             #print('id1',id1)
             #利用index取出那兩rows
-            onlyuse_id_a=onlyuse_id[dindex_onlyuse[:,0]]
+            onlyuse_id_a=self.onlyuse_id[dindex_onlyuse[:,0]]
             #print('onlyuse_id_a',onlyuse_id_a)
             
             #針對該兩rows排序 取出index
@@ -967,17 +973,17 @@ class personpage(object):
        
         #刪除除了第一筆跟最後一筆的其餘資料            
         print('除了當日第一筆跟最後一筆保留，其餘要刪除的項目detnum',detnum)
-        onlyuse_id = np.delete(onlyuse_id, detnum, axis = 0)        
+        self.onlyuse_id = np.delete(self.onlyuse_id, detnum, axis = 0)        
         
         #針對第一筆及最後一筆偵測如果時間相反則調換順序
-        for d in uniquedate:
+        for d in self.uniquedate:
             #找出符合日期的rows,取得index  ex.2020-01-01
-            dindex_onlyuse1=np.argwhere(onlyuse_id==d)
+            dindex_onlyuse1=np.argwhere(self.onlyuse_id==d)
             #取得在原來array的index
             id1_1=dindex_onlyuse1[:,0]
             #print('id1_1',id1_1)
             #利用index取出那兩rows
-            onlyuse_id_a_1=onlyuse_id[dindex_onlyuse1[:,0]]
+            onlyuse_id_a_1=self.onlyuse_id[dindex_onlyuse1[:,0]]
             #print('onlyuse_id_a_1',onlyuse_id_a_1)
             
             index1_1=np.argsort(onlyuse_id_a_1[:,5] )
@@ -990,9 +996,9 @@ class personpage(object):
             #如果index第一個值為1，則時間順序需要交換，則需要在實際的陣列交喚
             if index1_1[0]>=1:
                 #互換，僅限於兩個rows互換
-                onlyuse_id[[id1_1[-1],id1_1[0]], :] = onlyuse_id[[id1_1[0], id1_1[1]], :]
+                self.onlyuse_id[[id1_1[-1],id1_1[0]], :] = self.onlyuse_id[[id1_1[0], id1_1[1]], :]
 
-        #print('最後調整的項目（含刪除）after',onlyuse_id)
+        #print('最後調整的項目（含刪除）after',self.onlyuse_id)
         
         tree=ttk.Treeview(self.page,height =20 ,show='headings')#表格show='headings'隱藏第一欄
         tree["columns"]=("狀態別","日期","第一筆時間","最後筆時間","時數","事由")
@@ -1014,13 +1020,13 @@ class personpage(object):
         style.configure("Treeview.Heading", font=('Arial', 12))     
         
         line123=0
-        for d in uniquedate:
+        for d in self.uniquedate:
             #找出符合日期的rows,取得index  ex.2020-01-01
-            dindex_onlyuse=np.argwhere(onlyuse_id==d)
+            dindex_onlyuse=np.argwhere(self.onlyuse_id==d)
             #取得在原來array的index
             id1=dindex_onlyuse[:,0]
             #利用index取出那兩rows
-            onlyuse_id_a=onlyuse_id[dindex_onlyuse[:,0]]
+            onlyuse_id_a=self.onlyuse_id[dindex_onlyuse[:,0]]
             #print            ('onlyuse_id_a',onlyuse_id_a)
             
             #print('onlyuse_id_a',onlyuse_id_a)
@@ -1092,7 +1098,153 @@ class personpage(object):
         
         root.mainloop()   
     
-    
+    def exportfile(self):
+        callbackmonth=self.comboExample.get().split('/')
+        backmonth=int(callbackmonth[1])
+        
+        # x.month=10
+        if backmonth<10 and backmonth>=1:
+            backmonth='0'+str(backmonth)
+            #print (month)
+        else :
+            backmonth=str(backmonth)
+            
+            
+        
+        self.saveHere = askdirectory(initialdir='', title='Select File')
+        print('saveHere: ',self.saveHere)
+        onlyRemote=[['狀態別','工號','姓名','部門','日期','時間','事由','地點']]
+        #np.insert(self.onlyuse_id,0,onlyRemote,axis=0)
+        newtable=np.concatenate((onlyRemote,self.onlyuse_id),axis=0) 
+        
+        
+        #=============================
+        x = np.empty([2,6], dtype = str) 
+        
+             
+        
+        #資料會有反轉過來排序的問題
+        print ('x',x)        
+        timelist=self.uniquedate.tolist()
+        timelist.reverse()
+        for d in timelist:
+            #找出符合日期的rows,取得index  ex.2020-01-01
+            dindex_onlyuse=np.argwhere(self.onlyuse_id==d)
+            #取得在原來array的index
+            id1=dindex_onlyuse[:,0]
+            #利用index取出那兩rows
+            onlyuse_id_a=self.onlyuse_id[dindex_onlyuse[:,0]]
+            #print            ('onlyuse_id_a',onlyuse_id_a)
+            
+            #print('onlyuse_id_a',onlyuse_id_a)
+            #print('vvvv', onlyuse_id_a[:,5]  )
+            
+            type123=onlyuse_id_a[0:1,0]
+            type123offtime=onlyuse_id_a[:,0]
+            name123=onlyuse_id_a[0:1,2]
+            datetime=onlyuse_id_a[0:1,4]
+            ontime=onlyuse_id_a[0:1,5]
+            offtime=onlyuse_id_a[:,5]
+            #print('type123',type123)
+            #print('name123',name123)
+            #print('datetime',datetime)
+            #print('ontime',ontime)
+            #print('offtime',offtime)            
+            weekfial=weekreport(datetime[0])
+            
+            if len(id1)==1:
+                if type123[0]=='open':
+                    type123[0]='Face'
+                if type123[0]=='idcard':
+                    type123[0]='Card'    
+                if type123[0]=='OutsideWork':
+                    type123[0]='公出'  
+                    thing123=onlyuse_id_a[0:1,6]
+                    location123=onlyuse_id_a[0:1,7]   
+                    
+                    #x=np.concatenate((onlyRemote,x),axis=0)   
+                    
+                    x=np.concatenate(( [ [type123[0],datetime[0]+'('+weekfial+')',ontime[0],"  ",thing123[0],location123[0]] ], x ),axis=0)
+                    #np.append(x, [type123[0],datetime[0]+'('+weekfial+')',ontime[0],"  ",thing123[0],location123[0], axis=0 )
+                    
+                else:
+                    
+                    
+                    x=np.concatenate(( [[type123[0],datetime[0]+'('+weekfial+')',ontime[0],"  "," "," " ]], x ),axis=0)
+                    
+                    #np.append(x,[[type123[0],datetime[0]+'('+weekfial+')',ontime[0],"  "," "," " ]],axis=0)
+                    #tree.insert("",line123,text=name123[0] ,values=(type123[0],datetime[0]+'('+weekfial+')',ontime[0],"  "," "," "))
+                    
+        
+            else :
+                Timesubtraction=TimeSubtraction(ontime[0],offtime[1])
+                print('Timesubtraction',Timesubtraction)                
+                if type123[0]=='open':
+                    type123[0]='Face'   
+                if type123[0]=='idcard':
+                    type123[0]='Card'       
+                if type123[0]=='OutsideWork' or type123offtime[1]=='OutsideWork':
+                    if type123[0]=='OutsideWork':
+                        thing123=onlyuse_id_a[0:1,6]
+                        mainthing=thing123[0]
+                    else :
+                        thing123=onlyuse_id_a[:,6]
+                        mainthing=thing123[1]
+                    
+#                     type123offtime[1]=='OutsideWork'
+                    type123[0]='公出'  
+                    thing123=onlyuse_id_a[0:1,6]
+                    #location123=onlyuse_id_a[0:1,7]  
+                    
+                    
+                    x=np.concatenate(( [[type123[0],datetime[0]+'('+weekfial+')',ontime[0],offtime[1],Timesubtraction,mainthing ]]  , x ),axis=0)
+                    #np.append(x,[[type123[0],datetime[0]+'('+weekfial+')',ontime[0],offtime[1],Timesubtraction,mainthing ]],axis=0)
+                    #tree.insert("",line123,text=name123[0] ,values=(type123[0],datetime[0]+'('+weekfial+')',ontime[0],offtime[1],Timesubtraction,mainthing )  )
+                else:    
+                    if type123[0]=='Work' or type123offtime[1]=='Work':
+                        type123[0]='遠端上班'
+                    if type123[0]=='OffWork' or type123offtime[1]=='OffWork':
+                        type123[0]='遠端下班'
+                        
+                    x=np.concatenate(([ [type123[0],datetime[0]+'('+weekfial+')',ontime[0],offtime[1],Timesubtraction," " ] ]  , x ),axis=0)
+                    #np.append(x,[ [type123[0],datetime[0]+'('+weekfial+')',ontime[0],offtime[1],Timesubtraction," " ] ],axis=0)
+                    #tree.insert("",line123,text=name123[0] ,values=(type123[0],datetime[0]+'('+weekfia        l+')',ontime[0],offtime[1],Timesubtraction," ") )
+         
+        
+        
+        
+        namefile=self.personq+'-'+persenID[self.personq]+'-'+callbackmonth[0]+backmonth
+        #刪除原來檔案
+        folder = self.saveHere+'/'+namefile+'.csv'
+        try:
+            result = os.remove(folder)  
+            print ('delete ==> '+folder)
+        except:
+            print ('==> '+folder+ 'is not exist')          
+        
+        
+        x=np.delete( x,-1,axis=0)
+        x=np.delete( x,-1,axis=0)
+        onlyRemote=[['狀態別','日期','第一筆時間','最後筆時間','時數','事由']]
+        onlyspace=[[' ','  ','  ','  ','  ','  ']]
+        #np.insert(self.onlyuse_id,0,onlyRemote,axis=0)
+        x=np.concatenate((onlyRemote,x),axis=0)
+        x=np.concatenate((onlyspace,x),axis=0)   
+        print ('x ',x)           
+        
+        
+        with open(self.saveHere+'/'+namefile+'.csv','a',encoding = 'Big5') as f: 
+            #for i in range(5): 
+                #newresult = np.random.rand(2, 3) 
+           
+            np.savetxt(f, newtable ,fmt='%s', delimiter=",")        
+            np.savetxt(f,x,fmt='%s', delimiter=",") 
+            
+   
+        
+        
+        
+        
     def callbackallthing(self,values):
         
         if not os.path.isdir('datas/remote/'+self.personq):
@@ -1321,13 +1473,13 @@ class personpage(object):
         #讀取csv並且取012345 colums
         
         #try:
-        onlyuse = np.loadtxt('datas/'+callbackmonth[0]+backmonth +'-face.csv',dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5,0,1))
+        onlyuse = np.loadtxt('datas/'+callbackmonth[0]+backmonth +'-face.csv',dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5,0,0))
         print(onlyuse)
         
         
         if len(glob.glob('datas/'+callbackmonth[0]+backmonth+'-idcard.csv' ))>=1 :
             print(glob.glob('datas/'+callbackmonth[0]+backmonth+'-idcard.csv'))
-            onlyidcard = np.loadtxt('datas/'+callbackmonth[0]+backmonth+'-idcard.csv' ,dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5,0,1))
+            onlyidcard = np.loadtxt('datas/'+callbackmonth[0]+backmonth+'-idcard.csv' ,dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5,0,0))
             print('===========onlyidcard===========',onlyidcard) 
             if onlyidcard.ndim==1:
                 np.insert(onlyuse,1,onlyidcard,axis=0)
@@ -1354,34 +1506,34 @@ class personpage(object):
         #print('userid',userid)
 
         #透過索引值取出符合"vincent"要的rows
-        onlyuse_id=onlyuse[userid[:,0],: ]
-        #print('onlyuse_id',onlyuse_id)
+        self.onlyuse_id=onlyuse[userid[:,0],: ]
+        #print('self.onlyuse_id',self.onlyuse_id)
    
         #針對日期做排序 
         #這個寫法參考https://stackoverflow.com/questions/2828059/sorting-arrays-in-numpy-by-column/30623882
-        ind = np.argsort( onlyuse_id[:,4] )
+        ind = np.argsort( self.onlyuse_id[:,4] )
         #print('ind',ind)
-        onlyuse_id = onlyuse_id[ind]
-        #print('onlyuse_id',onlyuse_id)
+        self.onlyuse_id = self.onlyuse_id[ind]
+        #print('self.onlyuse_id',self.onlyuse_id)
 
         #======針對日期下的時間做排序======
         #取出日期
-        date=onlyuse_id[:,4]
+        date=self.onlyuse_id[:,4]
         #print(date)
         #刪除重複的日期
-        uniquedate = np.unique(date) #刪除重複的元素https://www.twblogs.net/a/5c1f8d88bd9eee16b3daa874/
-        #print('uniquedate',uniquedate)
+        self.uniquedate = np.unique(date) #刪除重複的元素https://www.twblogs.net/a/5c1f8d88bd9eee16b3daa874/
+        print('self.uniquedate',self.uniquedate)
         
         #找尋除了第一筆跟最後一筆的其餘資料等要刪除的資料，並將index放入到detnum裡面
         detnum=[]
-        for d in uniquedate:
+        for d in self.uniquedate:
             #找出符合日期的rows,取得index  ex.2020-01-01
-            dindex_onlyuse=np.argwhere(onlyuse_id==d)
+            dindex_onlyuse=np.argwhere(self.onlyuse_id==d)
             #取得在原來array的index
             id1=dindex_onlyuse[:,0]
             #print('id1',id1)
             #利用index取出那兩rows
-            onlyuse_id_a=onlyuse_id[dindex_onlyuse[:,0]]
+            onlyuse_id_a=self.onlyuse_id[dindex_onlyuse[:,0]]
             #print('onlyuse_id_a',onlyuse_id_a)
             
             #針對該兩rows排序 取出index
@@ -1408,17 +1560,17 @@ class personpage(object):
        
         #刪除除了第一筆跟最後一筆的其餘資料            
         print('除了當日第一筆跟最後一筆保留，其餘要刪除的項目detnum',detnum)
-        onlyuse_id = np.delete(onlyuse_id, detnum, axis = 0)        
+        self.onlyuse_id = np.delete(self.onlyuse_id, detnum, axis = 0)        
         
         #針對第一筆及最後一筆偵測如果時間相反則調換順序
-        for d in uniquedate:
+        for d in self.uniquedate:
             #找出符合日期的rows,取得index  ex.2020-01-01
-            dindex_onlyuse1=np.argwhere(onlyuse_id==d)
+            dindex_onlyuse1=np.argwhere(self.onlyuse_id==d)
             #取得在原來array的index
             id1_1=dindex_onlyuse1[:,0]
             #print('id1_1',id1_1)
             #利用index取出那兩rows
-            onlyuse_id_a_1=onlyuse_id[dindex_onlyuse1[:,0]]
+            onlyuse_id_a_1=self.onlyuse_id[dindex_onlyuse1[:,0]]
             #print('onlyuse_id_a_1',onlyuse_id_a_1)
             
             index1_1=np.argsort(onlyuse_id_a_1[:,5] )
@@ -1431,9 +1583,9 @@ class personpage(object):
             #如果index第一個值為1，則時間順序需要交換，則需要在實際的陣列交喚
             if index1_1[0]>=1:
                 #互換，僅限於兩個rows互換
-                onlyuse_id[[id1_1[-1],id1_1[0]], :] = onlyuse_id[[id1_1[0], id1_1[1]], :]
+                self.onlyuse_id[[id1_1[-1],id1_1[0]], :] = self.onlyuse_id[[id1_1[0], id1_1[1]], :]
 
-        #print('最後調整的項目（含刪除）after',onlyuse_id)
+        #print('最後調整的項目（含刪除）after',self.onlyuse_id)
         
         tree=ttk.Treeview(self.page,height =20 ,show='headings')#表格show='headings'隱藏第一欄
         tree["columns"]=("狀態別","日期","第一筆時間","最後筆時間","時數","事由")
@@ -1455,13 +1607,13 @@ class personpage(object):
         style.configure("Treeview.Heading", font=('Arial', 12)) 
         
         line123=0
-        for d in uniquedate:
+        for d in self.uniquedate:
             #找出符合日期的rows,取得index  ex.2020-01-01
-            dindex_onlyuse=np.argwhere(onlyuse_id==d)
+            dindex_onlyuse=np.argwhere(self.onlyuse_id==d)
             #取得在原來array的index
             id1=dindex_onlyuse[:,0]
             #利用index取出那兩rows
-            onlyuse_id_a=onlyuse_id[dindex_onlyuse[:,0]]
+            onlyuse_id_a=self.onlyuse_id[dindex_onlyuse[:,0]]
             #print            ('onlyuse_id_a',onlyuse_id_a)
             
             #print('onlyuse_id_a',onlyuse_id_a)
@@ -1573,34 +1725,34 @@ class personpage(object):
             #print('userid',userid)
     
             #透過索引值取出符合"vincent"要的rows
-            onlyuse_id=onlyuse[userid[:,0],: ]
-            #print('onlyuse_id',onlyuse_id)
+            self.onlyuse_id=onlyuse[userid[:,0],: ]
+            #print('self.onlyuse_id',self.onlyuse_id)
        
             #針對日期做排序 
             #這個寫法參考https://stackoverflow.com/questions/2828059/sorting-arrays-in-numpy-by-column/30623882
-            ind = np.argsort( onlyuse_id[:,4] )
+            ind = np.argsort( self.onlyuse_id[:,4] )
             #print('ind',ind)
-            onlyuse_id = onlyuse_id[ind]
-            #print('onlyuse_id',onlyuse_id)
+            self.onlyuse_id = self.onlyuse_id[ind]
+            #print('self.onlyuse_id',self.onlyuse_id)
     
             #======針對日期下的時間做排序======
             #取出日期
-            date=onlyuse_id[:,4]
+            date=self.onlyuse_id[:,4]
             #print(date)
             #刪除重複的日期
-            uniquedate = np.unique(date) #刪除重複的元素https://www.twblogs.net/a/5c1f8d88bd9eee16b3daa874/
-            #print('uniquedate',uniquedate)
+            self.uniquedate = np.unique(date) #刪除重複的元素https://www.twblogs.net/a/5c1f8d88bd9eee16b3daa874/
+            #print('self.uniquedate',self.uniquedate)
             
             #找尋除了第一筆跟最後一筆的其餘資料等要刪除的資料，並將index放入到detnum裡面
             detnum=[]
-            for d in uniquedate:
+            for d in self.uniquedate:
                 #找出符合日期的rows,取得index  ex.2020-01-01
-                dindex_onlyuse=np.argwhere(onlyuse_id==d)
+                dindex_onlyuse=np.argwhere(self.onlyuse_id==d)
                 #取得在原來array的index
                 id1=dindex_onlyuse[:,0]
                 #print('id1',id1)
                 #利用index取出那兩rows
-                onlyuse_id_a=onlyuse_id[dindex_onlyuse[:,0]]
+                onlyuse_id_a=self.onlyuse_id[dindex_onlyuse[:,0]]
                 #print('onlyuse_id_a',onlyuse_id_a)
                 
                 #針對該兩rows排序 取出index
@@ -1627,17 +1779,17 @@ class personpage(object):
            
             #刪除除了第一筆跟最後一筆的其餘資料            
             print('除了當日第一筆跟最後一筆保留，其餘要刪除的項目detnum',detnum)
-            onlyuse_id = np.delete(onlyuse_id, detnum, axis = 0)        
+            self.onlyuse_id = np.delete(self.onlyuse_id, detnum, axis = 0)        
             
             #針對第一筆及最後一筆偵測如果時間相反則調換順序
-            for d in uniquedate:
+            for d in self.uniquedate:
                 #找出符合日期的rows,取得index  ex.2020-01-01
-                dindex_onlyuse1=np.argwhere(onlyuse_id==d)
+                dindex_onlyuse1=np.argwhere(self.onlyuse_id==d)
                 #取得在原來array的index
                 id1_1=dindex_onlyuse1[:,0]
                 #print('id1_1',id1_1)
                 #利用index取出那兩rows
-                onlyuse_id_a_1=onlyuse_id[dindex_onlyuse1[:,0]]
+                onlyuse_id_a_1=self.onlyuse_id[dindex_onlyuse1[:,0]]
                 #print('onlyuse_id_a_1',onlyuse_id_a_1)
                 
                 index1_1=np.argsort(onlyuse_id_a_1[:,5] )
@@ -1650,9 +1802,9 @@ class personpage(object):
                 #如果index第一個值為1，則時間順序需要交換，則需要在實際的陣列交喚
                 if index1_1[0]>=1:
                     #互換，僅限於兩個rows互換
-                    onlyuse_id[[id1_1[-1],id1_1[0]], :] = onlyuse_id[[id1_1[0], id1_1[1]], :]
+                    self.onlyuse_id[[id1_1[-1],id1_1[0]], :] = self.onlyuse_id[[id1_1[0], id1_1[1]], :]
     
-            #print('最後調整的項目（含刪除）after',onlyuse_id)
+            #print('最後調整的項目（含刪除）after',self.onlyuse_id)
             
             tree=ttk.Treeview(self.page,height =20 ,show='headings')#表格show='headings'隱藏第一欄
             tree["columns"]=("狀態別","日期","第一筆時間","最後筆時間","事由","地點")
@@ -1674,13 +1826,13 @@ class personpage(object):
             style.configure("Treeview.Heading", font=('Arial', 12)) 
             
             line123=0
-            for d in uniquedate:
+            for d in self.uniquedate:
                 #找出符合日期的rows,取得index  ex.2020-01-01
-                dindex_onlyuse=np.argwhere(onlyuse_id==d)
+                dindex_onlyuse=np.argwhere(self.onlyuse_id==d)
                 #取得在原來array的index
                 id1=dindex_onlyuse[:,0]
                 #利用index取出那兩rows
-                onlyuse_id_a=onlyuse_id[dindex_onlyuse[:,0]]
+                onlyuse_id_a=self.onlyuse_id[dindex_onlyuse[:,0]]
                 #print            ('onlyuse_id_a',onlyuse_id_a)
                 
                 #print('onlyuse_id_a',onlyuse_id_a)
@@ -1746,34 +1898,34 @@ class personpage(object):
             #print('userid',userid)
     
             #透過索引值取出符合"vincent"要的rows
-            onlyuse_id=onlyuse[userid[:,0],: ]
-            #print('onlyuse_id',onlyuse_id)
+            self.onlyuse_id=onlyuse[userid[:,0],: ]
+            #print('self.onlyuse_id',self.onlyuse_id)
        
             #針對日期做排序 
             #這個寫法參考https://stackoverflow.com/questions/2828059/sorting-arrays-in-numpy-by-column/30623882
-            ind = np.argsort( onlyuse_id[:,4] )
+            ind = np.argsort( self.onlyuse_id[:,4] )
             #print('ind',ind)
-            onlyuse_id = onlyuse_id[ind]
-            #print('onlyuse_id',onlyuse_id)
+            self.onlyuse_id = self.onlyuse_id[ind]
+            #print('self.onlyuse_id',self.onlyuse_id)
     
             #======針對日期下的時間做排序======
             #取出日期
-            date=onlyuse_id[:,4]
+            date=self.onlyuse_id[:,4]
             #print(date)
             #刪除重複的日期
-            uniquedate = np.unique(date) #刪除重複的元素https://www.twblogs.net/a/5c1f8d88bd9eee16b3daa874/
-            #print('uniquedate',uniquedate)
+            self.uniquedate = np.unique(date) #刪除重複的元素https://www.twblogs.net/a/5c1f8d88bd9eee16b3daa874/
+            #print('self.uniquedate',self.uniquedate)
             
             #找尋除了第一筆跟最後一筆的其餘資料等要刪除的資料，並將index放入到detnum裡面
             detnum=[]
-            for d in uniquedate:
+            for d in self.uniquedate:
                 #找出符合日期的rows,取得index  ex.2020-01-01
-                dindex_onlyuse=np.argwhere(onlyuse_id==d)
+                dindex_onlyuse=np.argwhere(self.onlyuse_id==d)
                 #取得在原來array的index
                 id1=dindex_onlyuse[:,0]
                 #print('id1',id1)
                 #利用index取出那兩rows
-                onlyuse_id_a=onlyuse_id[dindex_onlyuse[:,0]]
+                onlyuse_id_a=self.onlyuse_id[dindex_onlyuse[:,0]]
                 #print('onlyuse_id_a',onlyuse_id_a)
                 
                 #針對該兩rows排序 取出index
@@ -1800,17 +1952,17 @@ class personpage(object):
            
             #刪除除了第一筆跟最後一筆的其餘資料            
             print('除了當日第一筆跟最後一筆保留，其餘要刪除的項目detnum',detnum)
-            onlyuse_id = np.delete(onlyuse_id, detnum, axis = 0)        
+            self.onlyuse_id = np.delete(self.onlyuse_id, detnum, axis = 0)        
             
             #針對第一筆及最後一筆偵測如果時間相反則調換順序
-            for d in uniquedate:
+            for d in self.uniquedate:
                 #找出符合日期的rows,取得index  ex.2020-01-01
-                dindex_onlyuse1=np.argwhere(onlyuse_id==d)
+                dindex_onlyuse1=np.argwhere(self.onlyuse_id==d)
                 #取得在原來array的index
                 id1_1=dindex_onlyuse1[:,0]
                 #print('id1_1',id1_1)
                 #利用index取出那兩rows
-                onlyuse_id_a_1=onlyuse_id[dindex_onlyuse1[:,0]]
+                onlyuse_id_a_1=self.onlyuse_id[dindex_onlyuse1[:,0]]
                 #print('onlyuse_id_a_1',onlyuse_id_a_1)
                 
                 index1_1=np.argsort(onlyuse_id_a_1[:,5] )
@@ -1823,9 +1975,9 @@ class personpage(object):
                 #如果index第一個值為1，則時間順序需要交換，則需要在實際的陣列交喚
                 if index1_1[0]>=1:
                     #互換，僅限於兩個rows互換
-                    onlyuse_id[[id1_1[-1],id1_1[0]], :] = onlyuse_id[[id1_1[0], id1_1[1]], :]
+                    self.onlyuse_id[[id1_1[-1],id1_1[0]], :] = self.onlyuse_id[[id1_1[0], id1_1[1]], :]
     
-            #print('最後調整的項目（含刪除）after',onlyuse_id)
+            #print('最後調整的項目（含刪除）after',self.onlyuse_id)
             
             tree=ttk.Treeview(self.page,height =20 ,show='headings')#表格show='headings'隱藏第一欄
             tree["columns"]=("狀態別","日期","第一筆時間","最後筆時間","事由","地點")
@@ -1847,13 +1999,13 @@ class personpage(object):
             style.configure("Treeview.Heading", font=('Arial', 12)) 
             
             line123=0
-            for d in uniquedate:
+            for d in self.uniquedate:
                 #找出符合日期的rows,取得index  ex.2020-01-01
-                dindex_onlyuse=np.argwhere(onlyuse_id==d)
+                dindex_onlyuse=np.argwhere(self.onlyuse_id==d)
                 #取得在原來array的index
                 id1=dindex_onlyuse[:,0]
                 #利用index取出那兩rows
-                onlyuse_id_a=onlyuse_id[dindex_onlyuse[:,0]]
+                onlyuse_id_a=self.onlyuse_id[dindex_onlyuse[:,0]]
                 #print            ('onlyuse_id_a',onlyuse_id_a)
                 
                 #print('onlyuse_id_a',onlyuse_id_a)

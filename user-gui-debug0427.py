@@ -570,7 +570,16 @@ class secondpage(object):
         self.vartitle3=tk.StringVar()
         self.vartitle3.set('(2)補登期限為兩週時間')
         self.title3Label= tk.Label(self.page,textvariable=self.vartitle3, font=('Arial', 12),fg='#228B22',justify = tk.RIGHT )
-        self.title3Label.grid(column=0,   row=24, sticky=tk.W)          
+        self.title3Label.grid(column=0,   row=24, sticky=tk.W)   
+        
+        
+        self.vartitle5=tk.StringVar()
+        self.vartitle5.set('(3)請確實填寫外出紀錄，以免影響薪資核發之權益')
+        self.title5Label= tk.Label(self.page,textvariable=self.vartitle5, font=('Arial', 12),fg='#228B22',justify = tk.RIGHT )
+        self.title5Label.grid(column=0,   row=25, sticky=tk.W)              
+          
+        
+        
         self.upgrade()
         root.mainloop()   
         
@@ -1453,8 +1462,8 @@ class personpage(object):
             self.vartitle4=tk.StringVar()
             self.vartitle4.set('(3)資料若未更新，請按重新整理更新資料')
             self.title4Label= tk.Label(self.page,textvariable=self.vartitle4, font=('Arial', 12),fg='#228B22',justify = tk.RIGHT )
-            self.title4Label.grid(columnspan=9,   row=11, sticky=tk.W)                     
-          
+            self.title4Label.grid(columnspan=9,   row=11, sticky=tk.W)  
+            
             
             root.mainloop()   
     

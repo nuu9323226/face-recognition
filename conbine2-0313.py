@@ -43,28 +43,30 @@ from ftplib import FTP
 #update release 2020/02/10 v2.2修改資料夾位置models/day ==>放每天檔案 ./data==>放整理後每月的資料  ftp:  /home/AccessFace/day==>放每天  /home/AccessFace/month==>放每個月
 #update release 2020/02/27 v2.3修改禮拜一到五啟動六日不運作
 reading='stranger'
-predictionMax=0.80 #predictionMax=0.71
+predictionMax=0.67
 #predictionMax=0.73 #default
-predictionMin=0.55 #predictionMin=0.60
-setFailLimit=0.60 #setFailLimit=0.67
-successNum=1 #successNum=2
-failNum=4
+predictionMin=0.50
+#predictionMin=0.60#default
+setFailLimit=0.60
+#setFailLimit=0.67 #default
+successNum=1
+failNum=2
 #failNum=5#default
-strangerNum=10
+strangerNum=5
 passRate=1
 
-startime=0 #設定1開啟定時模式週一到週五 6:30 啟動,設定0則不運作
+startime=1 #設定1開啟定時模式週一到週五 6:30 啟動,設定0則不運作
 start_hour=6
 start_min=30
-upload_hour=18
-upload_min=7
+upload_hour=20
+upload_min=30
 
 train_hour=11
 train_min=19
 
 
 ser = serial.Serial('/dev/ttyS3', 115200) 
-ser.write( 'set_0'.encode('utf-8') + str(successNum).encode('utf-8')+'_'.encode('utf-8')+str(strangerNum).encode('utf-8')+'_0'.encode('utf-8')+str(failNum).encode('utf-8')+'_'.encode('utf-8')+str(int(predictionMax*1000)).encode('utf-8')+'_'.encode('utf-8')+str(int(setFailLimit*1000)).encode('utf-8')+'_'.encode('utf-8')+str(passRate*100).encode('utf-8')+'\r\n'.encode('utf-8'))
+ser.write( 'set_0'.encode('utf-8') + str(successNum).encode('utf-8')+'_0'.encode('utf-8')+str(strangerNum).encode('utf-8')+'_0'.encode('utf-8')+str(failNum).encode('utf-8')+'_'.encode('utf-8')+str(int(predictionMax*1000)).encode('utf-8')+'_'.encode('utf-8')+str(int(setFailLimit*1000)).encode('utf-8')+'_'.encode('utf-8')+str(passRate*100).encode('utf-8')+'\r\n'.encode('utf-8'))
 print('[Set System] (Success Limit): %s (Stranger Limit): %s (Fail Limit): %s (Prediction Max): %s (Prediction Min): %s (Set Fail Limit): %s (Pass Rate): %s \n'%(str(successNum) ,str(strangerNum) ,str(failNum) ,str(predictionMax) ,str(predictionMin) ,str(setFailLimit) ,str(passRate) ) )
 #set_success筆數_stranger筆數_fail筆數_辨識度上限_辨識度下限_打折率\r\n
 
@@ -255,9 +257,15 @@ def frameflesh(start_hour,start_min):
                                 elif np.max(predictions[0]) < predictionMax and np.max(predictions[0]) > predictionMin and HumanNames[best_class_indices[0]]:
                                     put_text = '{name} {confidence: 3.2f}'.format(name = HumanNames[best_class_indices[0]], confidence = (np.max(predictions[0]).tolist())*100)
                                     #gonumber1=int((np.max(predictions[0]).tolist())*1000)
-                                    cv2.rectangle(frame, (bb[i][0], bb[i][1]), (bb[i][2], bb[i][3]), (225, 0, 255), 2)    #boxing face
-                                    cv2.putText(frame, put_text, (text_x, text_y), cv2.FONT_HERSHEY_COMPLEX_SMALL,
-                                                1, (225, 0, 255), thickness=2, lineType=2)                                   
+                                    if np.max(predictions[0]) > setFailLimit :
+                                        cv2.rectangle(frame, (bb[i][0], bb[i][1]), (bb[i][2], bb[i][3]), (225, 0, 255), 2)    #boxing face
+                                        cv2.putText(frame, put_text, (text_x, text_y), cv2.FONT_HERSHEY_COMPLEX_SMALL,
+                                                    1, (225, 0, 255), thickness=2, lineType=2) 
+                                    else:
+                                        cv2.rectangle(frame, (bb[i][0], bb[i][1]), (bb[i][2], bb[i][3]), (0, 0, 255), 2)    #boxing face
+                                        cv2.putText(frame, put_text, (text_x, text_y), cv2.FONT_HERSHEY_COMPLEX_SMALL,
+                                                    1, (0, 0, 255), thickness=2, lineType=2)                                        
+                                     
                                     ser.write( 'fail_'.encode('utf-8')+str(int((np.max(predictions[0]).tolist())*1000)).encode('utf-8')+'_'.encode('utf-8')+HumanNames[best_class_indices[0]].encode('utf-8')+'\r\n'.encode('utf-8') )
                                     #reading= 'fail_'.encode('utf-8')+str(int((np.max(predictions[0]).tolist())*1000)).encode('utf-8')+'_'.encode('utf-8')+HumanNames[best_class_indices[0]].encode('utf-8')+'\r\n'.encode('utf-8')
                                     historyFull(HumanNames[best_class_indices[0]] ,int((np.max(predictions[0]).tolist())*100) )
@@ -476,13 +484,13 @@ def refleshDay():
     month_file.sort()
        
  
-    folder = 'data'+mdate+'.csv'
+    folder = 'data/'+mdate+'-face.csv'
     command = 'rm -r %s'%(folder)
     result = os.system(command)
     if result == 0:
         print ('delete ==> '+mdate+'.cav')
     else:
-        print ('==> '+mdate+'.csv is not exist')    
+        print ('==> '+mdate+'-face.csv is not exist')    
     
     for  dday in month_file:
         
@@ -556,7 +564,7 @@ def refleshDay():
         #print('finalid',finalid)
             
         #存檔
-        with open('data/'+mdate+'.csv','a') as f: 
+        with open('data/'+mdate+'-face.csv','a') as f: 
             #for i in range(5): 
                 #newresult = np.random.rand(2, 3) 
            
@@ -571,7 +579,7 @@ def refleshDay():
         ftp.login('Vincent','helloworld') # 登入
         print (ftp.getwelcome())  # 獲得歡迎資訊 
         #d=ftp.cwd('home/AccessFace/')    # 設定FTP路徑
-        name=mdate+'.csv'
+        name=mdate+'-face.csv'
         path =  'data/'    # 檔案儲存路徑
         name1=date+'-Full'
         path1 =  '../models/day/'    # 檔案儲存路徑        
