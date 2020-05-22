@@ -17,7 +17,7 @@ from datetime import datetime, timedelta
           3.增加使用亂碼檔名 4.增加網路錯誤時顯示網路連線錯誤提醒
 """
 
-VERSON='0518'
+VERSON='20200518'
 
 #檔案密碼
 firstmonth='FSvQnEV'
@@ -303,24 +303,29 @@ class mainpage(object):
         inputnumber=self.var_usr_name.get()
         print('pwd',self.var_usr_pwd.get())
         inputpwd=self.var_usr_pwd.get()
-        print('pwdID[inputnumber]',pwdID[inputnumber])
+        #print('pwdID[inputnumber]',pwdID[inputnumber])
         #,pwdID,nameID
         
-        try :
-            print(inputnumber)
-            print('pwdID[inputnumber]',pwdID[inputnumber])
-            if pwdID[inputnumber] == inputpwd :
-            
-                self.secpage(inputnumber)
+        try: 
+            if inputnumber.isdigit() and len(inputnumber)==6 :
+                print(inputnumber)
+                print('pwdID[inputnumber]',pwdID[inputnumber])
+                if pwdID[inputnumber] == inputpwd :
+                
+                    self.secpage(inputnumber)
+                else:
+                    self.no_file_worning1()
             else:
-                self.no_file_worning1()
+                self.no_file_worning()
         except:
-            self.no_file_worning()
+            self.no_file_worning2()
             
     def no_file_worning(self):
-        tk.messagebox.showwarning( title='錯誤', message='輸入資料錯誤，請重新輸入')
+        tk.messagebox.showwarning( title='錯誤', message='請正確輸入六位數字員工編號')
     def no_file_worning1(self):
         tk.messagebox.showwarning( title='錯誤', message='密碼不符，請重新輸入')
+    def no_file_worning2(self):
+        tk.messagebox.showwarning( title='錯誤', message='資料庫無此工號')        
         
     def secpage(self,dp):
         print('secpage' ,dp)
@@ -347,7 +352,10 @@ class secondpage(object):
         self.Button.grid(column=0,row=0, sticky=tk.W) 
         
         self.Button = tk.Button(self.page, text=u'出缺勤查詢',font=('Arial', 12),justify = tk.LEFT,command=partial(self.personpage1,self.dp) ) 
-        self.Button.grid(columnspan=2,row=0, sticky=tk.N+tk.S)         
+        self.Button.grid(columnspan=2,row=0, sticky=tk.N+tk.S)       
+        
+        self.Button = tk.Button(self.page, text=u'關於版本',font=('Arial', 12),justify = tk.LEFT,command=self.readme ) 
+        self.Button.grid(column=1,row=0, sticky=tk.W)          
         
         ##空白行
         #self.spaceLabel1= tk.Label(self.page,textvariable="      撼訊科技 遠端出勤打卡系統       " )
@@ -364,7 +372,7 @@ class secondpage(object):
         self.titleLabel.grid(column=0, row=2, sticky=tk.W)   
         
         self.vartitle2=tk.StringVar()
-        self.vartitle2.set("員工： "+persenID[self.dp]+ '        部門： '+ pdID[self.dp] +'   Version:'+VERSON)
+        self.vartitle2.set("員工： "+persenID[self.dp]+ '        部門： '+ pdID[self.dp])
         self.title2Label= tk.Label(self.page,textvariable=self.vartitle2, font=('Arial', 12),justify = tk.RIGHT )
         self.title2Label.grid(column=0,   row=3, sticky=tk.W)    
         #空白
@@ -583,6 +591,63 @@ class secondpage(object):
         self.upgrade()
         root.mainloop()   
         
+    def readme(self):
+        window_sign_up = tk.Toplevel(root)
+        window_sign_up.geometry('350x200')
+        window_sign_up.title('關於')
+        
+        pwdLabel=tk.Label(window_sign_up, text='撼訊科技 出缺勤管理系統 個人版本' ,font=('Arial', 12))
+        pwdLabel.place(x=10, y=20)  
+        
+        pwdLabel=tk.Label(window_sign_up, text='軟體版本： %s'%(VERSON) ,font=('Arial', 12))
+        pwdLabel.place(x=10, y=50)
+        
+        pwdLabel=tk.Label(window_sign_up, text='開發單位： 軟體研發中心' ,font=('Arial', 12))
+        pwdLabel.place(x=10, y=80)        
+        
+        btn_comfirm_sign_up = tk.Button(window_sign_up, text='檢查更新', command=self.upgrade1)
+        btn_comfirm_sign_up.place(x=50, y=120)            
+        
+    def upgrade1(self):
+        #去確認remote所有目錄
+        pathqq='home/AccessFace/user_version/'
+        timedelta
+        idperson=[]
+        #time.sleep(2)
+        personftpqq=downftp.nlst(pathqq)
+        print('personftpqq',personftpqq)   
+        for personfty in personftpqq:
+            personww=personfty.split('/')
+            person11=personww[-1].split('.')
+            person13=person11[0].split('_')
+            idperson.append(person13[-1])
+        print('before verson: ',idperson)   
+        verson123 = sorted(idperson,reverse = True)
+        print('after verson: ',verson123) 
+        try:
+            if int(verson123[0])> int(VERSON):
+            
+                #if len(glob.glob('TUL-AttendanceMangement_user_'+VERSON+'.exe') )==1:
+                    #os.remove('TUL-AttendanceMangement_user_'+VERSON+'.exe')
+                for personfty in personftpqq:
+                    personww=personfty.split('/')
+                    person11=personww[-1].split('.')
+                    person13=person11[0].split('_')
+                    if person13[-1]==   verson123[0]:
+                        #try:
+                        f=open(personww[-1], 'wb')
+                        downftp.retrbinary('RETR ' + personfty , f.write )
+                        print('download file   '+personww[-1])                    
+                        f.close()
+                        self.no_file_worning17(str(verson123[0]))
+                        #except:
+                            #print('download faile '+personww[-1])
+    
+            else:
+                self.no_file_worning18()                       
+        except:
+            print('error: ftp沒有任何更新檔案的版本 造成系統錯誤')    
+            self.no_file_worning18()  
         
     def upgrade(self):
         #去確認remote所有目錄
@@ -600,26 +665,29 @@ class secondpage(object):
         print('before verson: ',idperson)   
         verson123 = sorted(idperson,reverse = True)
         print('after verson: ',verson123) 
-        if int(verson123[0])> int(VERSON):
-        
-            #if len(glob.glob('TUL-AttendanceMangement_user_'+VERSON+'.exe') )==1:
-                #os.remove('TUL-AttendanceMangement_user_'+VERSON+'.exe')
-            for personfty in personftpqq:
-                personww=personfty.split('/')
-                person11=personww[-1].split('.')
-                person13=person11[0].split('_')
-                if person13[-1]==   verson123[0]:
-                    #try:
-                    f=open(personww[-1], 'wb')
-                    downftp.retrbinary('RETR ' + personfty , f.write )
-                    print('download file   '+personww[-1])                    
-                    f.close()
-                    self.no_file_worning17(str(verson123[0]))
-                    #except:
-                        #print('download faile '+personww[-1])
+        try:
+            if int(verson123[0])> int(VERSON):
+            
+                #if len(glob.glob('TUL-AttendanceMangement_user_'+VERSON+'.exe') )==1:
+                    #os.remove('TUL-AttendanceMangement_user_'+VERSON+'.exe')
+                for personfty in personftpqq:
+                    personww=personfty.split('/')
+                    person11=personww[-1].split('.')
+                    person13=person11[0].split('_')
+                    if person13[-1]==   verson123[0]:
+                        #try:
+                        f=open(personww[-1], 'wb')
+                        downftp.retrbinary('RETR ' + personfty , f.write )
+                        print('download file   '+personww[-1])                    
+                        f.close()
+                        self.no_file_worning17(str(verson123[0]))
+                        #except:
+                            #print('download faile '+personww[-1])
+                 
     
 
-            
+        except:
+            print('error: ftp沒有任何更新檔案的版本 造成系統錯誤')
         
         
     def dtest(self, mode):
@@ -640,7 +708,10 @@ class secondpage(object):
     def no_file_worning16(self):
         tk.messagebox.showwarning( title='錯誤', message='分鐘不可以超過00-59')    
     def no_file_worning17(self,verson):
-        tk.messagebox.showwarning( title='程式更新', message='有新版本VER_%s，將提供下載'%(verson))          
+        tk.messagebox.showwarning( title='程式更新', message='有新版本VER_%s已下載至本機，下次開啟請選擇新版本，並刪除舊版本'%(verson))     
+    def no_file_worning18(self):
+        tk.messagebox.showwarning( title='說明', message='目前已是最新版本')            
+        
     def takerun(self):
         #print('mode',mode)
         if not os.path.isdir('data/'):

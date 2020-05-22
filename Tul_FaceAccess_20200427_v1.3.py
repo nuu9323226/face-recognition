@@ -12,7 +12,7 @@ from ftplib import FTP_TLS
 from tkinter import filedialog
 from datetime import datetime, timedelta
 from tkinter.filedialog import askdirectory
-
+VERSON='20200521'
 # windows版本打包指令 pyinstaller -F -w .\Tul_FaceAccess_20200427_v1.3.py -i tul_logo.ico
 # windows版本 更改 Arial==>微軟正黑體
 #import faceRegistered
@@ -26,6 +26,98 @@ import xlrd
 import csv
 
 dpartment=[100,120,121,150,210,220,230,310,325,350,'TCMC',750,756,754,'IOTU',570,160,510,530]
+
+
+
+
+def readme():
+    window_sign_up = tk.Toplevel(root)
+    window_sign_up.geometry('350x200')
+    window_sign_up.title('關於')
+    
+    pwdLabel=tk.Label(window_sign_up, text='撼訊科技 出缺勤管理系統 人資版本' ,font=('Arial', 12))
+    pwdLabel.place(x=10, y=20)  
+    
+    pwdLabel=tk.Label(window_sign_up, text='軟體版本： %s'%(VERSON) ,font=('Arial', 12))
+    pwdLabel.place(x=10, y=50)
+    
+    pwdLabel=tk.Label(window_sign_up, text='開發單位： 軟體研發中心' ,font=('Arial', 12))
+    pwdLabel.place(x=10, y=80)
+ 
+    
+    
+    #old_pwd = tk.StringVar()
+    #pwdLabel=tk.Label(window_sign_up, text='舊密碼: ',font=('Arial', 12))
+    #pwdLabel.place(x=10, y=50)
+    #entry_old_pwd = tk.Entry(window_sign_up, textvariable=old_pwd, show='*',font=('Arial', 12))
+    #entry_old_pwd.place(x=150, y=50)    
+    
+    
+    
+    #new_pwd = tk.StringVar()
+    #pwdLabel=tk.Label(window_sign_up, text='新密碼: ',font=('Arial', 12))
+    #pwdLabel.place(x=10, y=90)
+    #entry_usr_pwd = tk.Entry(window_sign_up, textvariable=new_pwd, show='*',font=('Arial', 12))
+    #entry_usr_pwd.place(x=150, y=90)
+    
+    
+    #new_pwd_confirm = tk.StringVar()
+    #confirmLabel=tk.Label(window_sign_up, text='新密碼確認: ',font=('Arial', 12))
+    #confirmLabel.place(x=10, y= 130)
+    #entry_usr_pwd_confirm = tk.Entry(window_sign_up, textvariable=new_pwd_confirm, show='*',font=('Arial', 12))
+    #entry_usr_pwd_confirm.place(x=150, y=130)
+    
+    
+    #btn_comfirm_sign_up = tk.Button(window_sign_up, text='確定', command=hello)
+    #btn_comfirm_sign_up.place(x=150, y=160)        
+
+
+def upgrade123():
+    #去確認remote所有目錄
+    pathqq='home/AccessFace/cline_verson/'
+    timedelta
+    idperson=[]
+    #time.sleep(2)
+    personftpqq=downftp.nlst(pathqq)
+    print('personftpqq',personftpqq)   
+    for personfty in personftpqq:
+        personww=personfty.split('/')
+        person11=personww[-1].split('.')
+        person13=person11[0].split('_')
+        idperson.append(person13[-1])
+    print('before verson: ',idperson)   
+    verson123 = sorted(idperson,reverse = True)
+    print('after verson: ',verson123) 
+    try:
+        if int(verson123[0])> int(VERSON):
+        
+            #if len(glob.glob('TUL-AttendanceMangement_user_'+VERSON+'.exe') )==1:
+                #os.remove('TUL-AttendanceMangement_user_'+VERSON+'.exe')
+            for personfty in personftpqq:
+                personww=personfty.split('/')
+                person11=personww[-1].split('.')
+                person13=person11[0].split('_')
+                if person13[-1]==   verson123[0]:
+                    #try:
+                    f=open(personww[-1], 'wb')
+                    downftp.retrbinary('RETR ' + personfty , f.write )
+                    print('download file   '+personww[-1])                    
+                    f.close()
+                    no_file_worning20(str(verson123[0]))
+                    #except:
+                        #print('download faile '+personww[-1])
+        else:
+            no_file_worning21()
+            
+    except:
+        print('error: ftp沒有任何更新檔案版本 造成系統錯誤')
+        no_file_worning21()
+
+def no_file_worning20(verson):
+    tk.messagebox.showwarning( title='程式更新', message='有新版本VER_%s已下載至本機，下次開啟請選擇新版本，並刪除舊版本'%(verson))  
+def no_file_worning21():
+    tk.messagebox.showwarning( title='說明', message='目前已是最新版本')  
+
 
 def helloworld():
     print('helloworld')
@@ -436,9 +528,47 @@ class mainpage(object):
                         line1=line1+1                    
                 
 
-        
+        self.upgrade()
         root.mainloop()   
 
+    def upgrade(self):
+        #去確認remote所有目錄
+        pathqq='home/AccessFace/cline_verson/'
+        timedelta
+        idperson=[]
+        #time.sleep(2)
+        personftpqq=downftp.nlst(pathqq)
+        print('personftpqq',personftpqq)   
+        for personfty in personftpqq:
+            personww=personfty.split('/')
+            person11=personww[-1].split('.')
+            person13=person11[0].split('_')
+            idperson.append(person13[-1])
+        print('before verson: ',idperson)   
+        verson123 = sorted(idperson,reverse = True)
+        print('after verson: ',verson123) 
+        try:
+            if int(verson123[0])> int(VERSON):
+            
+                #if len(glob.glob('TUL-AttendanceMangement_user_'+VERSON+'.exe') )==1:
+                    #os.remove('TUL-AttendanceMangement_user_'+VERSON+'.exe')
+                for personfty in personftpqq:
+                    personww=personfty.split('/')
+                    person11=personww[-1].split('.')
+                    person13=person11[0].split('_')
+                    if person13[-1]==   verson123[0]:
+                        #try:
+                        f=open(personww[-1], 'wb')
+                        downftp.retrbinary('RETR ' + personfty , f.write )
+                        print('download file   '+personww[-1])                    
+                        f.close()
+                        self.no_file_worning17(str(verson123[0]))
+                        #except:
+                            #print('download faile '+personww[-1])
+        except:
+            print('error: ftp沒有任何更新檔案版本 造成系統錯誤')
+    def no_file_worning17(self,verson):
+        tk.messagebox.showwarning( title='程式更新', message='有新版本VER_%s已下載至本機，下次開啟請選擇新版本，並刪除舊版本'%(verson))  
         
     def secpage(self,dp):
         self.page.destroy()
@@ -2384,6 +2514,12 @@ submenu.add_command(label='從本機匯入', command=setectfile)   # 这里和�
 
 filemenu.add_command(label='離開', command=root.destroy) # 用tkinter里面自带的quit()函数
 # 第11步，创建菜单栏完成后，配置让菜单栏menubar显示出来
+
+readmenu = tk.Menu(menubar, tearoff=0)
+menubar.add_cascade(label='說明', menu=readmenu)
+readmenu.add_command(label='檢查更新', command=upgrade123 )
+readmenu.add_command(label='關於版本', command=readme )
+
 root.config(menu=menubar)
 
 mainpage(root)
