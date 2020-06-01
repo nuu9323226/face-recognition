@@ -12,111 +12,6 @@ from tkinter import filedialog
 from datetime import datetime, timedelta
 # windows版本打包指令 pyinstaller.exe -F -w .\user-gui-debug0427.py -i tul_logo.ico
 # windows版本 更改 Arial==>微軟正黑體
-"""
-#20200422 1.修復檢視會跑位vbar.grid(column=10,row=5) ==>vbar.grid(column=10,row=7) 2.修復windows需要強至使用encoding = 'utf-8'  downftp.encoding='utf-8'
-          3.增加使用亂碼檔名 4.增加網路錯誤時顯示網路連線錯誤提醒
-"""
-
-VERSON='20200518'
-
-#檔案密碼
-firstmonth='FSvQnEV'
-secendmonth='9XuTbag'
-thirdmonth='mR57Zg'
-allmonthdic=[firstmonth,secendmonth,thirdmonth]
-
-cardid='K5tuP'
-faceid='Gn9r2'
-personalid='55EBT'
-alltypedic=[cardid,faceid,personalid]
-alltypename=['idcard','face','personal']
-alltypechange = dict(zip(alltypename, alltypedic))
-global failconn
-failconn=0
-path88 =  'data/'
-
-from ftplib import FTP_TLS
-try:
-    downftp = FTP()
-    timeout = 6
-    port = 21
-    #如果ftp有啟動ftps (ssl/tls)加密服務則需要用以下方式連線
-    #https://stackoverflow.com/questions/5534830/ftpes-ftp-over-explicit-tls-ssl-in-python
-    #from ftplib import FTP_TLS
-    #downftp=FTP_TLS('61.220.84.60')
-    downftp.connect('61.220.84.60',port,timeout) # 連線FTP伺服器
-    downftp.login('Vincent','helloworld') # 登入
-    downftp.encoding='utf-8'
-    downftp.set_pasv(False)
-    print (downftp.getwelcome())  # 獲得歡迎資訊 
-    #d=ftp.cwd('home/AccessFace/month')    # 設定FTP路徑
-    monthftp=downftp.nlst('home/AccessFace/month') #獲取ftp上的所以月份檔案
-    print('monthftp',monthftp)
-    
-#try:
-    #downftp = FTP()
-    #timeout = 6
-    #port = 21
-    ##如果ftp有啟動ftps (ssl/tls)加密服務則需要用以下方式連線
-    ##https://stackoverflow.com/questions/5534830/ftpes-ftp-over-explicit-tls-ssl-in-python
-    #from ftplib import FTP_TLS
-    #downftp=FTP_TLS('dsm2.tul.com.tw')
-    ##downftp.connect('61.220.84.60',port,timeout) # 連線FTP伺服器
-    #downftp.login('TulAccessControl','@Tul760acc') # 登入
-    #downftp.encoding='utf-8'
-    #downftp.set_pasv(False)
-    #print (downftp.getwelcome())  # 獲得歡迎資訊 
-    ##d=ftp.cwd('home/AccessFace/month')    # 設定FTP路徑
-    #monthftp=downftp.nlst('home/AccessFace/month') #獲取ftp上的所以月份檔案
-    #print('monthftp',monthftp)    
-    
-    
-except:
-    print('not connect to ftp')
-    failconn=1
-
-def weekreport(daytime):
-    weekreturn=0
-    qweek=datetime.strptime (daytime,'%Y-%m-%d').weekday() 
-    if qweek==0:
-        weekreturn='一'
-    if qweek==1:
-        weekreturn='二'
-    if qweek==2:
-        weekreturn='三'
-    if qweek==3:
-        weekreturn='四'  
-    if qweek==4:
-        weekreturn='五'  
-    if qweek==5:
-        weekreturn='六'  
-    if qweek==6:
-        weekreturn='日'         
-    
-    return weekreturn
-
-def ftpconn():
-    try:
-        f=open(path88+'database_Employee.csv', 'wb')
-        downftp.retrbinary('RETR ' + 'home/AccessFace/config/database_Employee.csv', f.write )
-        print('download file'+path88+'database_Employee.csv')                    
-        f.close()
-        
-        number123,persenID,pdID,fullID,pwdID,nameID=person_pd_ID()
-        os.remove(path88+'database_Employee.csv')
-        print(path88+'database_Employee.csv 刪除成功' )
-        return number123,persenID,pdID,fullID,pwdID,nameID
-
-    except:
-        print("download failed. check.......................")    
-        mainpage(root)
-
-
-def secretname(vaild):
-    
-    allmonthchange = dict(zip(vaild, allmonthdic))
-    return allmonthchange
-    
 
 
 def month_and_day():
@@ -139,7 +34,7 @@ def hello():
     print('helloworld')
 
 def read_train_object():
-    train_name = open('data/database_Employee.csv','r') 
+    train_name = open('datas/database_Employee.csv','r') 
     
     lines = train_name.readlines()
     count=0
@@ -185,178 +80,6 @@ def person_pd_ID():
     return number123,persenID,pdID,fullID,pwdID,nameID
 
 
-class mainpage(object):
-    def __init__(self, master=None):
-        self.root = master 
-        root.geometry('500x300')
-        self.page = tk.Frame(self.root)        
-        self.page.pack()
-        
-        global failconn
-        
-        try:
-            image_file = tk.PhotoImage(file='data/tul_logo1.gif')
-            canvas = tk.Canvas(self.page, height=500, width=500)
-            self.image = canvas.create_image(0,0, anchor='nw', image=image_file)
-            canvas.pack(side='top')
-        except:
-            print('fial to download tul_logo1.gif')
-        
-        # user information
-        if failconn==1:
-            self.varname=tk.StringVar()
-            self.varname.set("網路連線錯誤，請確認網路環境")
-            self.numberLabel= tk.Label(self.page,textvariable=self.varname, font=('Arial', 16),fg="#DC143C" ,justify = tk.RIGHT )
-            self.numberLabel.place(x=50, y= 100) 
-            
-       
-        
-        self.varname=tk.StringVar()
-        self.varname.set("員工編號 ")
-        self.numberLabel= tk.Label(self.page,textvariable=self.varname, font=('Arial', 12),justify = tk.RIGHT )
-        self.numberLabel.place(x=50, y= 150)       
-                
-        self.varpwd=tk.StringVar()
-        self.varpwd.set("密碼 ")
-        self.pwdLabel= tk.Label(self.page,textvariable=self.varpwd, font=('Arial', 12),justify = tk.RIGHT )
-        self.pwdLabel.place(x=50, y= 190) 
-        
-        
-        self.varpwdtitle=tk.StringVar()
-        self.varpwdtitle.set("預設密碼為員工西元出生年月日，ex.19800101")
-        self.pwdtitleLabel= tk.Label(self.page,textvariable=self.varpwdtitle, font=('Arial', 10),justify = tk.RIGHT )
-        self.pwdtitleLabel.place(x=160, y= 215)          
-        
-        
-        
-        
-        
-        
-        self.var_usr_name = tk.StringVar()
-        self.var_usr_pwd = tk.StringVar()
-        #var_usr_name.set('請輸入中文姓名')
-        #self.var_usr_pwd.set('預設密碼為身份證字號，英文字大寫')
-        self.entry_usr_name = tk.Entry(self.page, textvariable=self.var_usr_name)
-        self.entry_usr_name.place(x=160, y=150)
-        self.entry_usr_pwd = tk.Entry(self.page, textvariable=self.var_usr_pwd, show='*')
-        self.entry_usr_pwd.place(x=160, y=190)
-        
-   
-        
-        # login and sign up button
-        self.btn_login = tk.Button(self.page, text='登入',font=('Arial', 12) , command=self.conform)
-        self.btn_login.place(x=180, y=240)
-        #self.btn_sign_up = tk.Button(self.page, text='輸入工號直接登入',font=('Arial', 12), command=self.conform1 )
-        #self.btn_sign_up.place(x=270, y=240)
-
-
-
-
-        root.mainloop() 
-        
-    def resetpwd(self):
-        #np = new_pwd.get()
-        #npf = new_pwd_confirm.get()
-        #nn = new_name.get()
-        #with open('usrs_info.pickle', 'rb') as usr_file:
-            #exist_usr_info = pickle.load(usr_file)
-        #if np != npf:
-            #tk.messagebox.showerror('Error', 'Password and confirm password must be the same!')
-        #elif nn in exist_usr_info:
-            #tk.messagebox.showerror('Error', 'The user has already signed up!')
-        #else:
-            #exist_usr_info[nn] = np
-            #with open('usrs_info.pickle', 'wb') as usr_file:
-                #pickle.dump(exist_usr_info, usr_file)
-            #tk.messagebox.showinfo('Welcome', 'You have successfully signed up!')
-            #window_sign_up.destroy()
-            
-        window_sign_up = tk.Toplevel(self.root)
-        window_sign_up.geometry('350x200')
-        window_sign_up.title('重新設定密碼')
-    
-        new_name = tk.StringVar()
-        new_name.set('請輸入六位數字工號')
-        newLABEL=tk.Label(window_sign_up, text='工號: ',font=('Arial', 12) )
-        newLABEL.place(x=10, y= 10)
-        
-        entry_new_name = tk.Entry(window_sign_up, textvariable=new_name,font=('Arial', 12))
-        entry_new_name.place(x=150, y=10)
-    
-        old_pwd = tk.StringVar()
-        pwdLabel=tk.Label(window_sign_up, text='舊密碼: ',font=('Arial', 12))
-        pwdLabel.place(x=10, y=50)
-        entry_old_pwd = tk.Entry(window_sign_up, textvariable=old_pwd, show='*',font=('Arial', 12))
-        entry_old_pwd.place(x=150, y=50)    
-    
-    
-    
-        new_pwd = tk.StringVar()
-        pwdLabel=tk.Label(window_sign_up, text='新密碼: ',font=('Arial', 12))
-        pwdLabel.place(x=10, y=90)
-        entry_usr_pwd = tk.Entry(window_sign_up, textvariable=new_pwd, show='*',font=('Arial', 12))
-        entry_usr_pwd.place(x=150, y=90)
-        
-    
-        new_pwd_confirm = tk.StringVar()
-        confirmLabel=tk.Label(window_sign_up, text='新密碼確認: ',font=('Arial', 12))
-        confirmLabel.place(x=10, y= 130)
-        entry_usr_pwd_confirm = tk.Entry(window_sign_up, textvariable=new_pwd_confirm, show='*',font=('Arial', 12))
-        entry_usr_pwd_confirm.place(x=150, y=130)
-    
-    
-        btn_comfirm_sign_up = tk.Button(window_sign_up, text='確定', command=hello)
-        btn_comfirm_sign_up.place(x=150, y=160)        
-        
-    def conform1(self):
-        print('pwd',self.var_usr_name.get())
-        inputpwd=self.var_usr_name.get()
-        #,pwdID,nameID
-        self.secpage(inputpwd)
-             
-    
-    
-
-    def conform(self):
-        print('name',self.var_usr_name.get())
-        inputnumber=self.var_usr_name.get()
-        print('pwd',self.var_usr_pwd.get())
-        inputpwd=self.var_usr_pwd.get()
-        #print('pwdID[inputnumber]',pwdID[inputnumber])
-        #,pwdID,nameID
-        
-        try: 
-            if inputnumber.isdigit() and len(inputnumber)==6 :
-                print(inputnumber)
-                print('pwdID[inputnumber]',pwdID[inputnumber])
-                if pwdID[inputnumber] == inputpwd :
-                
-                    self.secpage(inputnumber)
-                else:
-                    self.no_file_worning1()
-            else:
-                self.no_file_worning()
-        except:
-            self.no_file_worning2()
-            
-    def no_file_worning(self):
-        tk.messagebox.showwarning( title='錯誤', message='請正確輸入六位數字員工編號')
-    def no_file_worning1(self):
-        tk.messagebox.showwarning( title='錯誤', message='密碼不符，請重新輸入')
-    def no_file_worning2(self):
-        tk.messagebox.showwarning( title='錯誤', message='資料庫無此工號')        
-        
-    def secpage(self,dp):
-        print('secpage' ,dp)
-        self.page.destroy()
-        secondpage(self.root,dp)
-        
-        
-    def th3page(self):
-        self.page.destroy()
-        th3page(self.root)
-
-
 
 class secondpage(object):
     def __init__(self, master=None,dp=0):
@@ -367,14 +90,14 @@ class secondpage(object):
         self.page.grid() 
         self.dp=dp
         print('selfdp',self.dp)
-        self.Button = tk.Button(self.page, text=u'回登入頁',font=('Arial', 12),justify = tk.LEFT,command=self.mainpage) 
-        self.Button.grid(column=0,row=0, sticky=tk.W) 
+        #self.Button = tk.Button(self.page, text=u'回登入頁',font=('Arial', 12),justify = tk.LEFT,command=self.mainpage) 
+        #self.Button.grid(column=0,row=0, sticky=tk.W) 
         
-        self.Button = tk.Button(self.page, text=u'出缺勤查詢',font=('Arial', 12),justify = tk.LEFT,command=partial(self.personpage1,self.dp) ) 
-        self.Button.grid(columnspan=2,row=0, sticky=tk.N+tk.S)       
+        #self.Button = tk.Button(self.page, text=u'出缺勤查詢',font=('Arial', 12),justify = tk.LEFT,command=partial(self.personpage1,self.dp) ) 
+        #self.Button.grid(columnspan=2,row=0, sticky=tk.N+tk.S)       
         
-        self.Button = tk.Button(self.page, text=u'關於版本',font=('Arial', 12),justify = tk.LEFT,command=self.readme ) 
-        self.Button.grid(column=1,row=0, sticky=tk.W)          
+        #self.Button = tk.Button(self.page, text=u'關於版本',font=('Arial', 12),justify = tk.LEFT,command=self.readme ) 
+        #self.Button.grid(column=1,row=0, sticky=tk.W)          
         
         ##空白行
         #self.spaceLabel1= tk.Label(self.page,textvariable="      撼訊科技 遠端出勤打卡系統       " )
@@ -386,12 +109,12 @@ class secondpage(object):
         self.pwdtitleLabel.grid(column=0, row=1, sticky=tk.W)       
         
         self.vartitle=tk.StringVar()
-        self.vartitle.set("撼訊科技 公出電子表單" )
+        self.vartitle.set("撼訊科技 人臉識別 員工圖像訓練" )
         self.titleLabel= tk.Label(self.page,textvariable=self.vartitle, font=('Arial', 14),justify = tk.RIGHT )
         self.titleLabel.grid(column=0, row=2, sticky=tk.W)   
         
         self.vartitle2=tk.StringVar()
-        self.vartitle2.set("員工： "+persenID[self.dp]+ '        部門： '+ pdID[self.dp])
+        #self.vartitle2.set("員工： "+persenID[self.dp]+ '        部門： '+ pdID[self.dp])
         self.title2Label= tk.Label(self.page,textvariable=self.vartitle2, font=('Arial', 12),justify = tk.RIGHT )
         self.title2Label.grid(column=0,   row=3, sticky=tk.W)    
         #空白
@@ -605,109 +328,9 @@ class secondpage(object):
         self.title5Label= tk.Label(self.page,textvariable=self.vartitle5, font=('Arial', 12),fg='#228B22',justify = tk.RIGHT )
         self.title5Label.grid(column=0,   row=25, sticky=tk.W)              
           
-        
-        
-        self.upgrade()
         root.mainloop()   
-        
-    def readme(self):
-        window_sign_up = tk.Toplevel(root)
-        window_sign_up.geometry('350x200')
-        window_sign_up.title('關於')
-        
-        pwdLabel=tk.Label(window_sign_up, text='撼訊科技 出缺勤管理系統 個人版本' ,font=('Arial', 12))
-        pwdLabel.place(x=10, y=20)  
-        
-        pwdLabel=tk.Label(window_sign_up, text='軟體版本： %s'%(VERSON) ,font=('Arial', 12))
-        pwdLabel.place(x=10, y=50)
-        
-        pwdLabel=tk.Label(window_sign_up, text='開發單位： 軟體研發中心' ,font=('Arial', 12))
-        pwdLabel.place(x=10, y=80)        
-        
-        btn_comfirm_sign_up = tk.Button(window_sign_up, text='檢查更新', command=self.upgrade1)
-        btn_comfirm_sign_up.place(x=50, y=120)            
-        
-    def upgrade1(self):
-        #去確認remote所有目錄
-        pathqq='home/AccessFace/user_version/'
-        timedelta
-        idperson=[]
-        #time.sleep(2)
-        personftpqq=downftp.nlst(pathqq)
-        print('personftpqq',personftpqq)   
-        for personfty in personftpqq:
-            personww=personfty.split('/')
-            person11=personww[-1].split('.')
-            person13=person11[0].split('_')
-            idperson.append(person13[-1])
-        print('before verson: ',idperson)   
-        verson123 = sorted(idperson,reverse = True)
-        print('after verson: ',verson123) 
-        try:
-            if int(verson123[0])> int(VERSON):
-            
-                #if len(glob.glob('TUL-AttendanceMangement_user_'+VERSON+'.exe') )==1:
-                    #os.remove('TUL-AttendanceMangement_user_'+VERSON+'.exe')
-                for personfty in personftpqq:
-                    personww=personfty.split('/')
-                    person11=personww[-1].split('.')
-                    person13=person11[0].split('_')
-                    if person13[-1]==   verson123[0]:
-                        #try:
-                        f=open(personww[-1], 'wb')
-                        downftp.retrbinary('RETR ' + personfty , f.write )
-                        print('download file   '+personww[-1])                    
-                        f.close()
-                        self.no_file_worning17(str(verson123[0]))
-                        #except:
-                            #print('download faile '+personww[-1])
-    
-            else:
-                self.no_file_worning18()                       
-        except:
-            print('error: ftp沒有任何更新檔案的版本 造成系統錯誤')    
-            self.no_file_worning18()  
-        
-    def upgrade(self):
-        #去確認remote所有目錄
-        pathqq='home/AccessFace/user_version/'
-        timedelta
-        idperson=[]
-        #time.sleep(2)
-        personftpqq=downftp.nlst(pathqq)
-        print('personftpqq',personftpqq)   
-        for personfty in personftpqq:
-            personww=personfty.split('/')
-            person11=personww[-1].split('.')
-            person13=person11[0].split('_')
-            idperson.append(person13[-1])
-        print('before verson: ',idperson)   
-        verson123 = sorted(idperson,reverse = True)
-        print('after verson: ',verson123) 
-        try:
-            if int(verson123[0])> int(VERSON):
-            
-                #if len(glob.glob('TUL-AttendanceMangement_user_'+VERSON+'.exe') )==1:
-                    #os.remove('TUL-AttendanceMangement_user_'+VERSON+'.exe')
-                for personfty in personftpqq:
-                    personww=personfty.split('/')
-                    person11=personww[-1].split('.')
-                    person13=person11[0].split('_')
-                    if person13[-1]==   verson123[0]:
-                        #try:
-                        f=open(personww[-1], 'wb')
-                        downftp.retrbinary('RETR ' + personfty , f.write )
-                        print('download file   '+personww[-1])                    
-                        f.close()
-                        self.no_file_worning17(str(verson123[0]))
-                        #except:
-                            #print('download faile '+personww[-1])
-                 
-    
+ 
 
-        except:
-            print('error: ftp沒有任何更新檔案的版本 造成系統錯誤')
-        
         
     def dtest(self, mode):
         self.mode=mode
@@ -2830,29 +2453,11 @@ class personpage(object):
 
 
 #建立資料夾
-if not os.path.isdir('data/'):
-    os.mkdir('data/')    
+if not os.path.isdir('datas/'):
+    os.mkdir('datas/')    
 else :
     print ('data  file exist') 
     
-
-   
-if len(glob.glob(path88+'tul_logo1.gif') )==1 and os.path.getsize(path88+'tul_logo1.gif')!=0:#修正圖片0KB問題
-    print('tul_logo1.gif have file')
-else:
-    try:
-        f=open(path88+'tul_logo1.gif', 'wb')
-        downftp.retrbinary('RETR ' + 'home/AccessFace/config/tul_logo1.gif', f.write )
-        print('download file'+path88+'tul_logo1.gif')                    
-        f.close()
-    
-        
-    
-    except:
-        print("download failed. check.......................")
-
-
-
 
 newyear,newmonth,newday=month_and_day()
 
@@ -2873,17 +2478,13 @@ root = tk.Tk()
 # https://blog.csdn.net/FunkyPants/article/details/78163021
 
 root.title('撼訊科技 人資查詢系統')
-root.geometry('500x300')
+root.geometry('500x800')
 
 menubar = tk.Menu(root)
 filemenu = tk.Menu(menubar, tearoff=0)
 
 root.config(menu=menubar)
-try :
-    number123,persenID,pdID,fullID,pwdID,nameID=ftpconn()
-except :
-    print('not to connet ftp, so personID not download ')
-    failconn=1
-mainpage(root)
+number123,persenID,pdID,fullID,pwdID,nameID=person_pd_ID()
+secondpage(root)
 
 root.mainloop() 

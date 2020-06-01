@@ -25,7 +25,7 @@ import xlrd
 #需要安裝sudo pip3 install xlrd
 import csv
 
-dpartment=[100,120,121,150,210,220,230,310,325,350,'TCMC',750,756,754,'IOTU',570,160,510,530]
+dpartment=[100,120,121,150,210,220,230,310,325,350,750,756,754,570,160,510,530,'IOTU','TCMC']
 
 
 
@@ -38,7 +38,7 @@ def readme():
     pwdLabel=tk.Label(window_sign_up, text='撼訊科技 出缺勤管理系統 人資版本' ,font=('Arial', 12))
     pwdLabel.place(x=10, y=20)  
     
-    pwdLabel=tk.Label(window_sign_up, text='軟體版本： %s'%(VERSON) ,font=('Arial', 12))
+    pwdLabel=tk.Label(window_sign_up, text='軟體版本： %s V1.0'%(VERSON)  ,font=('Arial', 12))
     pwdLabel.place(x=10, y=50)
     
     pwdLabel=tk.Label(window_sign_up, text='開發單位： 軟體研發中心' ,font=('Arial', 12))
@@ -330,7 +330,15 @@ def deleteDuplicatedElementFromList3(listA):
 def rundetect():
     #os.system("echo sat | sudo -S gnome-terminal -x bash -c 'sudo python3 ./conbine2-0207-v2.2.py'")
     os.system("echo sat | sudo python3 ./conbine2-0207-v2.2.py &") #背景執行
-
+    
+    
+def runpersonversion():
+    os.system('python3 user-gui-debug0427.py')
+def runinputoutside():
+    os.system('python3 sighoutside.py')
+def traindata():
+    os.system('python3 traindata.py')    
+    
 def quit():
     root.quit()
 
@@ -351,87 +359,69 @@ def month_and_day():
     year=str(x.year)
     return year,month,day
 
-# def read_train_object():
-#     train_name = open('datas/name.txt','r') 
-    
-#     lines = train_name.readlines()
-#     count=0
-#     for a in lines:
-#         b=a.split('\n')
-#         lines[count]=b[0]
-#         count += 1
-#     train_name.close
-#     return lines
-
-
-
-
-
-
-
-
 class mainpage(object):
     def __init__(self, master=None):
         self.root = master 
-        
+
         self.page = tk.Frame(self.root) 
+        self.page.configure(bg='white')
         self.page.grid()
         #self.dport='760'
         
         #建立button
-        self.Button = tk.Button(self.page, text=u'DP100總經理室', font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'100')) 
+        self.Button = tk.Button(self.page, text=u'DP100總經理室',bg='lavender', font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'100')) 
         self.Button.grid(column=0,row=0, sticky=tk.W) 
-        self.Button = tk.Button(self.page, text=u'DP120品保', font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'120')) 
-        self.Button.grid(column=1,row=0,sticky=tk.W) 
-        self.Button = tk.Button(self.page, text=u'DP121測試', font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'121')) 
-        self.Button.grid(column=2,row=0, sticky=tk.W)  
-        self.Button = tk.Button(self.page, text=u'DP150稽核室', font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'150')) 
+        self.Button = tk.Button(self.page, text=u'DP150稽核室',bg='lavender', font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'150')) 
+        self.Button.grid(column=1,row=0, sticky=tk.W) 
+        self.Button = tk.Button(self.page, text=u'DP210人資總務',bg='lavender', font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'210')) 
+        self.Button.grid(column=2,row=0,sticky=tk.W)          
+        self.Button = tk.Button(self.page, text=u'DP220財會',bg='lavender', font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'220')) 
         self.Button.grid(column=3,row=0, sticky=tk.W) 
-        self.Button = tk.Button(self.page, text=u'DP210人資總務', font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'210')) 
-        self.Button.grid(column=4,row=0,sticky=tk.W)          
-        self.Button = tk.Button(self.page, text=u'DP220財快', font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'220')) 
-        self.Button.grid(column=5,row=0, sticky=tk.W) 
-        self.Button = tk.Button(self.page, text=u'IOTU撼智物聯', font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'IOTU')) 
-        self.Button.grid(column=6,row=0, sticky=tk.W)         
-        
-        
-        self.Button = tk.Button(self.page, text=u'DP230資訊', font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'230')) 
-        self.Button.grid(column=0,row=1,sticky=tk.W) 
-        self.Button = tk.Button(self.page, text=u'DP310業務', font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'310')) 
+        self.Button = tk.Button(self.page, text=u'DP230資訊',bg='lavender', font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'230')) 
+        self.Button.grid(column=4,row=0,sticky=tk.W) 
+
+        self.Button = tk.Button(self.page, text=u'DP570技轉', bg='khaki1', font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'570')) 
+        self.Button.grid(column=0,row=1, sticky=tk.W)         
+        self.Button = tk.Button(self.page, text=u'DP310業務',bg='peach puff', font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'310')) 
         self.Button.grid(column=1,row=1, sticky=tk.W) 
-        self.Button = tk.Button(self.page, text=u'DP325 IPC', font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'325')) 
+        self.Button = tk.Button(self.page, text=u'DP325 嵌入式',bg='peach puff', font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'325')) 
         self.Button.grid(column=2,row=1,sticky=tk.W) 
-        self.Button = tk.Button(self.page, text=u'DP350產品中心', font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'350')) 
+        self.Button = tk.Button(self.page, text=u'DP350產品中心',bg='peach puff', font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'350')) 
         self.Button.grid(column=3,row=1, sticky=tk.W) 
-        self.Button = tk.Button(self.page, text=u'DP750研一', font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'750')) 
+        self.Button = tk.Button(self.page, text=u'DP750研一',bg='SkyBlue1', font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'750')) 
         self.Button.grid(column=4,row=1,sticky=tk.W)
-        self.Button = tk.Button(self.page, text=u'DP756研二', font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'756')) 
+        self.Button = tk.Button(self.page, text=u'DP756研二',bg='SkyBlue1', font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'756')) 
         self.Button.grid(column=5,row=1, sticky=tk.W) 
+        self.Button = tk.Button(self.page, text=u'DP754軟體研發',bg='SkyBlue1' ,font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'754')) 
+        self.Button.grid(column=6,row=1,sticky=tk.W) 
         
-        self.Button = tk.Button(self.page, text=u'TCMC撼衛生醫', font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'TCMC')) 
-        self.Button.grid(column=6,row=1, sticky=tk.W)         
+       
         
-        self.Button = tk.Button(self.page, text=u'DP754軟體研發', font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'754')) 
+        self.Button = tk.Button(self.page, text=u'DP120品保', bg='khaki1',font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'120')) 
         self.Button.grid(column=0,row=2,sticky=tk.W) 
-        self.Button = tk.Button(self.page, text=u'DP570技轉', font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'570')) 
-        self.Button.grid(column=1,row=2, sticky=tk.W) 
-        self.Button = tk.Button(self.page, text=u'DP160 RMA', font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'160')) 
+        self.Button = tk.Button(self.page, text=u'DP121測試', bg='khaki1', font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'121')) 
+        self.Button.grid(column=1,row=2, sticky=tk.W)
+
+        self.Button = tk.Button(self.page, text=u'DP160 RMA', bg='khaki1', font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'160')) 
         self.Button.grid(column=2,row=2,sticky=tk.W) 
-        self.Button = tk.Button(self.page, text=u'DP510採購', font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'510')) 
+        self.Button = tk.Button(self.page, text=u'DP510採購', bg='khaki1', font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'510')) 
         self.Button.grid(column=3,row=2,sticky=tk.W)    
-        self.Button = tk.Button(self.page, text=u'DP530船務', font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'530')) 
+        self.Button = tk.Button(self.page, text=u'DP530船務', bg='khaki1', font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'530')) 
         self.Button.grid(column=4,row=2,sticky=tk.W)         
        
-      
+        self.Button = tk.Button(self.page, text=u'TCMC撼衛生醫', bg='misty rose',font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'TCMC')) 
+        self.Button.grid(column=5,row=2, sticky=tk.W)       
+        self.Button = tk.Button(self.page, text=u'IOTU撼智物聯', bg='misty rose', font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,'IOTU')) 
+        self.Button.grid(column=6,row=2, sticky=tk.W)        
        
         varspace=tk.StringVar()
         varspace.set("總共建制人數:"+ str(len(number123))+'位' )
-        spaceLabel= tk.Label(self.page,textvariable=varspace, font=('Arial', 12),justify = tk.LEFT )
+        spaceLabel= tk.Label(self.page,textvariable=varspace, bg='white', font=('Arial', 12),justify = tk.LEFT )
         spaceLabel.grid(column=0, row=3, sticky=tk.W)
         
         varspaceqq=tk.StringVar()
         varspaceqq.set("     *名單為隨機排序" )
-        spaceLabel1= tk.Label(self.page,textvariable=varspaceqq, font=('Arial', 10),justify = tk.LEFT )
+        spaceLabel1= tk.Label(self.page,textvariable=varspaceqq, bg='white', font=('Arial', 10),justify = tk.LEFT )
         spaceLabel1.grid(column=0, row=4, sticky=tk.W)
 
         #從資料夾抓取以建檔名稱
@@ -474,7 +464,7 @@ class mainpage(object):
                     print('persenID',persenID[personq])
                     locals()['self.var'+str(personq)]=tk.StringVar()
                     locals()['self.var'+str(personq)].set(persenID[personq])
-                    locals()['self.textLabel'+str(personq)] = tk.Label(self.page,textvariable=locals()['self.var'+str(personq)], font=('Arial', 10),justify = tk.LEFT)
+                    locals()['self.textLabel'+str(personq)] = tk.Label(self.page,textvariable=locals()['self.var'+str(personq)], bg='white', font=('Arial', 10),justify = tk.LEFT)
                     locals()['self.textLabel'+str(personq)].grid(column=gpart.index(personq)+1, row=line1, sticky=tk.W)
         
     
@@ -495,7 +485,7 @@ class mainpage(object):
                         print('persenID',persenID[personq])
                         locals()['self.var'+str(personq)]=tk.StringVar()
                         locals()['self.var'+str(personq)].set(persenID[personq])
-                        locals()['self.textLabel'+str(personq)] = tk.Label(self.page,textvariable=locals()['self.var'+str(personq)], font=('Arial', 10),justify = tk.LEFT)
+                        locals()['self.textLabel'+str(personq)] = tk.Label(self.page,textvariable=locals()['self.var'+str(personq)], bg='white', font=('Arial', 10),justify = tk.LEFT)
                         locals()['self.textLabel'+str(personq)].grid(column=((gpart.index(personq))%7)+1 , row=line1, sticky=tk.W)
                         if (gpart.index(personq)+1)%7==0 or len(gpart)-1==gpart.index(personq):
                             line1=line1+1
@@ -517,7 +507,7 @@ class mainpage(object):
             print('dpartment',dpart)
             locals()['self.var'+str(dpart)]=tk.StringVar()
             locals()['self.var'+str(dpart)].set(str(dpart)+'部門:  ')
-            locals()['self.textLabel'+str(dpart)] = tk.Label(self.page,textvariable=locals()['self.var'+str(dpart)], bg='green', font=('Arial', 10),justify = tk.LEFT)
+            locals()['self.textLabel'+str(dpart)] = tk.Label(self.page,textvariable=locals()['self.var'+str(dpart)], bg='white', font=('Arial', 10),justify = tk.LEFT)
             locals()['self.textLabel'+str(dpart)].grid(column=column01, row=line1, sticky=tk.W)
             if  len(gpart)<7:              
                 line1=line1+1
@@ -583,23 +573,24 @@ class secondpage(object):
     def __init__(self, master=None,dp=0):
         self.root = master
         self.page = tk.Frame(self.root)
+        self.page.configure(bg='white')
         self.page.grid()
         self.dp=dp
         print('selfdp',self.dp)
-        self.Button = tk.Button(self.page, text=u'主畫面',font=('Arial', 12),justify = tk.LEFT,command=self.mainpage) 
+        self.Button = tk.Button(self.page, text=u'主畫面',bg='medium aquamarine',font=('Arial', 12),justify = tk.LEFT,command=self.mainpage) 
         self.Button.grid(column=0,row=0, sticky=tk.W) 
         
         #空白行
-        spaceLabel= tk.Label(self.page,textvariable="             " )
+        spaceLabel= tk.Label(self.page,textvariable="             " , bg='white')
         spaceLabel.grid(column=0, row=1, sticky=tk.W)
         #空白行
-        spaceLabel= tk.Label(self.page,textvariable="             " )
+        spaceLabel= tk.Label(self.page,textvariable="             " , bg='white')
         spaceLabel.grid(column=0, row=2, sticky=tk.W)        
         
         #題字
         varspace=tk.StringVar()
         varspace.set("部門人員建制名單")
-        spaceLabel= tk.Label(self.page,textvariable=varspace, font=('Arial', 12),justify = tk.LEFT )
+        spaceLabel= tk.Label(self.page,textvariable=varspace, bg='white', font=('Arial', 12),justify = tk.LEFT )
         spaceLabel.grid(column=0, row=3, sticky=tk.W)
         
         #增減人員
@@ -679,7 +670,7 @@ class secondpage(object):
                 #locals()['self.textLabel'+str(personq)] = tk.Label(self.page,textvariable=locals()['self.var'+str(personq)], font=('Arial', 12),justify = tk.LEFT)#显示文字内容 
                 #locals()['self.textLabel'+str(personq)].grid(column=column01, row=line1, sticky=tk.W) #自动对齐,side：方位
                 
-                locals()['self.Button'+str(personq)]= tk.Button(self.page,text =str(personq+' '+persenID[personq]),font=('Arial', 12) ,command=partial(self.personpage1,personq) )
+                locals()['self.Button'+str(personq)]= tk.Button(self.page,text =str(personq+' '+persenID[personq]),bg='light yellow',font=('Arial', 12) ,command=partial(self.personpage1,personq) )
                 locals()['self.Button'+str(personq)].grid(column=column01, row=line1, pady=1, sticky=tk.W)
                 
                 #self.addButton = tk.Button(self.page, text = '新增',command=self.add_callbackFunc )
@@ -705,7 +696,7 @@ class secondpage(object):
                 #https://www.delftstack.com/zh-tw/howto/python-tkinter/how-to-pass-arguments-to-tkinter-button-command/
                 #======learning=====
                 
-                locals()['self.Button'+str(personq)]= tk.Button(self.page,text =str(personq+' '+persenID[personq]),font=('Arial', 12) ,command=partial(self.personpage1,personq) )
+                locals()['self.Button'+str(personq)]= tk.Button(self.page,text =str(personq+' '+persenID[personq]),bg='light yellow',font=('Arial', 12) ,command=partial(self.personpage1,personq) )
                 locals()['self.Button'+str(personq)].grid(column=column01, row=line1, pady=1, sticky=tk.W)
                 #self.addButton = tk.Button(self.page, text = '新增',command=self.add_callbackFunc )
                 #self.addButton.grid(column=3, row=0, pady=1, sticky=tk.W)                 
@@ -830,12 +821,13 @@ class personpage(object):
     def __init__(self, master=None,personq=0):
         self.root = master
         self.page = tk.Frame(self.root)
+        self.page.configure(bg='white')
         self.page.grid()
         
         self.personq=personq
-        self.Button = tk.Button(self.page, text=u'回登入頁',font=('Arial', 12),justify = tk.LEFT,command=self.mainpage ) 
+        self.Button = tk.Button(self.page, text=u'回登入頁',bg='medium aquamarine',font=('Arial', 12),justify = tk.LEFT,command=self.mainpage ) 
         self.Button.grid(column=0,row=0 , sticky=tk.W ) 
-        self.Button = tk.Button(self.page, text=u'返回',font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,pdID[personq])) 
+        self.Button = tk.Button(self.page, text=u'返回',bg='medium aquamarine',font=('Arial', 12),justify = tk.LEFT,command=partial(self.secpage,pdID[personq])) 
         self.Button.grid(columnspan=2 , row=0 , sticky=tk.N+tk.S)         
         
         #製作一年日期的查詢表
@@ -897,12 +889,12 @@ class personpage(object):
         self.callbackallthing(values1)
         #print('self.onlyRemote1',self.onlyRemote1)        
         
-        spaceLabel= tk.Label(self.page,textvariable="             " )
+        spaceLabel= tk.Label(self.page,textvariable="             ", bg='white' )
         spaceLabel.grid(column=0, row=1, sticky=tk.W)
         
         varspace=tk.StringVar()
         varspace.set("個人頁面查詢： "+self.personq+ ' ' +persenID[personq] )
-        spaceLabel= tk.Label(self.page,textvariable=varspace, font=('Arial', 12),justify = tk.LEFT )
+        spaceLabel= tk.Label(self.page,textvariable=varspace, bg='white', font=('Arial', 12),justify = tk.LEFT )
         spaceLabel.grid(column=0, row=2, sticky=tk.W)
         
         
@@ -914,13 +906,13 @@ class personpage(object):
         print('values1',values1)
         varspace=tk.StringVar()
         varspace.set("選擇月份：")
-        spaceLabel= tk.Label(self.page,textvariable=varspace, font=('Arial', 12),justify = tk.LEFT )
+        spaceLabel= tk.Label(self.page,textvariable=varspace, bg='white', font=('Arial', 12),justify = tk.LEFT )
         spaceLabel.grid(column=0, row=3, sticky=tk.W)
         
         
         
         #選擇月份bar
-        self.comboExample = ttk.Combobox(self.page, width=7 ,values=values1, font=('Arial', 12),state="readonly") 
+        self.comboExample = ttk.Combobox(self.page, width=7 ,values=values1 ,  font=('Arial', 12),state="readonly") 
         
         
         print(dict(self.comboExample)) 
@@ -929,17 +921,17 @@ class personpage(object):
         print(self.comboExample.current(), self.comboExample.get())
     
         #選擇月份事件按鈕
-        self.addButton = tk.Button(self.page, text = '查詢',command=partial(self.month_callbackFunc,personq), font=('Arial', 12) )
+        self.addButton = tk.Button(self.page, text = '查詢',command=partial(self.month_callbackFunc,personq),bg='PaleGreen3', font=('Arial', 12) )
         self.addButton.grid(column=0, row=3, pady=1, sticky=tk.E)        
         
         
         
         
         #選擇月份事件按鈕
-        self.addButton = tk.Button(self.page, text = '重新整理',command=partial(self.callbackallthingFlesh,values1), font=('Arial', 12) )
+        self.addButton = tk.Button(self.page, text = '重新整理',command=partial(self.callbackallthingFlesh,values1),bg='PaleGreen3', font=('Arial', 12) )
         self.addButton.grid(column=1, row=3, pady=1, sticky=tk.E) 
         #選擇月份事件按鈕
-        self.addButton = tk.Button(self.page, text = '匯出檔案',command=self.exportfile, font=('Arial', 12) )
+        self.addButton = tk.Button(self.page, text = '匯出檔案',command=self.exportfile,bg='PaleGreen3', font=('Arial', 12) )
         self.addButton.grid(column=2, row=3, pady=1, sticky=tk.E)         
         
         self.var1 = tk.StringVar()
@@ -948,20 +940,20 @@ class personpage(object):
         #circleLabel= tk.Label(self.page,textvariable=self.var1, font=('Arial', 12),justify = tk.LEFT )
         #circleLabel.grid(column=1, row=3, sticky=tk.W)   
         #self.var1.grid(column=0, row=4,sticky=tk.N+tk.S)
-        self.selectcircle=tk.Radiobutton(self.page,text = '合併檢視', variable=self.var1, value='A',command=partial(self.month_callbackFunc,personq)   , font=('Arial', 12) )
+        self.selectcircle=tk.Radiobutton(self.page,text = '合併檢視', variable=self.var1, value='A',command=partial(self.month_callbackFunc,personq)  , bg='white' , font=('Arial', 12) )
         self.selectcircle.grid(column=0, row=4, pady=0, sticky=tk.W)      
         
-        self.selectcircle=tk.Radiobutton(self.page,text = '檢視晶片卡',variable=self.var1,value='B',command=partial(self.show_idcard_callbackFunc,personq)   , font=('Arial', 12) )
+        self.selectcircle=tk.Radiobutton(self.page,text = '檢視晶片卡',variable=self.var1,value='B',command=partial(self.show_idcard_callbackFunc,personq) , bg='white'  , font=('Arial', 12) )
         self.selectcircle.grid(column=0,columnspan=2, row=4, pady=0, sticky=tk.N+tk.S)       
         
-        self.selectcircle=tk.Radiobutton(self.page,text = '檢視人臉識別', variable=self.var1,value='C',command=partial(self.show_face_callbackFunc,personq)  , font=('Arial', 12) )
+        self.selectcircle=tk.Radiobutton(self.page,text = '檢視人臉識別', variable=self.var1,value='C',command=partial(self.show_face_callbackFunc,personq) , bg='white' , font=('Arial', 12) )
         self.selectcircle.grid(column=0,columnspan=2, row=4, pady=0, sticky=tk.E)   
         
-        self.selectcircle=tk.Radiobutton(self.page,text = '公出及遠端', variable=self.var1,value='D',command=partial(self.show_remote_callbackFunc,personq)  , font=('Arial', 12) )
+        self.selectcircle=tk.Radiobutton(self.page,text = '公出及遠端', variable=self.var1,value='D',command=partial(self.show_remote_callbackFunc,personq) , bg='white' , font=('Arial', 12) )
         self.selectcircle.grid(column=0,columnspan=2, row=5, pady=0, sticky=tk.E)         
         
         #空白
-        spaceLabel= tk.Label(self.page,textvariable="             " )
+        spaceLabel= tk.Label(self.page,textvariable="             ", bg='white' )
         spaceLabel.grid(column=0, row=6, sticky=tk.W)          
         
         path88='datas/remote/'+self.personq+'/'
@@ -1137,7 +1129,7 @@ class personpage(object):
         tree.column("第一筆時間",width=100)
         tree.column("最後筆時間",width=100)
         tree.column("時數",width=100)
-        tree.column("事由",width=100)
+        tree.column("事由",width=150)
         tree.heading("狀態別",text="狀態別")  #显示表头
         tree.heading("日期",text="日期")  #显示表头
         tree.heading("第一筆時間",text="第一筆時間")
@@ -1146,8 +1138,8 @@ class personpage(object):
         tree.heading("事由",text="事由")     
         #tree.insert("", insert_mode, text='name first col')
         style = ttk.Style()
-        style.configure("Treeview", font=('Arial',12))
-        style.configure("Treeview.Heading", font=('Arial', 12))     
+        style.configure("Treeview", background="light cyan", font=('Arial',12))
+        style.configure("Treeview.Heading", bg='light cyan', font=('Arial', 12))     
         
         line123=0
         for d in self.uniquedate:
@@ -1724,7 +1716,7 @@ class personpage(object):
         tree.column("第一筆時間",width=100)
         tree.column("最後筆時間",width=100)
         tree.column("時數",width=100)
-        tree.column("事由",width=100)
+        tree.column("事由",width=150)
         tree.heading("狀態別",text="狀態別")  #显示表头
         tree.heading("日期",text="日期")  #显示表头
         tree.heading("第一筆時間",text="第一筆時間")
@@ -1942,7 +1934,7 @@ class personpage(object):
             tree.column("日期",width=130)   #表示列,不显示
             tree.column("第一筆時間",width=100)
             tree.column("最後筆時間",width=100)
-            tree.column("事由",width=100)
+            tree.column("事由",width=150)
             tree.column("地點",width=100)
             tree.heading("狀態別",text="狀態別")  #显示表头
             tree.heading("日期",text="日期")  #显示表头
@@ -2115,7 +2107,7 @@ class personpage(object):
             tree.column("日期",width=130)   #表示列,不显示
             tree.column("第一筆時間",width=100)
             tree.column("最後筆時間",width=100)
-            tree.column("事由",width=100)
+            tree.column("事由",width=150)
             tree.column("地點",width=100)
             tree.heading("狀態別",text="狀態別")  #显示表头
             tree.heading("日期",text="日期")  #显示表头
@@ -2203,7 +2195,7 @@ class personpage(object):
             tree.column("日期",width=130)   #表示列,不显示
             tree.column("第一筆時間",width=100)
             tree.column("最後筆時間",width=100)
-            tree.column("事由",width=100)
+            tree.column("事由",width=150)
             tree.column("地點",width=100)
             tree.heading("狀態別",text="狀態別")  #显示表头
             tree.heading("日期",text="日期")  #显示表头
@@ -2480,7 +2472,7 @@ root = tk.Tk()
 
 root.title('撼訊科技 門禁管理系統')
 root.geometry('1000x850')
-
+root.configure(bg='white')
 menubar = tk.Menu(root)
 filemenu = tk.Menu(menubar, tearoff=0)
 
@@ -2488,9 +2480,10 @@ menubar.add_cascade(label='開始', menu=filemenu)
 
 # 在File中加入New、Open、Save等小菜单，即我们平时看到的下拉菜单，每一个小菜单对应命令操作。
 
-filemenu.add_command(label='員工資料建立', command=facebuind )
-filemenu.add_command(label='偏好設定', command=helloworld)
-filemenu.add_command(label='後台管理', command=helloworld)
+filemenu.add_command(label='1.員工資料建立', command=facebuind )
+filemenu.add_command(label='2.模型訓練', command=traindata)
+#filemenu.add_command(label='偏好設定', command=helloworld)
+
 filemenu.add_separator()    # 添加一条分隔线
 
 
@@ -2501,16 +2494,21 @@ menubar.add_cascade(label='執行', menu=editmenu)
 
 # 同样的在 Edit 中加入Cut、Copy、Paste等小命令功能单元，如果点击这些单元, 就会触发do_job的功能
 #b=secondpage()
-editmenu.add_command(label='門禁系統啟動', command=rundetect )
-editmenu.add_command(label='出缺勤日報表', command=helloworld)
-editmenu.add_command(label='陌生人管理', command=helloworld)
+editmenu.add_command(label='門禁系統啟動(限Linux系統)', command=rundetect )
+editmenu.add_command(label='出缺勤個人版本', command=runpersonversion)
+editmenu.add_command(label='登錄公出單', command=runinputoutside)
 
 # 第8步，创建第二级菜单，即菜单项里面的菜单
 submenu = tk.Menu(filemenu) # 和上面定义菜单一样，不过此处实在File上创建一个空的菜单
+filemenu.add_command(label='偏好設定', command=helloworld)
 filemenu.add_cascade(label='匯入ID card資料', menu=submenu, underline=0) # 给放入的菜单submenu命名为Import
+#filemenu.add_command(label='偏好設定', command=helloworld)
+
 
 # 第9步，创建第三级菜单命令，即菜单项里面的菜单项里面的菜单命令（有点拗口，笑~~~）
 submenu.add_command(label='從本機匯入', command=setectfile)   # 这里和上面创建原理也一样，在Import菜单项中加入一个小菜单命令Submenu_1
+
+#submenu.add_command(label='偏好設定', command=helloworld)
 
 filemenu.add_command(label='離開', command=root.destroy) # 用tkinter里面自带的quit()函数
 # 第11步，创建菜单栏完成后，配置让菜单栏menubar显示出来

@@ -1,6 +1,7 @@
 from tkinter import *
 import cv2,os
 from PIL import Image,ImageTk
+from tkinter import filedialog
 from datetime import datetime, timedelta
 import numpy as np
 import glob
@@ -12,10 +13,18 @@ newid=0
 newdate=datetime.now().strftime("%Y-%m-%d")
 import random
 import time
+import tkinter as tk
+import tkinter.messagebox
 countframe=0
 initfile=0
 
 
+def browsefunc(): 
+    filename = filedialog.askopenfilename() 
+    pathlabel.config(text=filename) 
+
+def no_file_worning2():
+    tk.messagebox.showwarning( title='錯誤', message='無攝影鏡頭')     
 def video_loop():
     success, img = camera.read()  # 從camera輸入影像
     
@@ -54,6 +63,7 @@ def add_result():
     print('nameString',nameString.get())   
     print('egnameString',egnameString.get())  
     print('pdString',pdString.get())  
+    print('bdString',bdString.get())  
     newdate=datetime.now().strftime("%Y-%m-%d")
     global initfile
     #buildin人臉識別資料 / register人臉圖資  / 工號 / 中文名 / 英文名 / 部門 / buildin人臉識別資料日期 / register人臉圖資日期
@@ -80,7 +90,7 @@ def add_result():
        
         
         finalid=[]
-        finalid.append('0,1,'+idnumberString.get() +','+nameString.get() +','+egnameString.get() +','+pdString.get() +',none,'+'register-'+newdate )
+        finalid.append('0,1,'+idnumberString.get() +','+nameString.get() +','+egnameString.get() +','+pdString.get() +','+bdString.get() +','+'register-'+newdate )
         
         print('finalid',finalid)
         
@@ -115,7 +125,7 @@ def add_result():
             
             
             finalid=[]
-            finalid.append('0,1,'+idnumberString.get() +','+nameString.get() +','+egnameString.get() +','+pdString.get() +',none,'+'register-'+newdate )
+            finalid.append('0,1,'+idnumberString.get() +','+nameString.get() +','+egnameString.get() +','+pdString.get() +','+bdString.get() +','+'register-'+newdate )
             
             print('finalid',finalid)
             
@@ -292,6 +302,11 @@ varpd.set("  部門")
 pdLabel= Label(root,textvariable=varpd, font=('Arial', 12),justify = RIGHT )
 pdLabel.grid(column=0, row=7, sticky=W) 
 
+varpd=StringVar()
+varpd.set("  西元生日")
+pdLabel= Label(root,textvariable=varpd, font=('Arial', 12),justify = RIGHT )
+pdLabel.grid(column=1, row=7, sticky=W) 
+
 
 #填字匡
 idnumberString = StringVar()
@@ -309,6 +324,10 @@ entryegname.grid(column=0, row=6, padx=1,sticky=N+S)
 pdString = StringVar()
 entrypd = Entry(root, width=20, textvariable=pdString)
 entrypd.grid(column=0, row=7, padx=1,sticky=N+S)
+
+bdString = StringVar()
+entrybd = Entry(root, width=20, textvariable=bdString)
+entrybd.grid(column=2, row=7, padx=1,sticky=N+S)
 
 
 btn = Button(root, text="註冊", font=('Arial', 12), command=add_result)
@@ -330,13 +349,18 @@ getframe_resultLabel.grid(column=1, row=9, padx=1, sticky=W)
 btn = Button(root, text="停止", font=('Arial', 12), command=stop_result )
 btn.grid(column=0, row=10, sticky=W)
 
+btn = Button(root, text="打開資料夾", font=('Arial', 12), command=browsefunc )
+btn.grid(column=1, row=10, sticky=W)
+
 stop_resultString=StringVar()
 stop_resultLabel = Label(root, textvariable=stop_resultString,fg="#228B22", font=('Arial', 12))
 stop_resultLabel.grid(column=1, row=10, padx=1, sticky=W)  
 
+try:
+    video_loop()
 
-video_loop()
-
+except:
+    no_file_worning2()
 root.mainloop()
 
 camera.release()
