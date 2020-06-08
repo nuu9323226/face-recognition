@@ -34,8 +34,10 @@ import re
 from datetime import datetime, timedelta
 from multiprocessing import Process, Pipe
 #import queue
+
 import chardet
-from ftplib import FTP
+#from ftplib import FTP
+from ftplib import FTP_TLS
 #from PIL import Image, ImageTk
 #update release 2019/12/23 v2.0 更新gui為同一份code,整合成兩個threading
 #update release 2019/12/24 v2.1更新清除登入門禁人物資訊
@@ -572,11 +574,13 @@ def refleshDay():
             
         #ftp參考    
         #https://www.itread01.com/content/1549578987.html
-        ftp = FTP()
-        timeout = 30
-        port = 21
-        ftp.connect('192.168.91.158',port,timeout) # 連線FTP伺服器
-        ftp.login('Vincent','helloworld') # 登入
+        #ftp = FTP()
+        #timeout = 30
+        #port = 21
+        ftp=FTP_TLS('dsm2.tul.com.tw')
+        #ftp.connect('192.168.91.158',port,timeout) # 連線FTP伺服器
+        ftp.login('TulAccessControl','@Tul760acc') # 登入
+        ftp.encoding='utf-8'
         print (ftp.getwelcome())  # 獲得歡迎資訊 
         #d=ftp.cwd('home/AccessFace/')    # 設定FTP路徑
         name=mdate+'-face.csv'

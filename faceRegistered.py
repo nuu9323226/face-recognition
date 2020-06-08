@@ -18,13 +18,68 @@ import tkinter.messagebox
 countframe=0
 initfile=0
 
+def read_train_object():
+    train_name = open(path_database+Employeefile,'r') 
+    
+    lines = train_name.readlines()
+    count=0
+    for a in lines:
+        b=a.split('\n')
+        lines[count]=b[0]
+        count += 1
+    train_name.close
+    return lines
 
-def browsefunc(): 
-    filename = filedialog.askopenfilename() 
-    pathlabel.config(text=filename) 
+def person_pd_ID():
+    allname=read_train_object()
+    #print('allname',allname)
+    name123=[]
+    number123=[]
+    pd123=[]
+    pwd123=[]
+    buitin123=[] #是否有影像訓練過
+    enname123=[]
+    
+    for a in allname:
+        #print(a)
+        all_23=a.split(",")
+        #print(all_23)
+        number15=all_23[2]
+        name15=all_23[3]
+        enname15=all_23[4]
+        pd15=all_23[5]
+        pwd15=all_23[6]
+        buitin15=all_23[0]
+        
+        number123.append(number15)
+        name123.append(name15)
+        pd123.append(pd15)
+        pwd123.append(pwd15)
+        buitin123.append(buitin15)
+        enname123.append(enname15)
+    #print(name123)
+    #print(number123)
+    #print(pd123)
+
+    persenID = dict(zip(number123, name123))
+    pdID = dict(zip(number123, pd123))
+    fullID=dict(zip(number123,allname) )
+    pwdID=dict(zip(number123,pwd123) )
+    nameID=dict(zip(name123,number123) )
+    buitinID=dict(zip(number123,buitin123) )
+    ennameID=dict(zip(number123,enname123) )
+    
+    
+    print('buitinID',str(buitinID))
+    print(persenID)
+    print(pdID)
+    return number123,persenID,pdID,fullID,pwdID,nameID,buitinID,ennameID
+
 
 def no_file_worning2():
-    tk.messagebox.showwarning( title='錯誤', message='無攝影鏡頭')     
+    tk.messagebox.showwarning( title='錯誤', message='無攝影鏡頭')   
+def no_file_worning3():
+    tk.messagebox.showwarning( title='錯誤', message='無此資料夾')      
 def video_loop():
     success, img = camera.read()  # 從camera輸入影像
     
@@ -225,7 +280,21 @@ def getframe_result(): #開始紀錄
         newid=idnumberString.get()    
 
 
-
+def openfile():
+    number123,persenID,pdID,fullID,pwdID,nameID,buitinID,ennameID=person_pd_ID()
+    path='~/facenet/models/person/'
+    
+    
+    #if not os.path.isdir(path+idnumberString.get()+'_'+ennameID[idnumberString.get()]):
+        #print('cant find file '+path+idnumberString.get()+'_'+ennameID[idnumberString.get()])    
+        #no_file_worning3()
+    #else :
+    try:
+        print ('datas/remote/'+path+idnumberString.get()+'_'+ennameID[idnumberString.get()]+'   => file exist')        
+        os.system("nautilus %s"%(path+idnumberString.get()+'_'+ennameID[idnumberString.get()] )) 
+    except:
+        no_file_worning3()
+    
 def stop_result():
     global recoding
     recoding=0
@@ -264,6 +333,7 @@ panel = Label(root)  # initialize image panel
 panel.grid(columnspan=9, row=2, sticky='W')
 root.config(cursor="arrow")
 
+number123,persenID,pdID,fullID,pwdID,nameID,buitinID,ennameID=person_pd_ID()
 
 varnumber=StringVar()
 varnumber.set("    撼訊科技 員工人臉資料庫 管理系統")
@@ -349,8 +419,8 @@ getframe_resultLabel.grid(column=1, row=9, padx=1, sticky=W)
 btn = Button(root, text="停止", font=('Arial', 12), command=stop_result )
 btn.grid(column=0, row=10, sticky=W)
 
-btn = Button(root, text="打開資料夾", font=('Arial', 12), command=browsefunc )
-btn.grid(column=1, row=10, sticky=W)
+btn = Button(root, text="打開資料夾", font=('Arial', 12), command=openfile )
+btn.grid(column=2, row=10, sticky=E)
 
 stop_resultString=StringVar()
 stop_resultLabel = Label(root, textvariable=stop_resultString,fg="#228B22", font=('Arial', 12))

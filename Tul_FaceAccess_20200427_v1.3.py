@@ -2,6 +2,7 @@ import datetime,os
 import tkinter as tk
 import tkinter.messagebox
 import glob
+import time
 import numpy as np
 #from PIL import Image, ImageTk
 from functools import partial
@@ -12,6 +13,8 @@ from ftplib import FTP_TLS
 from tkinter import filedialog
 from datetime import datetime, timedelta
 from tkinter.filedialog import askdirectory
+#from multiprocessing import Process, Pipe
+import threading
 VERSON='20200521'
 # windows版本打包指令 pyinstaller -F -w .\Tul_FaceAccess_20200427_v1.3.py -i tul_logo.ico
 # windows版本 更改 Arial==>微軟正黑體
@@ -24,9 +27,9 @@ VERSON='20200521'
 import xlrd
 #需要安裝sudo pip3 install xlrd
 import csv
-
+import queue
 dpartment=[100,120,121,150,210,220,230,310,325,350,750,756,754,570,160,510,530,'IOTU','TCMC']
-
+q = queue.Queue(maxsize = 300)
 
 
 
@@ -198,8 +201,40 @@ def person_pd_ID():
 
 
 
+
+def progress():
+    global current
+    current=0
+    window_sign_up = tk.Tk()
+    window_sign_up.geometry('380x100')
+    window_sign_up.title('匯入晶片卡資料')
+    
+    pwdLabel=tk.Label(window_sign_up, text='匯入進度 ' ,font=('Arial', 12))
+    pwdLabel.pack(side=tk.LEFT    )       
+    
+    progressbar=ttk.Progressbar(window_sign_up,orient="horizontal",length=280,mode="determinate")
+    progressbar.pack(side=tk.LEFT    )   
+    maxValue=100
+    progressbar["maximum"]=maxValue
+    for i in range(95):
+ 
+        progressbar['value']=i ##
+
+        progressbar.update()
+        time.sleep(0.05)    
+        if current==100:
+            progressbar['value']=100
+            break
+    if current==100:
+        progressbar['value']=100
+    window_sign_up.mainloop()
+
 def setectfile():
     
+         
+      
+    #研究進度把條
+    #https://riptutorial.com/zh-TW/tkinter/example/31887/%E9%80%B2%E5%BA%A6%E6%A2%9D
     if len(glob.glob('datas/database_Employee.csv') ) ==0:
         try:
             f=open('datas/database_Employee.csv', 'wb')
@@ -214,103 +249,121 @@ def setectfile():
     number123,persenID,pdID,nameID,engnameID,fullID=person_pd_ID()
     
     
-    file_path = filedialog.askopenfilename()
+    
+    
+
+    
     #print(file_path)
     pathtofile='datas/'
     
-    xlsx_to_csv(file_path,pathtofile)
-    sp1=file_path.split('/')
-    sp2=os.path.splitext(sp1[-1])[0]
-    onlyuse = np.loadtxt(open(pathtofile+sp2+'.csv',encoding='utf-8'),dtype=np.str,delimiter=',',usecols=(0,3,4,5))
-    onlyuse = np.delete(onlyuse, 0, axis=0)
-    #print('onlyuse',onlyuse)
-    #將日期從202002 ==> 2020/02
-    sp3=sp2[:6]
-    
-    #try:
-    a=int(sp3)
-    try:
-        os.remove(pathtofile+sp3+'-idcard.csv')
-        print(pathtofile+sp3+'-idcard.csv 刪除成功' )
-    except:
-        print('datas'+sp3+'-idcard.csv 檔案不存在')
-    daymonth=sp3[:4]+'/'+sp3[4:]
-    #取出第一排日期，並刪除重複項目
-    date=onlyuse[:,0]
-    uniquedate = np.unique(date)
-    #self.uniquedate = np.argsort(self.uniquedate)
-    print(uniquedate)
-    #符合檔名的202002的月份才取出其index 例如2020/02/01
-    finalid=[]
-    for ddd in uniquedate:
-        if daymonth in ddd: #ddd為20200201 daymonth為202002
-            print('ddd yes',ddd)
-            use_dayindex=np.argwhere(onlyuse==ddd)
-            print('use_dayindex',use_dayindex)
-            d2d=ddd[:4]+'-'+ddd[5:7]+'-'+ddd[8:]
-            dayonlyuse=onlyuse[use_dayindex[:,0]]
-            print('dayonlyuse',dayonlyuse)
-            #在該日期2020/02/01下針對name.txt有註冊的每個人取行
-            for idfile in number123:
-                print('start to name: ' +idfile)
-                dayonlyuseindex=np.argwhere(dayonlyuse==persenID[idfile])
-                print('start to twzh name: ' +persenID[idfile])
-                dayperson_only=dayonlyuse[dayonlyuseindex[:,0]]
-                print('dayperson_only',dayperson_only)
-                
-                #上班
-                if  dayperson_only[:,2] != ''  :
-                    print(dayperson_only[0,2])
-                    dn2=dayperson_only[0,2]
-                    final = 'idcard,'+ idfile +','+engnameID[idfile] +','+ pdID[idfile] +','+d2d+','+dn2+':00'
-                    finalid.append(final)
-                #下班
-                if  dayperson_only[:,3] != ''  :
-                    print(dayperson_only[0,3])
-                    dn3=dayperson_only[0,3]
-                    final = 'idcard,'+ idfile +','+engnameID[idfile] +','+ pdID[idfile] +','+d2d+','+dn3+':00'
-                    finalid.append(final)       
+    file_path = filedialog.askopenfilename()
+    print('file_path',file_path)
+    if not file_path: 
+        print('not file link')
+        
+    else:
+        
+        global current
+        ts=threading.Thread(target=progress)
+        ts.start()  
+     
+        xlsx_to_csv(file_path,pathtofile)
+        sp1=file_path.split('/')
+        sp2=os.path.splitext(sp1[-1])[0]
+        onlyuse = np.loadtxt(open(pathtofile+sp2+'.csv',encoding='utf-8'),dtype=np.str,delimiter=',',usecols=(0,3,4,5))
+        onlyuse = np.delete(onlyuse, 0, axis=0)
+        #print('onlyuse',onlyuse)
+        #將日期從202002 ==> 2020/02
+        sp3=sp2[:6]
+        
+        #try:
+        a=int(sp3)
+        try:
+            os.remove(pathtofile+sp3+'-idcard.csv')
+            print(pathtofile+sp3+'-idcard.csv 刪除成功' )
+        except:
+            print('datas'+sp3+'-idcard.csv 檔案不存在')
+        daymonth=sp3[:4]+'/'+sp3[4:]
+        #取出第一排日期，並刪除重複項目
+        date=onlyuse[:,0]
+        uniquedate = np.unique(date)
+        #self.uniquedate = np.argsort(self.uniquedate)
+        print(uniquedate)
+        #符合檔名的202002的月份才取出其index 例如2020/02/01
+        finalid=[]
+        for ddd in uniquedate:
+            if daymonth in ddd: #ddd為20200201 daymonth為202002
+                print('ddd yes',ddd)
+                use_dayindex=np.argwhere(onlyuse==ddd)
+                print('use_dayindex',use_dayindex)
+                d2d=ddd[:4]+'-'+ddd[5:7]+'-'+ddd[8:]
+                dayonlyuse=onlyuse[use_dayindex[:,0]]
+                print('dayonlyuse',dayonlyuse)
+                #在該日期2020/02/01下針對name.txt有註冊的每個人取行
+                for idfile in number123:
+                    print('start to name: ' +idfile)
+                    dayonlyuseindex=np.argwhere(dayonlyuse==persenID[idfile])
+                    print('start to twzh name: ' +persenID[idfile])
+                    dayperson_only=dayonlyuse[dayonlyuseindex[:,0]]
+                    print('dayperson_only',dayperson_only)
+                    
+                    #上班
+                    if  dayperson_only[:,2] != ''  :
+                        print(dayperson_only[0,2])
+                        dn2=dayperson_only[0,2]
+                        final = 'idcard,'+ idfile +','+engnameID[idfile] +','+ pdID[idfile] +','+d2d+','+dn2+':00'
+                        finalid.append(final)
+                    #下班
+                    if  dayperson_only[:,3] != ''  :
+                        print(dayperson_only[0,3])
+                        dn3=dayperson_only[0,3]
+                        final = 'idcard,'+ idfile +','+engnameID[idfile] +','+ pdID[idfile] +','+d2d+','+dn3+':00'
+                        finalid.append(final)    
             
                 
-                      
-                        
-    with open(pathtofile+sp3+'-idcard.csv','a') as f: 
-        np.savetxt(f, finalid,fmt='%s', delimiter=",")
-    f.close
-    
-    try:
-        os.remove(pathtofile+sp2+'.csv')
-        print(pathtofile+sp2+'.csv 刪除成功')
-    except:
-        print(pathtofile+sp2+'.csv 檔案不存在')        
-    
-    
-    ftp = FTP()
-    timeout = 30
-    port = 21
-    ftp=FTP_TLS('192.168.91.158')
-    #ftp.connect('192.168.99.158',port,timeout) # 連線FTP伺服器
-    ftp.login('Vincent','helloworld') # 登入
-    print (ftp.getwelcome())  # 獲得歡迎資訊 
-    #d=ftp.cwd('home/AccessFace/')    # 設定FTP路徑     
-    try:
-        #d=ftp.cwd('home/AccessFace/')
-        ftp.storbinary('STOR '+'home/AccessFace/month/'+sp3+'-idcard.csv' , open(pathtofile+sp3+'-idcard.csv', 'rb')) # 上傳FTP檔案
-        print("succes upload: " +'home/AccessFace/month/'+sp3+'-idcard.csv')
-    except:
-        print("upload failed. check.......................")
+                    
+                          
+                            
+        with open(pathtofile+sp3+'-idcard.csv','a') as f: 
+            np.savetxt(f, finalid,fmt='%s', delimiter=",")
+        f.close
         
-    ftp.quit()                  # 退出FTP伺服器      
+        try:
+            os.remove(pathtofile+sp2+'.csv')
+            print(pathtofile+sp2+'.csv 刪除成功')
+        except:
+            print(pathtofile+sp2+'.csv 檔案不存在')        
+        
     
-    tkinter.messagebox.showinfo(title='成功訊息', message=sp3[:4]+'年'+sp3[4:]+'月資料已匯入完成')
+        ftp = FTP()
+        timeout = 30
+        port = 21
+        ftp=FTP_TLS('192.168.91.158')
+        #ftp.connect('192.168.99.158',port,timeout) # 連線FTP伺服器
+        ftp.login('Vincent','helloworld') # 登入
+        print (ftp.getwelcome())  # 獲得歡迎資訊 
+        #d=ftp.cwd('home/AccessFace/')    # 設定FTP路徑     
+        try:
+            #d=ftp.cwd('home/AccessFace/')
+            ftp.storbinary('STOR '+'home/AccessFace/month/'+sp3+'-idcard.csv' , open(pathtofile+sp3+'-idcard.csv', 'rb')) # 上傳FTP檔案
+            print("succes upload: " +'home/AccessFace/month/'+sp3+'-idcard.csv')
+        except:
+            print("upload failed. check.......................")
+            
+        ftp.quit()                  # 退出FTP伺服器 
+        
+        current=100
     
-    #except:
-        #try:
-            #os.remove(pathtofile+sp2+'.csv')
-            #print(pathtofile+sp2+'.csv 刪除成功')
+        time.sleep(1)
+        tkinter.messagebox.showinfo(title='成功訊息', message=sp3[:4]+'年'+sp3[4:]+'月資料已匯入完成')
+        
         #except:
-            #print(pathtofile+sp2+'.csv 檔案不存在')  
-        #tk.messagebox.showwarning( title='錯誤', message='請將檔名設置yyyymm開頭')
+            #try:
+                #os.remove(pathtofile+sp2+'.csv')
+                #print(pathtofile+sp2+'.csv 刪除成功')
+            #except:
+                #print(pathtofile+sp2+'.csv 檔案不存在')  
+            #tk.messagebox.showwarning( title='錯誤', message='請將檔名設置yyyymm開頭')
         
 def xlsx_to_csv(file_path,savepath):
     workbook = xlrd.open_workbook(file_path)
@@ -949,7 +1002,7 @@ class personpage(object):
         self.selectcircle=tk.Radiobutton(self.page,text = '檢視人臉識別', variable=self.var1,value='C',command=partial(self.show_face_callbackFunc,personq) , bg='white' , font=('Arial', 12) )
         self.selectcircle.grid(column=0,columnspan=2, row=4, pady=0, sticky=tk.E)   
         
-        self.selectcircle=tk.Radiobutton(self.page,text = '公出及遠端', variable=self.var1,value='D',command=partial(self.show_remote_callbackFunc,personq) , bg='white' , font=('Arial', 12) )
+        self.selectcircle=tk.Radiobutton(self.page,text = '公出', variable=self.var1,value='D',command=partial(self.show_remote_callbackFunc,personq) , bg='white' , font=('Arial', 12) )
         self.selectcircle.grid(column=0,columnspan=2, row=5, pady=0, sticky=tk.E)         
         
         #空白
@@ -2478,40 +2531,38 @@ filemenu = tk.Menu(menubar, tearoff=0)
 
 menubar.add_cascade(label='開始', menu=filemenu)
 
-# 在File中加入New、Open、Save等小菜单，即我们平时看到的下拉菜单，每一个小菜单对应命令操作。
 
-filemenu.add_command(label='1.員工資料建立', command=facebuind )
-filemenu.add_command(label='2.模型訓練', command=traindata)
-#filemenu.add_command(label='偏好設定', command=helloworld)
-
-filemenu.add_separator()    # 添加一条分隔线
+filemenu.add_command(label='步驟1:員工資料建立', command=facebuind )
+filemenu.add_command(label='步驟2:模型訓練', command=traindata)
 
 
-# 第7步，创建一个Edit菜单项（默认不下拉，下拉内容包括Cut，Copy，Paste功能项）
+filemenu.add_separator()    # 分隔線
+
+
+# 創見母列表
 editmenu = tk.Menu(menubar, tearoff=0)
-# 将上面定义的空菜单命名为 Edit，放在菜单栏中，就是装入那个容器中
 menubar.add_cascade(label='執行', menu=editmenu)
 
-# 同样的在 Edit 中加入Cut、Copy、Paste等小命令功能单元，如果点击这些单元, 就会触发do_job的功能
-#b=secondpage()
+
 editmenu.add_command(label='門禁系統啟動(限Linux系統)', command=rundetect )
 editmenu.add_command(label='出缺勤個人版本', command=runpersonversion)
 editmenu.add_command(label='登錄公出單', command=runinputoutside)
 
-# 第8步，创建第二级菜单，即菜单项里面的菜单
-submenu = tk.Menu(filemenu) # 和上面定义菜单一样，不过此处实在File上创建一个空的菜单
+# 創見子列表
+submenu = tk.Menu(filemenu, tearoff=0) 
+#https://jennaweng0621.pixnet.net/blog/post/403560656-%5Bpython%5D-tkinter-%E9%81%B8%E5%96%AE%E6%AC%84%28menu%29
 filemenu.add_command(label='偏好設定', command=helloworld)
-filemenu.add_cascade(label='匯入ID card資料', menu=submenu, underline=0) # 给放入的菜单submenu命名为Import
+
+#增加子選單名稱
+filemenu.add_cascade(label='匯入晶片卡資料', menu=submenu, underline=0) 
 #filemenu.add_command(label='偏好設定', command=helloworld)
 
-
-# 第9步，创建第三级菜单命令，即菜单项里面的菜单项里面的菜单命令（有点拗口，笑~~~）
-submenu.add_command(label='從本機匯入', command=setectfile)   # 这里和上面创建原理也一样，在Import菜单项中加入一个小菜单命令Submenu_1
+submenu.add_command(label='從本機匯入', command=setectfile)  
 
 #submenu.add_command(label='偏好設定', command=helloworld)
 
-filemenu.add_command(label='離開', command=root.destroy) # 用tkinter里面自带的quit()函数
-# 第11步，创建菜单栏完成后，配置让菜单栏menubar显示出来
+filemenu.add_command(label='離開', command=root.destroy) # 離開
+# menubar顯示出来
 
 readmenu = tk.Menu(menubar, tearoff=0)
 menubar.add_cascade(label='說明', menu=readmenu)

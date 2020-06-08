@@ -1,0 +1,10 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=false
+Icon[zh_TW]=/home/vincent/桌面/logo.png
+Exec=sh /home/vincent/facenet/real-time-deep-face-recognition/run.sh
+Name[zh_TW]=face
+Name=face
+Icon=/home/vincent/桌面/logo.png
