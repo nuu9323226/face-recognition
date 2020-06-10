@@ -64,4 +64,14 @@ def main():
         np.savetxt(f, ironman_zeros,fmt='%s', delimiter="_")
     f.close
     
-    os.system('cp ~/facenet/models/name-'+xtime+'.txt ~/facenet/models/name.txt' )
+    if len(glob.glob(os.path.expanduser('~')+'/facenet/models/trainbackup/'+xtime ))==0 :
+        os.mkdir(os.path.expanduser('~')+'/facenet/models/trainbackup/'+xtime  )
+    
+    os.system('cp '+os.path.expanduser('~')+'/facenet/models/name-'+xtime+'.txt ' +os.path.expanduser('~')+ '/facenet/models/name.txt' )
+    #os.system('copy ~/facenet/models/name-'+xtime+'.txt ~/facenet/models/name.txt') #windows
+    
+    
+    os.system('cp '+os.path.expanduser('~')+'/facenet/models/name-'+xtime+'.txt '+os.path.expanduser('~')+'/facenet/models/trainbackup/'+xtime+'/'+xtime +'.txt'  )
+    os.system('cp '+os.path.expanduser('~')+'/facenet/models/my_classifier.pkl '+os.path.expanduser('~')+'/facenet/models/trainbackup/'+xtime+'/my_classifier.pkl'  )
+    os.remove(os.path.expanduser('~')+'/facenet/models/name-'+xtime+'.txt')
+#main()

@@ -56,14 +56,20 @@ class ImageClass():
         return len(self.image_paths)
 
 
-def main(personget):
+def main(personget,mode):
     #global current
-    output_dir_path = '~/facenet/models/personout'
+    if mode=='person':
+        output_dir_path = '~/facenet/models/personout'
+        datadir = '~/facenet/models/person'
+    else:
+        output_dir_path =  '~/facenet/models/personout'
+        datadir = '~/facenet/datasets/historyImage'       
+    
     output_dir = os.path.expanduser(output_dir_path)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     
-    datadir = '~/facenet/models/person'
+    
     dataset = get_dataset(datadir,personget)
     print('dataset',dataset)
     

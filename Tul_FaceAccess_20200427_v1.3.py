@@ -31,7 +31,9 @@ import queue
 dpartment=[100,120,121,150,210,220,230,310,325,350,750,756,754,570,160,510,530,'IOTU','TCMC']
 q = queue.Queue(maxsize = 300)
 
-
+def deleteDuplicatedElementFromList3(listA):
+    #return list(set(listA))
+    return sorted(set(listA), key = listA.index)
 
 def readme():
     window_sign_up = tk.Toplevel(root)
