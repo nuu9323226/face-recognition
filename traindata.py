@@ -17,6 +17,7 @@ import classifierAll
 import namelist
 import shutil
 import sys
+import csv
 # windows版本打包指令 pyinstaller.exe -F -w .\user-gui-debug0427.py -i tul_logo.ico
 # windows版本 更改 Arial==>微軟正黑體
 
@@ -123,7 +124,7 @@ def hello():
     print('helloworld')
 
 def read_train_object():
-    train_name = open('datas/database_Employee.csv','r') 
+    train_name = open(os.path.expanduser('~')+'/facenet/models/database_Employee.csv','r') 
     
     lines = train_name.readlines()
     count=0
@@ -242,26 +243,31 @@ class secondpage(object):
         
         sourcefile=glob.glob(r'../models/person/*')
         
+        for file in sourcefile:
+            if len (glob.glob(file+'/*' ))==0:
+                sourcefile.remove(file)        
+        
+        
         self.newbuitin=[]
         fileid=[]
         count1=0
         for fileidinfo in sourcefile:
             
-            print(count1,fileidinfo)
+            #print(count1,fileidinfo)
             fileinfo=fileidinfo.split('/')
-            print(fileinfo[-1])
+            #print(fileinfo[-1])
             idinfo=fileinfo[-1].split('_')
-            print(idinfo[0])
+            #print(idinfo[0])
             count1=count1+1
             fileid.append(idinfo[0])
         
-        print('fileid',fileid)        
+        #print('fileid',fileid)        
         
         
         for numaa in fileid:
             try:
                 if "0" in buitinID[numaa] :
-                    print ('numaa',numaa)
+                    #print ('numaa',numaa)
                     self.newbuitin.append(numaa)
             except:
                 print (numaa,'沒有此員工編號')
@@ -311,6 +317,10 @@ class secondpage(object):
         
         self.Button = tk.Button(tab1, text='確定',font=('Arial', 12),justify = tk.LEFT,command=self.printcheckbutton ) 
         self.Button.grid(column=0,row=countid , sticky=tk.W ) 
+        self.Button4 = tk.Button(tab1, text='全選',font=('Arial', 12),justify = tk.LEFT,command=self.selectall1 ) 
+        self.Button4.grid(column=1,row=countid , sticky=tk.W )  
+        self.Button5 = tk.Button(tab1, text='清除',font=('Arial', 12),justify = tk.LEFT,command=self.disselectall1 ) 
+        self.Button5.grid(column=2,row=countid , sticky=tk.W )         
         
         
         #==================================================================================================
@@ -350,21 +360,21 @@ class secondpage(object):
         count1=0
         for fileidinfo in sourcefile:
             
-            print(count1,fileidinfo)
+            #print(count1,fileidinfo)
             fileinfo=fileidinfo.split('/')
-            print(fileinfo[-1])
+            #print(fileinfo[-1])
             idinfo=fileinfo[-1].split('_')
-            print(idinfo[0])
+            #print(idinfo[0])
             count1=count1+1
             fileid2.append(idinfo[0])
         
-        print('fileid2',fileid2)        
+        #print('fileid2',fileid2)        
         
         
         for numaa in fileid2:
             try:
                 if "1" in buitinID[numaa] :
-                    print ('numaa',numaa)
+                    #print ('numaa',numaa)
                     self.newbuitin2.append(numaa)
             except:
                 print (numaa,'沒有此員工編號')
@@ -376,12 +386,12 @@ class secondpage(object):
              
         
             #將locals改為globals則可以傳遞到def
-            globals()['self.Var'+str(newid)] = tk.IntVar()
-            globals()['self.check'+str(newid) ] = tk.Checkbutton(tab2, text='DP'+pdID[newid]+' '+persenID[newid], variable=globals()['self.Var'+str(newid)], onvalue=1, offvalue=0,font=('Arial', 12))
+            globals()['self.Var2_'+str(newid)] = tk.IntVar()
+            globals()['self.check2_'+str(newid) ] = tk.Checkbutton(tab2, text='DP'+pdID[newid]+' '+persenID[newid], variable=globals()['self.Var2_'+str(newid)], onvalue=1, offvalue=0,font=('Arial', 12))
             #globals()['self.check'+str(newid)].select()  
-            globals()['self.check'+str(newid)].grid(column=0, row=countid2, sticky=tk.W)        
+            globals()['self.check2_'+str(newid)].grid(column=0, row=countid2, sticky=tk.W)        
             countid2=countid2+1
-            print( newid,globals()['self.Var'+str(newid)].get()   )
+            print( newid,globals()['self.Var2_'+str(newid)].get()   )
             
         self.vartitle22=tk.StringVar()
         self.vartitle22.set("刪除的員工:" )
@@ -389,71 +399,86 @@ class secondpage(object):
         self.titleLabel22.grid(column=0, row=countid2, sticky=tk.W)          
         countid2=countid2+1 
         
-        values1=['無','DP754-030704-陳緯仁','DP754-030704-陳緯仁']
+        values1=[]
+        
+        
+        personout_file=glob.glob(r'../models/personout/*')
+        
+        
+        for file in personout_file:
+            pfile=file.split('/')
+            perid=pfile[-1].split('_')
+            if perid[0].isdigit()==True:
+                values1.append('DP'+pdID[perid[0]]+'-'+ perid[0]+'-'+ persenID[perid[0]])
+                
+        values1.sort()
+        values1.insert(0,'None')
+        ##values1=['無','DP754-030704-陳緯仁','DP754-030704-陳緯仁']
         print('values1',values1)
+        
         #選擇人員1名單bar
-        varspace=tk.StringVar()
-        varspace.set("人員1")
-        spaceLabel= tk.Label(tab2,textvariable=varspace, font=('Arial', 12),justify = tk.LEFT )
-        spaceLabel.grid(column=0, row=countid2, sticky=tk.W)   
+        varspace1=tk.StringVar()
+        varspace1.set("人員1")
+        spaceLabel1= tk.Label(tab2,textvariable=varspace1, font=('Arial', 12),justify = tk.LEFT )
+        spaceLabel1.grid(column=0, row=countid2, sticky=tk.W)   
 
-        self.comboExample = ttk.Combobox(tab2, width=20 ,values=values1 ,  font=('Arial', 12),state="readonly") 
-        print(dict(self.comboExample)) 
-        self.comboExample.grid(column=0, row=countid2,sticky=tk.N+tk.S)
-        self.comboExample.current(0)
-        print(self.comboExample.current(), self.comboExample.get())
+        self.comboExample1 = ttk.Combobox(tab2, width=20 ,values=values1 ,  font=('Arial', 12),state="readonly") 
+        print(dict(self.comboExample1)) 
+        self.comboExample1.grid(column=0, row=countid2,sticky=tk.N+tk.S)
+        self.comboExample1.current(0)
+        print('comboExample1',self.comboExample1.current(), self.comboExample1.get())
         countid2=countid2+1
         
         #選擇人員2名單bar
-        varspace=tk.StringVar()
-        varspace.set("人員2")
-        spaceLabel= tk.Label(tab2,textvariable=varspace, font=('Arial', 12),justify = tk.LEFT )
-        spaceLabel.grid(column=0, row=countid2, sticky=tk.W)   
+        varspace2=tk.StringVar()
+        varspace2.set("人員2")
+        spaceLabel2= tk.Label(tab2,textvariable=varspace2, font=('Arial', 12),justify = tk.LEFT )
+        spaceLabel2.grid(column=0, row=countid2, sticky=tk.W)   
      
-        self.comboExample = ttk.Combobox(tab2, width=20 ,values=values1 ,  font=('Arial', 12),state="readonly") 
-        print(dict(self.comboExample)) 
-        self.comboExample.grid(column=0, row=countid2,sticky=tk.N+tk.S)
-        self.comboExample.current(0)
-        print(self.comboExample.current(), self.comboExample.get())
+        self.comboExample2 = ttk.Combobox(tab2, width=20 ,values=values1 ,  font=('Arial', 12),state="readonly") 
+        #print(dict(self.comboExample2)) 
+        self.comboExample2.grid(column=0, row=countid2,sticky=tk.N+tk.S)
+        self.comboExample2.current(0)
+        print('comboExample2',self.comboExample2.current(), self.comboExample2.get())
         countid2=countid2+1
         
         #選擇人員3名單bar
-        varspace=tk.StringVar()
-        varspace.set("人員3")
-        spaceLabel= tk.Label(tab2,textvariable=varspace, font=('Arial', 12),justify = tk.LEFT )
-        spaceLabel.grid(column=0, row=countid2, sticky=tk.W)   
+        varspace3=tk.StringVar()
+        varspace3.set("人員3")
+        spaceLabel3= tk.Label(tab2,textvariable=varspace3, font=('Arial', 12),justify = tk.LEFT )
+        spaceLabel3.grid(column=0, row=countid2, sticky=tk.W)   
         
-        self.comboExample = ttk.Combobox(tab2, width=20 ,values=values1 ,  font=('Arial', 12),state="readonly") 
-        print(dict(self.comboExample)) 
-        self.comboExample.grid(column=0, row=countid2,sticky=tk.N+tk.S)
-        self.comboExample.current(0)
-        print(self.comboExample.current(), self.comboExample.get())
+        self.comboExample3 = ttk.Combobox(tab2, width=20 ,values=values1 ,  font=('Arial', 12),state="readonly") 
+        #print(dict(self.comboExample3)) 
+        self.comboExample3.grid(column=0, row=countid2,sticky=tk.N+tk.S)
+        self.comboExample3.current(0)
+        print('comboExample3',self.comboExample3.current(), self.comboExample3.get())
         countid2=countid2+1
         
         #選擇人員4名單bar
-        varspace=tk.StringVar()
-        varspace.set("人員4")
-        spaceLabel= tk.Label(tab2,textvariable=varspace, font=('Arial', 12),justify = tk.LEFT )
-        spaceLabel.grid(column=0, row=countid2, sticky=tk.W)   
+        varspace4=tk.StringVar()
+        varspace4.set("人員4")
+        spaceLabel4= tk.Label(tab2,textvariable=varspace4, font=('Arial', 12),justify = tk.LEFT )
+        spaceLabel4.grid(column=0, row=countid2, sticky=tk.W)   
         
-        self.comboExample = ttk.Combobox(tab2, width=20 ,values=values1 ,  font=('Arial', 12),state="readonly") 
-        print(dict(self.comboExample)) 
-        self.comboExample.grid(column=0, row=countid2,sticky=tk.N+tk.S)
-        self.comboExample.current(0)
-        print(self.comboExample.current(), self.comboExample.get())
+        self.comboExample4 = ttk.Combobox(tab2, width=20 ,values=values1 ,  font=('Arial', 12),state="readonly") 
+        #print(dict(self.comboExample4)) 
+        self.comboExample4.grid(column=0, row=countid2,sticky=tk.N+tk.S)
+        self.comboExample4.current(0)
+        print('comboExample4',self.comboExample4.current(), self.comboExample4.get())
         countid2=countid2+1
         
         #選擇人員5名單bar
-        varspace=tk.StringVar()
-        varspace.set("人員5")
-        spaceLabel= tk.Label(tab2,textvariable=varspace, font=('Arial', 12),justify = tk.LEFT )
-        spaceLabel.grid(column=0, row=countid2, sticky=tk.W)   
+        varspace5=tk.StringVar()
+        varspace5.set("人員5")
+        spaceLabel5= tk.Label(tab2,textvariable=varspace5, font=('Arial', 12),justify = tk.LEFT )
+        spaceLabel5.grid(column=0, row=countid2, sticky=tk.W)   
         
-        self.comboExample = ttk.Combobox(tab2, width=20 ,values=values1 ,  font=('Arial', 12),state="readonly") 
-        print(dict(self.comboExample)) 
-        self.comboExample.grid(column=0, row=countid2,sticky=tk.N+tk.S)
-        self.comboExample.current(0)
-        print(self.comboExample.current(), self.comboExample.get())
+        self.comboExample5 = ttk.Combobox(tab2, width=20 ,values=values1 ,  font=('Arial', 12),state="readonly") 
+        #print(dict(self.comboExample5)) 
+        self.comboExample5.grid(column=0, row=countid2,sticky=tk.N+tk.S)
+        self.comboExample5.current(0)
+        print('comboExample5',self.comboExample5.current(), self.comboExample5.get())
         countid2=countid2+1     
         
         spaceLabel= tk.Label(tab2,textvariable="             " )
@@ -461,7 +486,11 @@ class secondpage(object):
         countid2=countid2+1
         
         self.Button2 = tk.Button(tab2, text='確定',font=('Arial', 12),justify = tk.LEFT,command=self.printcheckbutton2 ) 
-        self.Button2.grid(column=0,row=countid2 , sticky=tk.W )         
+        self.Button2.grid(column=0,row=countid2 , sticky=tk.W )
+        self.Button4 = tk.Button(tab2, text='全選',font=('Arial', 12),justify = tk.LEFT,command=self.selectall2 ) 
+        self.Button4.grid(column=1,row=countid2 , sticky=tk.W )  
+        self.Button5 = tk.Button(tab2, text='清除',font=('Arial', 12),justify = tk.LEFT,command=self.disselectall2 ) 
+        self.Button5.grid(column=2,row=countid2 , sticky=tk.W )          
         
         
         #==================================================================================================
@@ -472,7 +501,7 @@ class secondpage(object):
             if len (glob.glob(file+'/*' ))==0:
                 sourcefile3.remove(file)
                 #print(len (glob.glob(file+'/*' )),file)
-        print('after sourcefile3',sourcefile3)       
+        #print('after sourcefile3',sourcefile3)       
         
         self.vartitle2=tk.StringVar()
         self.vartitle2.set("補充影像" )
@@ -548,10 +577,10 @@ class secondpage(object):
             #將locals改為globals則可以傳遞到def
             globals()['self.Var3_'+str(spartnumber[1])] = tk.IntVar()
             globals()['self.check3_'+str(spartnumber[1]) ] = tk.Checkbutton(tab3, text='DP'+spartnumber[0]+' '+ persenID[spartnumber[1]], variable=globals()['self.Var3_'+str(spartnumber[1])], onvalue=1, offvalue=0,font=('Arial', 12))
-            #globals()['self.check'+str(newid)].select()  
+            #globals()['self.check3_'+str(spartnumber[1])].select()   
             globals()['self.check3_'+str(spartnumber[1])].grid(column=rowline, row=countid3, sticky=tk.W)        
             
-            print( newid,globals()['self.Var3_'+str(spartnumber[1])].get()   )   
+            #print( newid,globals()['self.Var3_'+str(spartnumber[1])].get()   )   
             rowline=rowline+1
             if rowline==5:
                 countid3=countid3+1
@@ -564,13 +593,66 @@ class secondpage(object):
             
         self.Button3 = tk.Button(tab3, text='確定',font=('Arial', 12),justify = tk.LEFT,command=self.printcheckbutton3 ) 
         self.Button3.grid(column=0,row=countid3 , sticky=tk.W )         
-        
+        self.Button4 = tk.Button(tab3, text='全選',font=('Arial', 12),justify = tk.LEFT,command=self.selectall3 ) 
+        self.Button4.grid(column=1,row=countid3 , sticky=tk.W )  
+        self.Button5 = tk.Button(tab3, text='清除',font=('Arial', 12),justify = tk.LEFT,command=self.disselectall3 ) 
+        self.Button5.grid(column=2,row=countid3 , sticky=tk.W )          
         
       #=====================================================================================
         
-        
+    
         
         root.mainloop()   
+        
+    def disselectall3(self):
+        for newid in self.newbuitin3:
+        
+            spartnumber=newid.split('-')
+            globals()['self.check3_'+str(spartnumber[1])].deselect()                
+        root.mainloop()  
+        
+    def selectall3(self):
+        for newid in self.newbuitin3:
+        
+            spartnumber=newid.split('-')
+            globals()['self.check3_'+str(spartnumber[1])].select()                
+        root.mainloop()  
+        
+    def disselectall2(self):
+        for newid in self.newbuitin2:
+        
+       
+            globals()['self.check2_'+str(newid)].deselect()                
+        root.mainloop()  
+        
+    def selectall2(self):
+        for newid in self.newbuitin2:
+        
+   
+            globals()['self.check2_'+str(newid)].select()                
+        root.mainloop()  
+        
+
+    def disselectall1(self):
+        for newid in self.newbuitin:
+        
+       
+            globals()['self.check'+str(newid)].deselect()                
+        root.mainloop()  
+        
+    def selectall1(self):
+        for newid in self.newbuitin:
+        
+            globals()['self.check'+str(newid)].select()                
+        root.mainloop()  
+        
+
+
+
+
+
+
+
     def printcheckbutton3(self):
         personget=[]
         newpersonget=[]
@@ -609,17 +691,51 @@ class secondpage(object):
         personget=[]
         newpersonget=[]
         personzh=[]
+        
+        #刪除的名單
+        delelist=[]
+        delelistzh=[]
+        if self.comboExample1.get()!='None':
+            get1=self.comboExample1.get().split('-')
+            delelist.append( get1[1] ) 
+            delelistzh.append( get1[2] ) 
+        if self.comboExample2.get()!='None':
+            get2=self.comboExample2.get().split('-')
+            delelist.append( get2[1] )
+            delelistzh.append( get2[2] ) 
+        if self.comboExample3.get()!='None':
+            get3=self.comboExample3.get().split('-')
+            delelist.append( get3[1] ) 
+            delelistzh.append( get3[2] ) 
+        if self.comboExample4.get()!='None':
+            get4=self.comboExample4.get().split('-')
+            delelist.append( get4[1] )
+            delelistzh.append( get4[2] ) 
+        if self.comboExample5.get()!='None':
+            get5=self.comboExample5.get().split('-')
+            delelist.append( get5[1] )   
+            delelistzh.append( get5[2] ) 
+        print('delelist',delelist)        
+        
+        
         for newid in self.newbuitin2:
-            print (newid,globals()['self.Var'+str(newid)].get() )
-            if globals()['self.Var'+str(newid)].get()==1:
+            print (newid,globals()['self.Var2_'+str(newid)].get() )
+            if globals()['self.Var2_'+str(newid)].get()==1:
                 personget.append(newid)
                 personzh.append(persenID[newid])
         print('personget',personget)
         print('personzh',personzh)
-        answer=self.msgBox1(personzh)
+        answer=self.msgBox22(personzh,delelistzh)
         print ('answer',answer)
+        
+        
+        
+        
         if answer==True :
                 
+            for mvperson in delelist :
+                shutil.move(os.path.expanduser('~')+'/facenet/models/personout/'+mvperson+'_'+ennameID[mvperson],os.path.expanduser('~')+'/facenet/models/personout_delete/'+mvperson+'_'+ennameID[mvperson] )            
+             
             global current
             ts=threading.Thread(target=progress)
             ts.start()          
@@ -633,9 +749,10 @@ class secondpage(object):
             current=100
             
             time.sleep(1)
-            self.msgBox12(personzh)       
+            self.msgBox23(personzh,delelistzh)       
             mode='person'
             self.To_picsize(personget,mode ) 
+            
  
 
     def printcheckbutton(self):
@@ -711,6 +828,25 @@ class secondpage(object):
         else:
             return answer
         
+    def msgBox22(self,personzh,delelistzh):
+        ding=" ".join(personzh)
+        ding2=" ".join(delelistzh)
+        answer=tk.messagebox.askyesno( title='訊息', message='本次編輯 %s %d位人員，刪除 %s %d位人員?'%(ding,len(personzh),ding2,len(delelistzh) ) )    
+        if answer==True:
+            return answer
+        else:
+            return answer      
+        
+    def msgBox23(self,personzh,delelistzh):
+        ding=" ".join(personzh)
+        ding2=" ".join(delelistzh)
+        answer=tk.messagebox.askyesno( title='訊息', message='完成 %s %d位人員影像裁切，刪除 %s %d位人員'%(ding,len(personzh),ding2,len(delelistzh) ) )    
+        if answer==True:
+            return answer
+        else:
+            return answer     
+        
+        
     def msgBox12(self,personzh):
         ding=" ".join(personzh)
         tk.messagebox.showinfo( title='訊息', message='完成 %s %d位人員影像裁切'%(ding,len(personzh) ) )    
@@ -736,7 +872,7 @@ class picsize_page(object):
        
                 
         self.vartitle=tk.StringVar()
-        self.vartitle.set("影像訓練前檢視Image labeling(2/3)" )
+        self.vartitle.set("影像訓練前檢視Image labeling  步驟(2/3)" )
         self.titleLabel= tk.Label(self.page,textvariable=self.vartitle, font=('Arial', 14),justify = tk.RIGHT )
         self.titleLabel.grid(column=0, row=0, sticky=tk.W)  
         
@@ -754,7 +890,7 @@ class picsize_page(object):
      
         
         for personget in self.personq :
-            self.Button = tk.Button(self.page, text=persenID[personget], font=('Arial', 12),justify = tk.LEFT,command=partial(self.openfile,'~/facenet/models/personout/'+ personget+'_'+ennameID[personget])) 
+            self.Button = tk.Button(self.page, text='DP'+pdID[personget]+' '+persenID[personget], font=('Arial', 12),justify = tk.LEFT,command=partial(self.openfile,'~/facenet/models/personout/'+ personget+'_'+ennameID[personget])) 
             self.Button.grid(column=0,row=countid, sticky=tk.W)
             countid=countid+1
         
@@ -779,6 +915,8 @@ class picsize_page(object):
         
     def To_train(self,personq,mode ):
         
+
+            
         print('personq,mode',personq,mode)
         self.page.destroy()
         training_page(self.root,personq,mode)      
@@ -819,12 +957,12 @@ class training_page(object):
         
         
         self.vartitle=tk.StringVar()
-        self.vartitle.set("影像訓練(Image training)(3/3)" )
+        self.vartitle.set("影像訓練Image training  步驟(3/3)" )
         self.titleLabel= tk.Label(self.page,textvariable=self.vartitle, font=('Arial', 14),justify = tk.RIGHT )
         self.titleLabel.grid(column=0, row=0, sticky=tk.W)  
         
         self.vartitle=tk.StringVar()
-        self.vartitle.set("本次圖像訓練資料人員如下：" )
+        self.vartitle.set("本次編輯圖像訓練資料人員如下：" )
         self.titleLabel= tk.Label(self.page,textvariable=self.vartitle, font=('Arial', 12),justify = tk.RIGHT )
         self.titleLabel.grid(column=0, row=1, sticky=tk.W)          
         
@@ -849,7 +987,7 @@ class training_page(object):
         
         
         self.Varlater= tk.IntVar()
-        self.checklater = tk.Checkbutton(self.page, text='設定為稍後訓練，訓練時間改為離峰時段', variable=self.Varlater, onvalue=1, offvalue=0,font=('Arial', 12))
+        self.checklater = tk.Checkbutton(self.page, text='設定為稍後訓練，訓練時間改為離峰時段', variable=self.Varlater, onvalue=1, offvalue=1,font=('Arial', 12))
         self.checklater.grid(column=0, row=countid, sticky=tk.W)        
         countid=countid+1
         print( 'Varlater.get()',self.Varlater.get() )  
@@ -885,7 +1023,7 @@ class training_page(object):
         
     def msgBox12(self,personzh):
         ding=" ".join(personzh)
-        tk.messagebox.showinfo( title='訊息', message='完成training影像辨識模型'  ) 
+        tk.messagebox.showinfo( title='訊息', message='已經完成訓練模型，請重新啟動門禁系統，即可更新資料'  ) 
     def msgBox13(self):
         tk.messagebox.showinfo( title='訊息', message='設定完成，將於離峰時間20時training影像辨識模型'  ) 
         
@@ -905,6 +1043,23 @@ class training_page(object):
                     for mvperson in self.personq :
                         shutil.move(os.path.expanduser('~')+'/facenet/models/person/'+mvperson+'_'+ennameID[mvperson],os.path.expanduser('~')+'/facenet/models/trainout/'+mvperson+'_'+ennameID[mvperson] )              
      
+                #修改database的新建立者為已建立者
+                onlyuse = np.loadtxt(open(os.path.expanduser('~')+'/facenet/models/database_Employee.csv',encoding='utf-8'),dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5,6,7))
+                
+                for perlist in self.personq:
+                    onlyuseindex=np.argwhere(onlyuse==perlist)
+                    print('onlyuseindex',onlyuseindex)
+                    print(onlyuseindex[:,0])
+                    #print('person_only',person_only)
+                    onlyuse[onlyuseindex[:,0],0]=1
+                print('after onlyuse',onlyuse)
+                
+                if len (glob.glob(os.path.expanduser('~')+'/facenet/models/database_Employee.csv'))==1:
+                    os.remove(os.path.expanduser('~')+'/facenet/models/database_Employee.csv')
+                              
+                with open(os.path.expanduser('~')+'/facenet/models/database_Employee.csv','a',encoding = 'utf-8') as f: 
+                    np.savetxt(f, onlyuse,fmt='%s', delimiter=",") 
+                            
                 self.msgBox13()       
                 
                 
@@ -917,7 +1072,8 @@ class training_page(object):
                 global current
                 ts=threading.Thread(target=progress2)
                 ts.start()
-                classifierAll.main()                    
+                classifierAll.main()      
+                namelist.main()
                 current=100
                 time.sleep(1)
                 
@@ -927,7 +1083,27 @@ class training_page(object):
                 else:
                     for mvperson in self.personq :
                         shutil.move(os.path.expanduser('~')+'/facenet/models/person/'+mvperson+'_'+ennameID[mvperson],os.path.expanduser('~')+'/facenet/models/trainout/'+mvperson+'_'+ennameID[mvperson] )              
-    
+                
+           
+                #修改database的新建立者為已建立者
+                onlyuse = np.loadtxt(open(os.path.expanduser('~')+'/facenet/models/database_Employee.csv',encoding='utf-8'),dtype=np.str,delimiter=',',usecols=(0,1,2,3,4,5,6,7))
+                
+                for perlist in self.personq:
+                    onlyuseindex=np.argwhere(onlyuse==perlist)
+                    print('onlyuseindex',onlyuseindex)
+                    print(onlyuseindex[:,0])
+                    #print('person_only',person_only)
+                    onlyuse[onlyuseindex[:,0],0]=1
+                print('after onlyuse',onlyuse)
+                
+                if len (glob.glob(os.path.expanduser('~')+'/facenet/models/database_Employee.csv'))==1:
+                    os.remove(os.path.expanduser('~')+'/facenet/models/database_Employee.csv')
+                              
+                with open(os.path.expanduser('~')+'/facenet/models/database_Employee.csv','a',encoding = 'utf-8') as f: 
+                    np.savetxt(f, onlyuse,fmt='%s', delimiter=",")                 
+                     
+                     
+                     
                 self.msgBox12(personzh)    
                 
         
@@ -962,7 +1138,7 @@ root = tk.Tk()
 # root = tk.Toplevel()
 # https://blog.csdn.net/FunkyPants/article/details/78163021
 
-root.title('撼訊科技 人資查詢系統')
+root.title('撼訊科技 影像模型編輯系統')
 root.geometry('500x800')
 
 menubar = tk.Menu(root)
